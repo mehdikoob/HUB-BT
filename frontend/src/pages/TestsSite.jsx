@@ -346,14 +346,14 @@ const TestsSite = () => {
           <Filter size={20} className="text-gray-600" />
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select
-              value={filters.programme_id}
-              onValueChange={(value) => setFilters({ ...filters, programme_id: value })}
+              value={filters.programme_id || undefined}
+              onValueChange={(value) => setFilters({ ...filters, programme_id: value === 'all' ? '' : value })}
             >
               <SelectTrigger data-testid="filter-programme-select">
                 <SelectValue placeholder="Filtrer par programme" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les programmes</SelectItem>
+                <SelectItem value="all">Tous les programmes</SelectItem>
                 {programmes.map((prog) => (
                   <SelectItem key={prog.id} value={prog.id}>
                     {prog.nom}
@@ -362,14 +362,14 @@ const TestsSite = () => {
               </SelectContent>
             </Select>
             <Select
-              value={filters.partenaire_id}
-              onValueChange={(value) => setFilters({ ...filters, partenaire_id: value })}
+              value={filters.partenaire_id || undefined}
+              onValueChange={(value) => setFilters({ ...filters, partenaire_id: value === 'all' ? '' : value })}
             >
               <SelectTrigger data-testid="filter-partenaire-select">
                 <SelectValue placeholder="Filtrer par partenaire" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les partenaires</SelectItem>
+                <SelectItem value="all">Tous les partenaires</SelectItem>
                 {partenaires.map((part) => (
                   <SelectItem key={part.id} value={part.id}>
                     {part.nom}
