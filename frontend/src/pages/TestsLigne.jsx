@@ -1,0 +1,481 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Plus, Download, Trash2, Filter } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const TestsLigne = () => {
+  const [tests, setTests] = useState([]);
+  const [programmes, setProgrammes] = useState([]);
+  const [partenaires, setPartenaires] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    programme_id: '',
+    partenaire_id: '',
+  });
+  const [formData, setFormData] = useState({
+    programme_id: '',
+    partenaire_id: '',
+    date_test: '',
+    numero_telephone: '',
+    messagerie_vocale_dediee: false,
+    decroche_dedie: false,
+    delai_attente: '',
+    nom_conseiller: 'NC',
+    evaluation_accueil: 'Bien',
+    application_offre: true,
+    commentaire: '',
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    fetchTests();
+  }, [filters]);
+
+  const fetchData = async () => {
+    try {
+      const [progResponse, partResponse] = await Promise.all([
+        axios.get(`${API}/programmes`),
+        axios.get(`${API}/partenaires`),
+      ]);
+      setProgrammes(progResponse.data);
+      setPartenaires(partResponse.data);
+    } catch (error) {
+      console.error('Erreur:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTests = async () => {
+    try {
+      const params = {};
+      if (filters.programme_id) params.programme_id = filters.programme_id;
+      if (filters.partenaire_id) params.partenaire_id = filters.partenaire_id;
+      
+      const response = await axios.get(`${API}/tests-ligne`, { params });
+      setTests(response.data);
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Erreur lors du chargement des tests');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate delai_attente format
+    const delaiParts = formData.delai_attente.split(':');
+    if (delaiParts.length !== 2) {
+      toast.error('Format de délai invalide. Utilisez mm:ss');
+      return;
+    }
+    
+    const minutes = parseInt(delaiParts[0]);
+    const seconds = parseInt(delaiParts[1]);
+    
+    if (isNaN(minutes) || isNaN(seconds) || seconds > 59 || minutes >= 10) {
+      toast.error('Délai invalide. Les minutes doivent être < 10 et les secondes < 60');
+      return;
+    }
+
+    try {
+      const submitData = {
+        ...formData,
+        date_test: new Date(formData.date_test).toISOString(),
+      };
+      
+      await axios.post(`${API}/tests-ligne`, submitData);
+      toast.success('Test ligne enregistré avec succès');
+      setDialogOpen(false);
+      resetForm();
+      fetchTests();
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error(error.response?.data?.detail?.[0]?.msg || error.response?.data?.detail || 'Erreur lors de l\'enregistrement');
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      programme_id: '',
+      partenaire_id: '',
+      date_test: '',
+      numero_telephone: '',
+      messagerie_vocale_dediee: false,
+      decroche_dedie: false,
+      delai_attente: '',
+      nom_conseiller: 'NC',
+      evaluation_accueil: 'Bien',
+      application_offre: true,
+      commentaire: '',
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce test ?')) return;
+    try {
+      await axios.delete(`${API}/tests-ligne/${id}`);
+      toast.success('Test supprimé');
+      fetchTests();
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Erreur lors de la suppression');
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      const params = {};
+      if (filters.programme_id) params.programme_id = filters.programme_id;
+      if (filters.partenaire_id) params.partenaire_id = filters.partenaire_id;
+      
+      const response = await axios.get(`${API}/export/tests-ligne`, {
+        params,
+        responseType: 'blob',
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `tests_ligne_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Export réussi');
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Erreur lors de l\'export');
+    }
+  };
+
+  const getProgrammeName = (id) => {
+    const prog = programmes.find((p) => p.id === id);
+    return prog ? prog.nom : id;
+  };
+
+  const getPartenaireName = (id) => {
+    const part = partenaires.find((p) => p.id === id);
+    return part ? part.nom : id;
+  };
+
+  if (loading) {
+    return <div className="text-center py-8">Chargement...</div>;
+  }
+
+  return (
+    <div data-testid="tests-ligne-page">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
+            Tests Ligne
+          </h1>
+          <p className="text-gray-600">Gestion des tests téléphoniques</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleExportCSV}
+            data-testid="export-csv-btn"
+            variant="outline"
+            className="border-red-600 text-red-600 hover:bg-red-50"
+          >
+            <Download size={20} className="mr-2" />
+            Export CSV
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                onClick={resetForm}
+                data-testid="add-test-ligne-btn"
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <Plus size={20} className="mr-2" />
+                Nouveau test
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Nouveau test ligne</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="programme_id">Programme *</Label>
+                    <Select
+                      value={formData.programme_id}
+                      onValueChange={(value) => setFormData({ ...formData, programme_id: value })}
+                      required
+                    >
+                      <SelectTrigger data-testid="test-ligne-programme-select">
+                        <SelectValue placeholder="Sélectionnez un programme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {programmes.map((prog) => (
+                          <SelectItem key={prog.id} value={prog.id}>
+                            {prog.nom}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="partenaire_id">Partenaire *</Label>
+                    <Select
+                      value={formData.partenaire_id}
+                      onValueChange={(value) => setFormData({ ...formData, partenaire_id: value })}
+                      required
+                    >
+                      <SelectTrigger data-testid="test-ligne-partenaire-select">
+                        <SelectValue placeholder="Sélectionnez un partenaire" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {partenaires.map((part) => (
+                          <SelectItem key={part.id} value={part.id}>
+                            {part.nom}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="date_test">Date du test *</Label>
+                  <Input
+                    id="date_test"
+                    type="datetime-local"
+                    data-testid="test-ligne-date-input"
+                    value={formData.date_test}
+                    onChange={(e) => setFormData({ ...formData, date_test: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="numero_telephone">Numéro de téléphone *</Label>
+                  <Input
+                    id="numero_telephone"
+                    data-testid="test-ligne-telephone-input"
+                    value={formData.numero_telephone}
+                    onChange={(e) => setFormData({ ...formData, numero_telephone: e.target.value })}
+                    placeholder="+33 X XX XX XX XX"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="delai_attente">Délai d'attente (mm:ss) *</Label>
+                  <Input
+                    id="delai_attente"
+                    data-testid="test-ligne-delai-input"
+                    value={formData.delai_attente}
+                    onChange={(e) => setFormData({ ...formData, delai_attente: e.target.value })}
+                    placeholder="02:30"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="nom_conseiller">Nom du conseiller</Label>
+                  <Input
+                    id="nom_conseiller"
+                    data-testid="test-ligne-conseiller-input"
+                    value={formData.nom_conseiller}
+                    onChange={(e) => setFormData({ ...formData, nom_conseiller: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="evaluation_accueil">Évaluation de l'accueil *</Label>
+                  <Select
+                    value={formData.evaluation_accueil}
+                    onValueChange={(value) => setFormData({ ...formData, evaluation_accueil: value })}
+                    required
+                  >
+                    <SelectTrigger data-testid="test-ligne-evaluation-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Excellent">Excellent</SelectItem>
+                      <SelectItem value="Bien">Bien</SelectItem>
+                      <SelectItem value="Moyen">Moyen</SelectItem>
+                      <SelectItem value="Médiocre">Médiocre</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="messagerie_vocale_dediee"
+                      data-testid="test-ligne-messagerie-checkbox"
+                      checked={formData.messagerie_vocale_dediee}
+                      onChange={(e) => setFormData({ ...formData, messagerie_vocale_dediee: e.target.checked })}
+                      className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                    />
+                    <Label htmlFor="messagerie_vocale_dediee" className="mb-0">Messagerie dédiée</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="decroche_dedie"
+                      data-testid="test-ligne-decroche-checkbox"
+                      checked={formData.decroche_dedie}
+                      onChange={(e) => setFormData({ ...formData, decroche_dedie: e.target.checked })}
+                      className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                    />
+                    <Label htmlFor="decroche_dedie" className="mb-0">Décroche dédié</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="application_offre"
+                      data-testid="test-ligne-application-offre-checkbox"
+                      checked={formData.application_offre}
+                      onChange={(e) => setFormData({ ...formData, application_offre: e.target.checked })}
+                      className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                    />
+                    <Label htmlFor="application_offre" className="mb-0">Application de l'offre</Label>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="commentaire">Commentaire</Label>
+                  <Textarea
+                    id="commentaire"
+                    data-testid="test-ligne-commentaire-input"
+                    value={formData.commentaire}
+                    onChange={(e) => setFormData({ ...formData, commentaire: e.target.value })}
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                    Annuler
+                  </Button>
+                  <Button type="submit" data-testid="save-test-ligne-btn" className="bg-red-600 hover:bg-red-700">
+                    Enregistrer
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <Card className="mb-6 p-4 border-0 shadow-sm">
+        <div className="flex items-center gap-4">
+          <Filter size={20} className="text-gray-600" />
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Select
+              value={filters.programme_id}
+              onValueChange={(value) => setFilters({ ...filters, programme_id: value })}
+            >
+              <SelectTrigger data-testid="filter-programme-select">
+                <SelectValue placeholder="Filtrer par programme" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Tous les programmes</SelectItem>
+                {programmes.map((prog) => (
+                  <SelectItem key={prog.id} value={prog.id}>
+                    {prog.nom}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={filters.partenaire_id}
+              onValueChange={(value) => setFilters({ ...filters, partenaire_id: value })}
+            >
+              <SelectTrigger data-testid="filter-partenaire-select">
+                <SelectValue placeholder="Filtrer par partenaire" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Tous les partenaires</SelectItem>
+                {partenaires.map((part) => (
+                  <SelectItem key={part.id} value={part.id}>
+                    {part.nom}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
+      {/* Tests Table */}
+      <Card className="border-0 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Programme</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Partenaire</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Téléphone</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Délai</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Accueil</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Offre appliquée</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {tests.map((test) => (
+                <tr key={test.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    {format(new Date(test.date_test), 'dd/MM/yyyy HH:mm')}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{getProgrammeName(test.programme_id)}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{test.numero_telephone}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{test.delai_attente}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{test.evaluation_accueil}</td>
+                  <td className="px-4 py-3 text-sm">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        test.application_offre
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {test.application_offre ? 'OUI' : 'NON'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(test.id)}
+                      data-testid={`delete-test-${test.id}`}
+                    >
+                      <Trash2 size={16} className="text-red-600" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {tests.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 mb-4">Aucun test pour le moment</p>
+          <Button onClick={resetForm} className="bg-red-600 hover:bg-red-700">
+            Créer le premier test
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TestsLigne;
