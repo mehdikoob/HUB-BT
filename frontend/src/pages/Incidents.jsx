@@ -62,12 +62,12 @@ const Incidents = () => {
       <Card className="mb-6 p-4 border-0 shadow-sm">
         <div className="flex items-center gap-4">
           <Filter size={20} className="text-gray-600" />
-          <Select value={filter} onValueChange={setFilter}>
+          <Select value={filter || undefined} onValueChange={(value) => setFilter(value === 'all' ? '' : value)}>
             <SelectTrigger data-testid="filter-statut-select" className="w-64">
               <SelectValue placeholder="Filtrer par statut" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tous les incidents</SelectItem>
+              <SelectItem value="all">Tous les incidents</SelectItem>
               <SelectItem value="ouvert">Ouverts</SelectItem>
               <SelectItem value="resolu">Résolus</SelectItem>
             </SelectContent>
