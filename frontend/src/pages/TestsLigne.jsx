@@ -475,41 +475,85 @@ const TestsLigne = () => {
 
       {/* Filters */}
       <Card className="mb-6 p-4 border-0 shadow-sm">
-        <div className="flex items-center gap-4">
-          <Filter size={20} className="text-gray-600" />
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Select
-              value={filters.programme_id || undefined}
-              onValueChange={(value) => setFilters({ ...filters, programme_id: value === 'all' ? '' : value })}
-            >
-              <SelectTrigger data-testid="filter-programme-select">
-                <SelectValue placeholder="Filtrer par programme" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les programmes</SelectItem>
-                {programmes.map((prog) => (
-                  <SelectItem key={prog.id} value={prog.id}>
-                    {prog.nom}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={filters.partenaire_id || undefined}
-              onValueChange={(value) => setFilters({ ...filters, partenaire_id: value === 'all' ? '' : value })}
-            >
-              <SelectTrigger data-testid="filter-partenaire-select">
-                <SelectValue placeholder="Filtrer par partenaire" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les partenaires</SelectItem>
-                {partenaires.map((part) => (
-                  <SelectItem key={part.id} value={part.id}>
-                    {part.nom}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Filter size={20} className="text-gray-600" />
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Select
+                value={filters.programme_id || undefined}
+                onValueChange={(value) => setFilters({ ...filters, programme_id: value === 'all' ? '' : value })}
+              >
+                <SelectTrigger data-testid="filter-programme-select">
+                  <SelectValue placeholder="Filtrer par programme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les programmes</SelectItem>
+                  {programmes.map((prog) => (
+                    <SelectItem key={prog.id} value={prog.id}>
+                      {prog.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={filters.partenaire_id || undefined}
+                onValueChange={(value) => setFilters({ ...filters, partenaire_id: value === 'all' ? '' : value })}
+              >
+                <SelectTrigger data-testid="filter-partenaire-select">
+                  <SelectValue placeholder="Filtrer par partenaire" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les partenaires</SelectItem>
+                  {partenaires.map((part) => (
+                    <SelectItem key={part.id} value={part.id}>
+                      {part.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="w-5" />
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="filter-date-debut" className="text-sm text-gray-600 mb-1.5 block">
+                  Date de début
+                </Label>
+                <Input
+                  id="filter-date-debut"
+                  type="date"
+                  data-testid="filter-date-debut"
+                  value={filters.date_debut}
+                  onChange={(e) => setFilters({ ...filters, date_debut: e.target.value })}
+                  placeholder="Date de début"
+                />
+              </div>
+              <div>
+                <Label htmlFor="filter-date-fin" className="text-sm text-gray-600 mb-1.5 block">
+                  Date de fin
+                </Label>
+                <Input
+                  id="filter-date-fin"
+                  type="date"
+                  data-testid="filter-date-fin"
+                  value={filters.date_fin}
+                  onChange={(e) => setFilters({ ...filters, date_fin: e.target.value })}
+                  placeholder="Date de fin"
+                />
+              </div>
+            </div>
+            {(filters.date_debut || filters.date_fin) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFilters({ ...filters, date_debut: '', date_fin: '' })}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                Effacer dates
+              </Button>
+            )}
           </div>
         </div>
       </Card>
