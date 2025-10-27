@@ -306,9 +306,36 @@ const PartenairesNew = () => {
         </Dialog>
       </div>
 
+      {/* Barre de recherche */}
+      <Card className="mb-6 p-4 border-0 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 relative">
+            <Input
+              type="text"
+              placeholder="Rechercher un partenaire, programme ou naming..."
+              data-testid="search-partenaire-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-4 pr-10"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <div className="text-sm text-gray-600">
+            {filteredPartenaires.length} partenaire{filteredPartenaires.length > 1 ? 's' : ''}
+          </div>
+        </div>
+      </Card>
+
       {/* Liste des partenaires */}
       <div className="space-y-3">
-        {partenaires.map((partenaire) => {
+        {filteredPartenaires.map((partenaire) => {
           const isExpanded = expandedId === partenaire.id;
           const linkedProgrammes = partenaire.programmes_ids || [];
           
