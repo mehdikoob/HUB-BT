@@ -687,6 +687,154 @@ async def export_bilan_partenaire(
         headers={"Content-Disposition": f"attachment; filename=bilan_{partenaire['nom']}_{date_debut}_{date_fin}.csv"}
     )
 
+# Routes - Export Bilan Excel Tests Site
+@api_router.get("/export/bilan-site-excel")
+async def export_bilan_site_excel(
+    partenaire_id: str = Query(...),
+    date_debut: str = Query(...),
+    date_fin: str = Query(...)
+):
+    from datetime import datetime as dt
+    
+    # Récupérer le partenaire
+    partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
+    if not partenaire:
+        raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+    
+    # Récupérer tous les programmes
+    programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
+    programmes_dict = {p['id']: p['nom'] for p in programmes}
+    
+    # Query pour tous les tests site du partenaire dans la période
+    query = {
+        'partenaire_id': partenaire_id,
+        'date_test': {
+            '$gte': date_debut,
+            '$lte': date_fin
+        }
+    }
+    
+    tests_site = await db.tests_site.find(query, {"_id": 0}).to_list(10000)
+    
+    # Créer le workbook Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Tests site"
+    
+    # Styles
+    header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='C00000', end_color='C00000', fill_type='solid')
+    header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    
+    title_font = Font(name='Calibri', size=14, bold=True, color='C00000')
+    title_alignment = Alignment(horizontal='center', vertical='center')
+    
+    cell_alignment_center = Alignment(horizontal='center', vertical='center')
+    cell_alignment_left = Alignment(horizontal='left', vertical='center')
+    
+    border_style = Border(
+        left=Side(style='thin', color='000000'),
+        right=Side(style='thin', color='000000'),
+        top=Side(style='thin', color='000000'),
+        bottom=Side(style='thin', color='000000')
+    )
+    
+    # Titre principal (ligne 1 fusionnée)
+    ws.merge_cells('A1:I1')
+    title_cell = ws['A1']
+    today = dt.now().strftime('%d/%m/%Y')
+    title_cell.value = f"BILAN TESTS SITE – {partenaire['nom']}"
+    title_cell.font = title_font
+    title_cell.alignment = title_alignment
+    ws.row_dimensions[1].height = 25
+    
+    # En-têtes (ligne 2)
+    headers = ['Date', 'Programme', 'Application remise', 'Prix public', 'Prix remisé', 
+               '% Remise', 'Naming', 'Cumul codes', 'Commentaire']
+    
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=2, column=col_num)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+        cell.border = border_style
+    
+    ws.row_dimensions[2].height = 30
+    
+    # Données
+    for row_num, test in enumerate(tests_site, 3):
+        # Date
+        date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
+        try:
+            date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
+            date_formatted = date_obj.strftime('%d/%m/%Y %H:%M')
+        except:
+            date_formatted = date_str
+        
+        programme_nom = programmes_dict.get(test['programme_id'], test['programme_id'])
+        
+        row_data = [
+            date_formatted,
+            programme_nom,
+            'OUI' if test['application_remise'] else 'NON',
+            test['prix_public'],
+            test['prix_remise'],
+            test['pct_remise_calcule'],
+            test.get('naming_constate', ''),
+            'OUI' if test['cumul_codes'] else 'NON',
+            test.get('commentaire', '')
+        ]
+        
+        for col_num, value in enumerate(row_data, 1):
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.value = value
+            cell.border = border_style
+            
+            # Alignement
+            if col_num == 9:  # Commentaire
+                cell.alignment = cell_alignment_left
+            else:
+                cell.alignment = cell_alignment_center
+            
+            # Format monétaire pour prix
+            if col_num in [4, 5]:  # Prix public et Prix remisé
+                cell.number_format = '#,##0.00 "€"'
+            
+            # Format pourcentage
+            if col_num == 6:  # % Remise
+                cell.number_format = '0.00"%"'
+    
+    # Ajuster largeurs de colonnes
+    column_widths = {
+        'A': 18,  # Date
+        'B': 20,  # Programme
+        'C': 18,  # Application remise
+        'D': 15,  # Prix public
+        'E': 15,  # Prix remisé
+        'F': 12,  # % Remise
+        'G': 30,  # Naming
+        'H': 15,  # Cumul codes
+        'I': 40   # Commentaire
+    }
+    
+    for col_letter, width in column_widths.items():
+        ws.column_dimensions[col_letter].width = width
+    
+    # Sauvegarder dans un buffer
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    # Nom du fichier
+    filename = f"Bilan_Site_{partenaire['nom']}_{today.replace('/', '-')}.xlsx"
+    
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 # Routes - Export CSV (legacy)
 @api_router.get("/export/tests-site")
 async def export_tests_site_csv(
