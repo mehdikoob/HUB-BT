@@ -206,15 +206,88 @@ const TestsSite = () => {
           <p className="text-gray-600">Gestion des tests de remises en ligne</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            onClick={handleExportCSV}
-            data-testid="export-csv-btn"
-            variant="outline"
-            className="border-red-600 text-red-600 hover:bg-red-50"
-          >
-            <Download size={20} className="mr-2" />
-            Export CSV
-          </Button>
+          <Dialog open={bilanDialogOpen} onOpenChange={setBilanDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                data-testid="generate-bilan-btn"
+                variant="outline"
+                className="border-red-600 text-red-600 hover:bg-red-50"
+              >
+                <FileBarChart size={20} className="mr-2" />
+                Générer un bilan
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Générer un bilan partenaire</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label htmlFor="bilan-partenaire">Partenaire *</Label>
+                  <Select
+                    value={bilanData.partenaire_id}
+                    onValueChange={(value) => setBilanData({ ...bilanData, partenaire_id: value })}
+                  >
+                    <SelectTrigger data-testid="bilan-partenaire-select">
+                      <SelectValue placeholder="Sélectionnez un partenaire" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {partenaires.map((part) => (
+                        <SelectItem key={part.id} value={part.id}>
+                          {part.nom}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="date-debut">Date de début *</Label>
+                    <Input
+                      id="date-debut"
+                      type="date"
+                      data-testid="bilan-date-debut"
+                      value={bilanData.date_debut}
+                      onChange={(e) => setBilanData({ ...bilanData, date_debut: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="date-fin">Date de fin *</Label>
+                    <Input
+                      id="date-fin"
+                      type="date"
+                      data-testid="bilan-date-fin"
+                      value={bilanData.date_fin}
+                      onChange={(e) => setBilanData({ ...bilanData, date_fin: e.target.value })}
+                    />
+                  </div>
+                </div>
+                
+                <p className="text-sm text-gray-500">
+                  Le bilan inclura tous les tests (tous programmes confondus) pour ce partenaire sur la période sélectionnée.
+                </p>
+                
+                <div className="flex gap-2 justify-end">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setBilanDialogOpen(false)}
+                  >
+                    Annuler
+                  </Button>
+                  <Button 
+                    onClick={handleGenerateBilan}
+                    data-testid="confirm-generate-bilan"
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Générer
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button
