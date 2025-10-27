@@ -166,12 +166,14 @@ def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float
         return 0.0
     return round((1 - prix_remise / prix_public) * 100, 2)
 
-async def check_and_create_incident(test_id: str, type_test: TypeTest, description: str):
+async def check_and_create_incident(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None):
     incident = Incident(
         test_id=test_id,
         type_test=type_test,
         description=description,
-        statut=StatutIncident.ouvert
+        statut=StatutIncident.ouvert,
+        programme_id=programme_id,
+        partenaire_id=partenaire_id
     )
     doc = incident.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
