@@ -57,14 +57,15 @@ class Programme(ProgrammeBase):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # Models - Partenaire
-class TelephonePartenaire(BaseModel):
+class ProgrammeContact(BaseModel):
     programme_id: str
-    numero: str
+    url_site: Optional[str] = None
+    numero_telephone: Optional[str] = None
 
 class PartenaireBase(BaseModel):
     nom: str
     programmes_ids: List[str] = []
-    telephones: List[TelephonePartenaire] = []
+    contacts_programmes: List[ProgrammeContact] = []  # URLs et téléphones par programme
     naming_attendu: Optional[str] = None
     remise_minimum: Optional[float] = None  # Remise minimum attendue en %
 
