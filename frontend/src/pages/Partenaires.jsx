@@ -47,11 +47,16 @@ const Partenaires = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const submitData = {
+        ...formData,
+        remise_minimum: formData.remise_minimum ? parseFloat(formData.remise_minimum) : null,
+      };
+      
       if (editingPartenaire) {
-        await axios.put(`${API}/partenaires/${editingPartenaire.id}`, formData);
+        await axios.put(`${API}/partenaires/${editingPartenaire.id}`, submitData);
         toast.success('Partenaire modifié avec succès');
       } else {
-        await axios.post(`${API}/partenaires`, formData);
+        await axios.post(`${API}/partenaires`, submitData);
         toast.success('Partenaire créé avec succès');
       }
       setDialogOpen(false);
