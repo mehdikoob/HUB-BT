@@ -672,11 +672,14 @@ async def get_dashboard_stats():
         "taux_reussite_tl": round(taux_reussite_tl, 2),
         "tests_manquants": tests_manquants,
         "tests_manquants_count": len(tests_manquants),
+        "partenaires_manquants": partenaires_manquants,
         "tests_manquants_j5": tests_manquants_j5,
         "is_j5_alert": is_j5_alert,
         "days_until_end": days_until_end,
         "current_month": month,
-        "current_year": year
+        "current_year": year,
+        "tests_attendus": tests_attendus,
+        "tests_effectues": tests_effectues
     }
 
 # Routes - Export Bilan Partenaire
