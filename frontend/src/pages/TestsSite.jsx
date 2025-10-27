@@ -372,7 +372,7 @@ const TestsSite = () => {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="prix_public">Prix public (€) *</Label>
                     <Input
@@ -395,6 +395,18 @@ const TestsSite = () => {
                       value={formData.prix_remise}
                       onChange={(e) => setFormData({ ...formData, prix_remise: e.target.value })}
                       required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="remise_percentage">% Remise (calculé)</Label>
+                    <Input
+                      id="remise_percentage"
+                      type="text"
+                      value={calculateRemisePercentage() ? `${calculateRemisePercentage()}%` : ''}
+                      readOnly
+                      disabled
+                      className="bg-gray-50 text-gray-700 font-semibold"
+                      placeholder="Auto"
                     />
                   </div>
                 </div>
