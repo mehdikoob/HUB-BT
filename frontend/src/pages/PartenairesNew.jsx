@@ -17,6 +17,7 @@ const PartenairesNew = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPartenaire, setEditingPartenaire] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     nom: '',
     programmes_ids: [],
