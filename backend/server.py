@@ -404,14 +404,18 @@ async def create_test_ligne(input: TestLigneCreate):
         await check_and_create_incident(
             test.id,
             TypeTest.TL,
-            "Offre non appliquée"
+            "Offre non appliquée",
+            input.programme_id,
+            input.partenaire_id
         )
     
     if not input.messagerie_vocale_dediee and not input.decroche_dedie:
         await check_and_create_incident(
             test.id,
             TypeTest.TL,
-            "Ni messagerie dédiée ni décroche dédié détecté"
+            "Ni messagerie dédiée ni décroche dédié détecté",
+            input.programme_id,
+            input.partenaire_id
         )
     
     # Save test
