@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FileText, Users, ClipboardCheck, Phone, AlertCircle, TrendingUp } from 'lucide-react';
+import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
