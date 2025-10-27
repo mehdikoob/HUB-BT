@@ -537,10 +537,12 @@ const TestsSite = () => {
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Programme</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Partenaire</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Appliquée</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Prix public</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Prix remisé</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">% Remise</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Appliquée</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Naming de la remise</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Cumul codes promos</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
@@ -552,9 +554,6 @@ const TestsSite = () => {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{getProgrammeName(test.programme_id)}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{test.prix_public.toFixed(2)} €</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{test.prix_remise.toFixed(2)} €</td>
-                  <td className="px-4 py-3 text-sm font-medium text-red-600">{test.pct_remise_calcule}%</td>
                   <td className="px-4 py-3 text-sm">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -564,6 +563,23 @@ const TestsSite = () => {
                       }`}
                     >
                       {test.application_remise ? 'OUI' : 'NON'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{test.prix_public.toFixed(2)} €</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{test.prix_remise.toFixed(2)} €</td>
+                  <td className="px-4 py-3 text-sm font-medium text-red-600">{test.pct_remise_calcule}%</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {test.naming_constate || <span className="text-gray-400 italic">Non renseigné</span>}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        test.cumul_codes
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      {test.cumul_codes ? 'OUI' : 'NON'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
