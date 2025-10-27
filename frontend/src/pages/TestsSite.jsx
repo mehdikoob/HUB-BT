@@ -152,7 +152,7 @@ const TestsSite = () => {
     }
 
     try {
-      const response = await axios.get(`${API}/export/bilan-partenaire`, {
+      const response = await axios.get(`${API}/export/bilan-site-excel`, {
         params: {
           partenaire_id: bilanData.partenaire_id,
           date_debut: bilanData.date_debut,
@@ -163,7 +163,8 @@ const TestsSite = () => {
       
       const partenaire = partenaires.find(p => p.id === bilanData.partenaire_id);
       const partenaireNom = partenaire ? partenaire.nom : 'partenaire';
-      const filename = `bilan_${partenaireNom}_${bilanData.date_debut}_${bilanData.date_fin}.csv`;
+      const today = new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
+      const filename = `Bilan_Site_${partenaireNom}_${today}.xlsx`;
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
