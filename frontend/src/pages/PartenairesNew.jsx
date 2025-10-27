@@ -378,6 +378,14 @@ const PartenairesNew = () => {
               <div className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
+                    {partenaire.logo_url && (
+                      <img 
+                        src={partenaire.logo_url} 
+                        alt={`Logo ${partenaire.nom}`}
+                        className="h-12 w-12 object-contain rounded flex-shrink-0"
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    )}
                     <div 
                       className="cursor-pointer flex-1"
                       onClick={() => setExpandedId(isExpanded ? null : partenaire.id)}
