@@ -149,6 +149,7 @@ const Partenaires = () => {
                   required
                 />
               </div>
+              
               <div>
                 <Label htmlFor="naming_attendu">Naming attendu</Label>
                 <Input
@@ -159,6 +160,60 @@ const Partenaires = () => {
                   placeholder="Code promo - [Nom du programme]"
                 />
               </div>
+              
+              <div>
+                <Label htmlFor="remise_minimum">Remise minimum attendue (%)</Label>
+                <Input
+                  id="remise_minimum"
+                  type="number"
+                  step="0.01"
+                  data-testid="partenaire-remise-input"
+                  value={formData.remise_minimum}
+                  onChange={(e) => setFormData({ ...formData, remise_minimum: e.target.value })}
+                  placeholder="Ex: 10 pour -10%"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  La remise minimum attendue pour ce partenaire (ex: 10 pour -10%)
+                </p>
+              </div>
+              
+              <div>
+                <Label>Programmes associés</Label>
+                <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
+                  {programmes.length === 0 ? (
+                    <p className="text-sm text-gray-500">Aucun programme disponible</p>
+                  ) : (
+                    programmes.map((prog) => (
+                      <div key={prog.id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`prog-${prog.id}`}
+                          data-testid={`programme-checkbox-${prog.id}`}
+                          checked={formData.programmes_ids.includes(prog.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData({
+                                ...formData,
+                                programmes_ids: [...formData.programmes_ids, prog.id],
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                programmes_ids: formData.programmes_ids.filter((id) => id !== prog.id),
+                              });
+                            }
+                          }}
+                          className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                        />
+                        <Label htmlFor={`prog-${prog.id}`} className="mb-0 cursor-pointer">
+                          {prog.nom}
+                        </Label>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+              
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Annuler
