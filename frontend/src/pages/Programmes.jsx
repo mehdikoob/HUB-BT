@@ -107,7 +107,7 @@ const Programmes = () => {
     try {
       await axios.delete(`${API}/programmes/${id}`);
       toast.success('Programme supprimé');
-      fetchProgrammes();
+      fetchData();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors de la suppression');
@@ -117,6 +117,7 @@ const Programmes = () => {
   const openNewDialog = () => {
     setEditingProgramme(null);
     setFormData({ nom: '', description: '' });
+    setSelectedPartenairesIds([]);
     setDialogOpen(true);
   };
 
