@@ -40,18 +40,6 @@ const Programmes = () => {
     }
   };
 
-  const fetchProgrammes = async () => {
-    try {
-      const response = await axios.get(`${API}/programmes`);
-      setProgrammes(response.data);
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast.error('Erreur lors du chargement des programmes');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
