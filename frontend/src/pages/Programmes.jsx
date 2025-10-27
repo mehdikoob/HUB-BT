@@ -104,7 +104,7 @@ const Programmes = () => {
 
   const openNewDialog = () => {
     setEditingProgramme(null);
-    setFormData({ nom: '', description: '' });
+    setFormData({ nom: '', description: '', logo_url: '' });
     setSelectedPartenairesIds([]);
     setDialogOpen(true);
   };
