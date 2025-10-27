@@ -96,7 +96,28 @@ const Layout = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
-        <div className="p-8">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-white border-b border-gray-200 p-4 sticky top-0 z-30">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="text-gray-700 hover:text-red-600"
+            >
+              <Menu size={24} />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="bg-red-600 p-1.5 rounded">
+                <Glasses className="text-white" size={18} />
+              </div>
+              <span className="text-lg font-bold text-red-600" style={{ fontFamily: 'Work Sans' }}>
+                QWERTYS
+              </span>
+            </div>
+            <div className="w-6" />
+          </div>
+        </div>
+        
+        <div className="p-4 md:p-8">
           <Outlet />
         </div>
       </main>
