@@ -248,6 +248,29 @@ async def get_partenaires():
             p['created_at'] = datetime.fromisoformat(p['created_at'])
     return partenaires
 
+@api_router.get("/contacts/all")
+async def get_all_contacts():
+    """Get all partenaire contacts with their associated programmes"""
+    partenaires = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+    programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
+    
+    # Create a map for quick programme lookup
+    programmes_map = {p['id']: p['nom'] for p in programmes}
+    
+    contacts = []
+    for partenaire in partenaires:
+        # Get all programmes for this partenaire
+        programme_names = [programmes_map.get(pid, 'Unknown') for pid in partenaire.get('programmes_ids', [])]
+        
+        contacts.append({
+            'partenaire_id': partenaire['id'],
+            'partenaire_nom': partenaire['nom'],
+            'contact_email': partenaire.get('contact_email'),
+            'programmes': ', '.join(programme_names) if programme_names else 'Aucun'
+        })
+    
+    return contacts
+
 @api_router.get("/partenaires/{partenaire_id}", response_model=Partenaire)
 async def get_partenaire(partenaire_id: str):
     partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
