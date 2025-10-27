@@ -235,6 +235,21 @@ const PartenairesNew = () => {
               </div>
               
               <div>
+                <Label htmlFor="contact_email">Email du contact principal</Label>
+                <Input
+                  id="contact_email"
+                  type="email"
+                  data-testid="partenaire-contact-email-input"
+                  value={formData.contact_email}
+                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+                  placeholder="contact@partenaire.com"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Adresse email du contact principal pour ce partenaire
+                </p>
+              </div>
+              
+              <div>
                 <Label htmlFor="logo_url">URL du logo</Label>
                 <Input
                   id="logo_url"
