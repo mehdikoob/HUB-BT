@@ -92,6 +92,13 @@ const Programmes = () => {
   const handleEdit = (programme) => {
     setEditingProgramme(programme);
     setFormData({ nom: programme.nom, description: programme.description || '' });
+    
+    // Find partenaires linked to this programme
+    const linkedPartenaires = partenaires
+      .filter(p => p.programmes_ids && p.programmes_ids.includes(programme.id))
+      .map(p => p.id);
+    setSelectedPartenairesIds(linkedPartenaires);
+    
     setDialogOpen(true);
   };
 
