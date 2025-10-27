@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X, Contact2 } from 'lucide-react';
 
 const Layout = () => {
   const location = useLocation();
@@ -13,6 +13,7 @@ const Layout = () => {
     { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site' },
     { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne' },
     { path: '/incidents', icon: AlertCircle, label: 'Incidents' },
+    { path: '/contacts', icon: Contact2, label: 'Contacts' },
   ];
 
   const isActive = (path) => {
