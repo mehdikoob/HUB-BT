@@ -148,6 +148,8 @@ class IncidentBase(BaseModel):
     type_test: TypeTest
     description: str
     statut: StatutIncident = StatutIncident.ouvert
+    programme_id: Optional[str] = None
+    partenaire_id: Optional[str] = None
 
 class IncidentCreate(IncidentBase):
     pass
