@@ -23,6 +23,8 @@ const TestsSite = () => {
   const [filters, setFilters] = useState({
     programme_id: '',
     partenaire_id: '',
+    date_debut: '',
+    date_fin: '',
   });
   const [bilanData, setBilanData] = useState({
     partenaire_id: '',
