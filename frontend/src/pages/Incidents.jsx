@@ -23,7 +23,7 @@ const Incidents = () => {
       const params = {};
       if (filter) params.statut = filter;
       
-      const response = await axios.get(`${API}/incidents`, { params });
+      const response = await axios.get(`${API}/incidents/enriched`, { params });
       setIncidents(response.data);
     } catch (error) {
       console.error('Erreur:', error);
