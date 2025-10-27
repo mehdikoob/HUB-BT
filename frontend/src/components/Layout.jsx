@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X } from 'lucide-react';
 
 const Layout = () => {
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
     { path: '/', icon: LayoutDashboard, label: 'Tableau de bord' },
@@ -21,20 +22,49 @@ const Layout = () => {
     return location.pathname.startsWith(path);
   };
 
+  const closeSidebar = () => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <aside className={`
+        fixed md:static inset-y-0 left-0 z-50
+        w-64 bg-white border-r border-gray-200 flex flex-col
+        transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-red-600 p-2 rounded-lg">
-              <Glasses className="text-white" size={24} />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="bg-red-600 p-2 rounded-lg">
+                <Glasses className="text-white" size={24} />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-red-600" style={{ fontFamily: 'Work Sans' }}>
+                  QWERTYS
+                </h1>
+                <p className="text-xs font-medium text-gray-700">HUB BLIND TESTS</p>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-red-600" style={{ fontFamily: 'Work Sans' }}>
-              QWERTYS
-            </h1>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="md:hidden text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
           </div>
-          <p className="text-sm font-medium text-gray-700 mt-1">HUB BLIND TESTS</p>
         </div>
         
         <nav className="flex-1 p-4">
