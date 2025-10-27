@@ -565,6 +565,8 @@ const TestsLigne = () => {
             <thead className="bg-gray-50 border-b">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Programme</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Partenaire</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">N° de tél</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Messagerie vocale dédiée</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Délai d'attente</th>
@@ -581,6 +583,8 @@ const TestsLigne = () => {
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {format(new Date(test.date_test), 'dd/MM/yyyy HH:mm')}
                   </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{getProgrammeName(test.programme_id)}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     <a href={`tel:${test.numero_telephone}`} className="text-blue-600 hover:underline">
                       {test.numero_telephone}
