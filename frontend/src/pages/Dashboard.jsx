@@ -153,15 +153,18 @@ const Dashboard = () => {
                 </h3>
                 <p className="text-red-800 mb-3">
                   Il reste {stats.days_until_end} jour{stats.days_until_end > 1 ? 's' : ''} avant la fin du mois. 
-                  <span className="font-semibold"> {stats.tests_manquants_j5} partenaire{stats.tests_manquants_j5 > 1 ? 's' : ''} n'ont pas encore été testé{stats.tests_manquants_j5 > 1 ? 's' : ''}</span> ce mois-ci.
+                  <span className="font-semibold"> {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''} n'ont pas encore été testé{stats.partenaires_manquants > 1 ? 's' : ''}</span> ce mois-ci.
                 </p>
                 <div className="space-y-2">
                   {stats.tests_manquants?.map((test, idx) => (
-                    <div key={idx} className="text-sm bg-white rounded px-3 py-2 flex items-center justify-between">
-                      <span className="font-medium text-gray-900">{test.partenaire_nom}</span>
+                    <div key={idx} className="text-sm bg-white rounded px-3 py-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-gray-900">{test.partenaire_nom}</span>
+                        <span className="text-xs text-gray-500">{test.programme_nom}</span>
+                      </div>
                       <div className="flex gap-2">
                         {test.types_manquants.map((type, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs">
+                          <span key={i} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">
                             {type}
                           </span>
                         ))}
