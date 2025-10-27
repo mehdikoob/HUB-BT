@@ -244,8 +244,18 @@ const Programmes = () => {
         {programmes.map((programme) => (
           <Card key={programme.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
             <CardHeader>
-              <CardTitle className="flex items-start justify-between">
-                <span className="text-lg">{programme.nom}</span>
+              <CardTitle className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1">
+                  {programme.logo_url && (
+                    <img 
+                      src={programme.logo_url} 
+                      alt={`Logo ${programme.nom}`}
+                      className="h-10 w-10 object-contain rounded"
+                      onError={(e) => e.target.style.display = 'none'}
+                    />
+                  )}
+                  <span className="text-lg">{programme.nom}</span>
+                </div>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
