@@ -202,7 +202,8 @@ const Programmes = () => {
                   {partenaires.length === 0 ? (
                     <p className="text-sm text-gray-500">Aucun partenaire disponible</p>
                   ) : (
-                    partenaires.map((part) => (
+                    // Sort partenaires alphabetically by name
+                    [...partenaires].sort((a, b) => a.nom.localeCompare(b.nom)).map((part) => (
                       <div key={part.id} className="flex items-center gap-2">
                         <input
                           type="checkbox"
