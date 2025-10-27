@@ -80,6 +80,7 @@ const PartenairesNew = () => {
       naming_attendu: '',
       remise_minimum: '',
       logo_url: '',
+      contact_email: '',
     });
     setEditingPartenaire(null);
   };
@@ -93,6 +94,7 @@ const PartenairesNew = () => {
       naming_attendu: partenaire.naming_attendu || '',
       remise_minimum: partenaire.remise_minimum || '',
       logo_url: partenaire.logo_url || '',
+      contact_email: partenaire.contact_email || '',
     });
     setDialogOpen(true);
   };
