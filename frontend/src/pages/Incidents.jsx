@@ -167,16 +167,28 @@ const Incidents = () => {
                     )}
                   </div>
                 </div>
-                {incident.statut === 'ouvert' && (
-                  <Button
-                    onClick={() => handleResolve(incident.id)}
-                    data-testid={`resolve-incident-${incident.id}`}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <CheckCircle size={16} className="mr-2" />
-                    Résoudre
-                  </Button>
-                )}
+                <div className="flex flex-col gap-2">
+                  {incident.statut === 'ouvert' ? (
+                    <Button
+                      onClick={() => handleResolve(incident.id)}
+                      data-testid={`resolve-incident-${incident.id}`}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <CheckCircle size={16} className="mr-2" />
+                      Résoudre
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => handleDelete(incident.id)}
+                      data-testid={`delete-incident-${incident.id}`}
+                      variant="outline"
+                      className="border-red-600 text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 size={16} className="mr-2" />
+                      Supprimer
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardHeader>
           </Card>
