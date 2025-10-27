@@ -17,7 +17,7 @@ const Programmes = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProgramme, setEditingProgramme] = useState(null);
-  const [formData, setFormData] = useState({ nom: '', description: '' });
+  const [formData, setFormData] = useState({ nom: '', description: '', logo_url: '' });
   const [selectedPartenairesIds, setSelectedPartenairesIds] = useState([]);
 
   useEffect(() => {
