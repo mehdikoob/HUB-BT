@@ -78,13 +78,19 @@ const Incidents = () => {
       {/* Incidents List */}
       <div className="space-y-4">
         {incidents.map((incident) => (
-          <Card key={incident.id} className="border-0 shadow-sm">
+          <Card 
+            key={incident.id} 
+            className="border-0 shadow-sm"
+            style={{ 
+              backgroundColor: incident.statut === 'ouvert' ? '#FFE5E5' : '#E8F8E8' 
+            }}
+          >
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <div
                     className={`p-3 rounded-lg ${
-                      incident.statut === 'ouvert' ? 'bg-red-50' : 'bg-green-50'
+                      incident.statut === 'ouvert' ? 'bg-red-100' : 'bg-green-100'
                     }`}
                   >
                     {incident.statut === 'ouvert' ? (
@@ -93,7 +99,7 @@ const Incidents = () => {
                       <CheckCircle className="text-green-600" size={24} />
                     )}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <CardTitle className="text-lg mb-2">
                       {incident.type_test === 'TS' ? 'Test Site' : 'Test Ligne'}
                       <span
@@ -106,10 +112,24 @@ const Incidents = () => {
                         {incident.statut === 'ouvert' ? 'OUVERT' : 'RÉSOLU'}
                       </span>
                     </CardTitle>
+                    
+                    {/* Programme and Partenaire */}
+                    <div className="mb-3 space-y-1">
+                      {incident.programme_nom && (
+                        <p className="text-sm text-gray-700">
+                          <span className="font-semibold">Programme :</span> {incident.programme_nom}
+                        </p>
+                      )}
+                      {incident.partenaire_nom && (
+                        <p className="text-sm text-gray-700">
+                          <span className="font-semibold">Partenaire :</span> {incident.partenaire_nom}
+                        </p>
+                      )}
+                    </div>
+                    
                     <p className="text-sm text-gray-600 mb-2">{incident.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                      <span>Test ID: {incident.test_id}</span>
-                      <span>•</span>
+                    
+                    <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
                       <span>Créé le {format(new Date(incident.created_at), 'dd/MM/yyyy à HH:mm')}</span>
                       {incident.resolved_at && (
                         <>
@@ -118,6 +138,21 @@ const Incidents = () => {
                         </>
                       )}
                     </div>
+                    
+                    {/* Contact */}
+                    {incident.partenaire_contact_email && (
+                      <div className="pt-2 border-t border-gray-300">
+                        <p className="text-sm text-gray-700">
+                          <span className="font-semibold">Contact :</span>{' '}
+                          <a 
+                            href={`mailto:${incident.partenaire_contact_email}`}
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            📧 {incident.partenaire_contact_email}
+                          </a>
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {incident.statut === 'ouvert' && (
