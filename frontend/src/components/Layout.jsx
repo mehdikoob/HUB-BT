@@ -76,6 +76,7 @@ const Layout = () => {
                 <li key={item.path}>
                   <Link
                     to={item.path}
+                    onClick={closeSidebar}
                     data-testid={`nav-${item.label.toLowerCase().replace(/ /g, '-')}`}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       active
