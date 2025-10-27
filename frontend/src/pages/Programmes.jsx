@@ -243,11 +243,28 @@ const Programmes = () => {
                 </div>
               </CardTitle>
             </CardHeader>
-            {programme.description && (
-              <CardContent>
-                <p className="text-sm text-gray-600">{programme.description}</p>
-              </CardContent>
-            )}
+            <CardContent>
+              {programme.description && (
+                <p className="text-sm text-gray-600 mb-2">{programme.description}</p>
+              )}
+              {(() => {
+                const linkedPartenaires = partenaires.filter(p => 
+                  p.programmes_ids && p.programmes_ids.includes(programme.id)
+                );
+                return linkedPartenaires.length > 0 && (
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">Partenaires:</span>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {linkedPartenaires.map((part) => (
+                        <span key={part.id} className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs">
+                          {part.nom}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </CardContent>
           </Card>
         ))}
       </div>
