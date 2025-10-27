@@ -62,10 +62,27 @@ const Programmes = () => {
         await axios.post(`${API}/programmes`, formData);
         toast.success('Programme créé avec succès');
       }
+      
+      // Update partenaires to link them to this programme if needed
+      if (selectedPartenairesIds.length > 0) {
+        const programmeId = editingProgramme?.id || (await axios.get(`${API}/programmes`)).data.find(p => p.nom === formData.nom)?.id;
+        
+        for (const partId of selectedPartenairesIds) {
+          const part = partenaires.find(p => p.id === partId);
+          if (part && !part.programmes_ids.includes(programmeId)) {
+            await axios.put(`${API}/partenaires/${partId}`, {
+              ...part,
+              programmes_ids: [...part.programmes_ids, programmeId],
+            });
+          }
+        }
+      }
+      
       setDialogOpen(false);
       setFormData({ nom: '', description: '' });
+      setSelectedPartenairesIds([]);
       setEditingProgramme(null);
-      fetchProgrammes();
+      fetchData();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors de l\'enregistrement');
