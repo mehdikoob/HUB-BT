@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses } from 'lucide-react';
 
 const Layout = () => {
   const location = useLocation();
@@ -26,10 +26,15 @@ const Layout = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-red-600" style={{ fontFamily: 'Work Sans' }}>
-            QWERTYS
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">Blind Tests Manager</p>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="bg-red-600 p-2 rounded-lg">
+              <Glasses className="text-white" size={24} />
+            </div>
+            <h1 className="text-2xl font-bold text-red-600" style={{ fontFamily: 'Work Sans' }}>
+              QWERTYS
+            </h1>
+          </div>
+          <p className="text-sm font-medium text-gray-700 mt-1">HUB BLIND TESTS</p>
         </div>
         
         <nav className="flex-1 p-4">
