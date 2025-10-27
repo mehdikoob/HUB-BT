@@ -91,6 +91,7 @@ const PartenairesNew = () => {
       contacts_programmes: partenaire.contacts_programmes || [],
       naming_attendu: partenaire.naming_attendu || '',
       remise_minimum: partenaire.remise_minimum || '',
+      logo_url: partenaire.logo_url || '',
     });
     setDialogOpen(true);
   };
