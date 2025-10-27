@@ -79,7 +79,11 @@ const Programmes = () => {
 
   const handleEdit = (programme) => {
     setEditingProgramme(programme);
-    setFormData({ nom: programme.nom, description: programme.description || '' });
+    setFormData({ 
+      nom: programme.nom, 
+      description: programme.description || '',
+      logo_url: programme.logo_url || ''
+    });
     
     // Find partenaires linked to this programme
     const linkedPartenaires = partenaires
