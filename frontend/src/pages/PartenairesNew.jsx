@@ -146,6 +146,22 @@ const PartenairesNew = () => {
     return partenaire.contacts_programmes?.find(c => c.programme_id === programmeId);
   };
 
+  // Filtrer et trier les partenaires
+  const filteredPartenaires = partenaires
+    .filter(p => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        p.nom.toLowerCase().includes(query) ||
+        p.naming_attendu?.toLowerCase().includes(query) ||
+        p.programmes_ids?.some(progId => {
+          const progName = getProgrammeName(progId).toLowerCase();
+          return progName.includes(query);
+        })
+      );
+    })
+    .sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+
   if (loading) {
     return <div className="text-center py-8">Chargement...</div>;
   }
