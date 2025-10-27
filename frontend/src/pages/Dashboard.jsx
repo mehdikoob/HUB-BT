@@ -107,6 +107,40 @@ const Dashboard = () => {
         })}
       </div>
 
+      {/* Indicateur de tests mensuels */}
+      {stats?.tests_attendus > 0 && (
+        <Card className="mb-6 border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-lg bg-blue-50">
+                  <TrendingUp className="text-blue-600" size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Progression mensuelle</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    <span className="text-blue-600">{stats.tests_effectues}</span> / {stats.tests_attendus} tests réalisés ce mois-ci
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-blue-600">
+                  {Math.round((stats.tests_effectues / stats.tests_attendus) * 100)}%
+                </div>
+                <p className="text-xs text-gray-500">Complétion</p>
+              </div>
+            </div>
+            {/* Progress bar */}
+            <div className="mt-4 bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 rounded-full h-2 transition-all duration-300"
+                style={{ width: `${Math.min((stats.tests_effectues / stats.tests_attendus) * 100, 100)}%` }}
+              ></div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* J-5 Alert Banner */}
       {stats?.is_j5_alert && stats?.tests_manquants_j5 > 0 && (
         <Card className="mb-6 border-0 bg-red-50 border-l-4 border-l-red-600">
