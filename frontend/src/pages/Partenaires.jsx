@@ -278,10 +278,6 @@ const Partenaires = () => {
                 </div>
               )}
             </CardContent>
-                  </div>
-                </div>
-              )}
-            </CardContent>
           </Card>
         ))}
       </div>
