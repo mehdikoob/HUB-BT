@@ -73,6 +73,7 @@ class PartenaireBase(BaseModel):
     naming_attendu: Optional[str] = None
     remise_minimum: Optional[float] = None  # Remise minimum attendue en %
     logo_url: Optional[str] = None
+    contact_email: Optional[str] = None  # Email du contact principal
 
 class PartenaireCreate(PartenaireBase):
     pass
