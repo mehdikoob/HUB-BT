@@ -66,6 +66,7 @@ class PartenaireBase(BaseModel):
     programmes_ids: List[str] = []
     telephones: List[TelephonePartenaire] = []
     naming_attendu: Optional[str] = None
+    remise_minimum: Optional[float] = None  # Remise minimum attendue en %
 
 class PartenaireCreate(PartenaireBase):
     pass
