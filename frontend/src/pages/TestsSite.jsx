@@ -71,6 +71,8 @@ const TestsSite = () => {
       const params = {};
       if (filters.programme_id) params.programme_id = filters.programme_id;
       if (filters.partenaire_id) params.partenaire_id = filters.partenaire_id;
+      if (filters.date_debut) params.date_debut = filters.date_debut;
+      if (filters.date_fin) params.date_fin = filters.date_fin;
       
       const response = await axios.get(`${API}/tests-site`, { params });
       setTests(response.data);
