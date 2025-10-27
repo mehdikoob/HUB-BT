@@ -511,7 +511,107 @@ async def get_dashboard_stats():
         "taux_reussite_tl": round(taux_reussite_tl, 2)
     }
 
-# Routes - Export CSV
+# Routes - Export Bilan Partenaire
+@api_router.get("/export/bilan-partenaire")
+async def export_bilan_partenaire(
+    partenaire_id: str = Query(...),
+    date_debut: str = Query(...),
+    date_fin: str = Query(...)
+):
+    # Récupérer le partenaire
+    partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
+    if not partenaire:
+        raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+    
+    # Récupérer tous les programmes
+    programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
+    programmes_dict = {p['id']: p['nom'] for p in programmes}
+    
+    # Query pour tous les tests du partenaire dans la période (tous programmes)
+    query = {
+        'partenaire_id': partenaire_id,
+        'date_test': {
+            '$gte': date_debut,
+            '$lte': date_fin
+        }
+    }
+    
+    # Récupérer les tests site et ligne
+    tests_site = await db.tests_site.find(query, {"_id": 0}).to_list(10000)
+    tests_ligne = await db.tests_ligne.find(query, {"_id": 0}).to_list(10000)
+    
+    # Create CSV with both test types
+    output = io.StringIO()
+    
+    # Header
+    output.write(f"BILAN PARTENAIRE: {partenaire['nom']}\n")
+    output.write(f"Période: du {date_debut} au {date_fin}\n")
+    output.write(f"Remise minimum attendue: {partenaire.get('remise_minimum', 'Non définie')}%\n")
+    output.write("\n")
+    
+    # Tests Site
+    output.write("=== TESTS SITE ===\n")
+    if tests_site:
+        fieldnames_site = ['Date', 'Programme', 'Application remise', 'Prix public', 'Prix remisé', 
+                          '% Remise', 'Naming', 'Cumul codes', 'Commentaire']
+        writer = csv.DictWriter(output, fieldnames=fieldnames_site)
+        writer.writeheader()
+        
+        for test in tests_site:
+            date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
+            programme_nom = programmes_dict.get(test['programme_id'], test['programme_id'])
+            
+            writer.writerow({
+                'Date': date_str,
+                'Programme': programme_nom,
+                'Application remise': 'OUI' if test['application_remise'] else 'NON',
+                'Prix public': f"{test['prix_public']}€",
+                'Prix remisé': f"{test['prix_remise']}€",
+                '% Remise': f"{test['pct_remise_calcule']}%",
+                'Naming': test.get('naming_constate', ''),
+                'Cumul codes': 'OUI' if test['cumul_codes'] else 'NON',
+                'Commentaire': test.get('commentaire', '')
+            })
+    else:
+        output.write("Aucun test site sur cette période\n")
+    
+    output.write("\n\n")
+    
+    # Tests Ligne
+    output.write("=== TESTS LIGNE ===\n")
+    if tests_ligne:
+        fieldnames_ligne = ['Date', 'Programme', 'Téléphone', 'Messagerie dédiée', 'Décroche dédié',
+                           'Délai attente', 'Conseiller', 'Évaluation', 'Offre appliquée', 'Commentaire']
+        writer = csv.DictWriter(output, fieldnames=fieldnames_ligne)
+        writer.writeheader()
+        
+        for test in tests_ligne:
+            date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
+            programme_nom = programmes_dict.get(test['programme_id'], test['programme_id'])
+            
+            writer.writerow({
+                'Date': date_str,
+                'Programme': programme_nom,
+                'Téléphone': test['numero_telephone'],
+                'Messagerie dédiée': 'OUI' if test['messagerie_vocale_dediee'] else 'NON',
+                'Décroche dédié': 'OUI' if test['decroche_dedie'] else 'NON',
+                'Délai attente': test['delai_attente'],
+                'Conseiller': test.get('nom_conseiller', 'NC'),
+                'Évaluation': test['evaluation_accueil'],
+                'Offre appliquée': 'OUI' if test['application_offre'] else 'NON',
+                'Commentaire': test.get('commentaire', '')
+            })
+    else:
+        output.write("Aucun test ligne sur cette période\n")
+    
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=bilan_{partenaire['nom']}_{date_debut}_{date_fin}.csv"}
+    )
+
+# Routes - Export CSV (legacy)
 @api_router.get("/export/tests-site")
 async def export_tests_site_csv(
     programme_id: Optional[str] = Query(None),
