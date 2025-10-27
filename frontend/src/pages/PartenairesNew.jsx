@@ -25,6 +25,7 @@ const PartenairesNew = () => {
     naming_attendu: '',
     remise_minimum: '',
     logo_url: '',
+    contact_email: '',
   });
 
   useEffect(() => {
