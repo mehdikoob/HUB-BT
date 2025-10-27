@@ -234,6 +234,37 @@ const PartenairesNew = () => {
               </div>
               
               <div>
+                <Label htmlFor="logo_url">URL du logo</Label>
+                <Input
+                  id="logo_url"
+                  data-testid="partenaire-logo-input"
+                  value={formData.logo_url}
+                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+                  placeholder="https://exemple.com/logo.png"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  URL d'une image pour le logo du partenaire
+                </p>
+                {formData.logo_url && (
+                  <div className="mt-2 p-2 border rounded bg-gray-50">
+                    <p className="text-xs text-gray-600 mb-1">Aperçu :</p>
+                    <img 
+                      src={formData.logo_url} 
+                      alt="Logo preview" 
+                      className="h-12 w-auto object-contain"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
+                      }}
+                    />
+                    <p className="text-xs text-red-600" style={{ display: 'none' }}>
+                      Impossible de charger l'image
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <div>
                 <Label className="text-lg font-semibold mb-4 block">Programmes associés et coordonnées</Label>
                 <div className="space-y-4 border rounded-lg p-4 max-h-96 overflow-y-auto bg-gray-50">
                   {programmes.length === 0 ? (
