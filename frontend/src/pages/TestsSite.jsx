@@ -43,6 +43,18 @@ const TestsSite = () => {
     commentaire: '',
   });
 
+  // Calculate discount percentage automatically
+  const calculateRemisePercentage = () => {
+    const prixPublic = parseFloat(formData.prix_public);
+    const prixRemise = parseFloat(formData.prix_remise);
+    
+    if (prixPublic > 0 && !isNaN(prixRemise)) {
+      const percentage = ((prixPublic - prixRemise) / prixPublic) * 100;
+      return percentage.toFixed(1);
+    }
+    return '';
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
