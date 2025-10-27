@@ -296,6 +296,9 @@ async def create_test_site(input: TestSiteCreate):
     test_data = input.model_dump()
     test = TestSite(**test_data, pct_remise_calcule=pct_remise)
     
+    # Récupérer le partenaire pour vérifier la remise minimum
+    partenaire = await db.partenaires.find_one({"id": input.partenaire_id}, {"_id": 0})
+    
     # Validations et création d'incidents
     if input.prix_remise > input.prix_public:
         await check_and_create_incident(
@@ -310,6 +313,16 @@ async def create_test_site(input: TestSiteCreate):
             TypeTest.TS,
             "Remise non appliquée"
         )
+    
+    # Vérifier la remise minimum si définie
+    if partenaire and partenaire.get('remise_minimum'):
+        remise_minimum = partenaire['remise_minimum']
+        if pct_remise < remise_minimum:
+            await check_and_create_incident(
+                test.id,
+                TypeTest.TS,
+                f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {remise_minimum - pct_remise}%)"
+            )
     
     # Save test
     doc = test.model_dump()
