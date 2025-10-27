@@ -267,6 +267,26 @@ async def delete_partenaire(partenaire_id: str):
         raise HTTPException(status_code=404, detail="Partenaire non trouvé")
     return {"message": "Partenaire supprimé"}
 
+# Route pour vérifier la remise par rapport à la remise minimum attendue
+@api_router.get("/partenaires/{partenaire_id}/verify-remise")
+async def verify_remise(partenaire_id: str, remise_calculee: float):
+    partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
+    if not partenaire:
+        raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+    
+    remise_minimum = partenaire.get('remise_minimum')
+    if remise_minimum is None:
+        return {"conforme": True, "message": "Aucune remise minimum définie"}
+    
+    if remise_calculee < remise_minimum:
+        return {
+            "conforme": False,
+            "message": f"Remise insuffisante: {remise_calculee}% < {remise_minimum}% attendu",
+            "ecart": remise_minimum - remise_calculee
+        }
+    
+    return {"conforme": True, "message": "Remise conforme"}
+
 # Routes - Tests Site
 @api_router.post("/tests-site", response_model=TestSite)
 async def create_test_site(input: TestSiteCreate):
