@@ -69,6 +69,7 @@ class PartenaireBase(BaseModel):
     contacts_programmes: List[ProgrammeContact] = []  # URLs et téléphones par programme
     naming_attendu: Optional[str] = None
     remise_minimum: Optional[float] = None  # Remise minimum attendue en %
+    logo_url: Optional[str] = None
 
 class PartenaireCreate(PartenaireBase):
     pass
