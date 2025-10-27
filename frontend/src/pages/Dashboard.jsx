@@ -48,25 +48,19 @@ const Dashboard = () => {
       bg: 'bg-blue-50',
     },
     {
-      title: 'Tests Site',
-      value: stats?.total_tests_site || 0,
-      icon: ClipboardCheck,
-      color: 'text-green-600',
-      bg: 'bg-green-50',
-    },
-    {
-      title: 'Tests Ligne',
-      value: stats?.total_tests_ligne || 0,
-      icon: Phone,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      title: stats?.is_j5_alert ? 'Tests manquants J-5' : 'Tests manquants ce mois',
+      value: stats?.is_j5_alert ? stats?.tests_manquants_j5 || 0 : stats?.tests_manquants_count || 0,
+      icon: stats?.is_j5_alert ? AlertTriangle : Clock,
+      color: stats?.is_j5_alert ? 'text-red-600' : 'text-orange-600',
+      bg: stats?.is_j5_alert ? 'bg-red-50' : 'bg-orange-50',
+      alert: stats?.is_j5_alert,
     },
     {
       title: 'Incidents Ouverts',
       value: stats?.total_incidents_ouverts || 0,
       icon: AlertCircle,
-      color: 'text-orange-600',
-      bg: 'bg-orange-50',
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
     },
   ];
 
