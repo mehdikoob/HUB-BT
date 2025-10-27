@@ -558,6 +558,23 @@ async def resolve_incident(incident_id: str):
         updated['resolved_at'] = datetime.fromisoformat(updated['resolved_at'])
     return updated
 
+@api_router.delete("/incidents/{incident_id}")
+async def delete_incident(incident_id: str):
+    """Delete an incident (only if resolved)"""
+    existing = await db.incidents.find_one({"id": incident_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Incident non trouvé")
+    
+    # Verify that the incident is resolved before allowing deletion
+    if existing.get('statut') != StatutIncident.resolu:
+        raise HTTPException(status_code=400, detail="Seuls les incidents résolus peuvent être supprimés")
+    
+    result = await db.incidents.delete_one({"id": incident_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Incident non trouvé")
+    
+    return {"message": "Incident supprimé avec succès"}
+
 # Routes - Stats & Dashboard
 @api_router.get("/stats/dashboard")
 async def get_dashboard_stats():
