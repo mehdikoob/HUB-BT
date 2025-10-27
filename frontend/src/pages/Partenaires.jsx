@@ -69,6 +69,7 @@ const Partenaires = () => {
       programmes_ids: [],
       telephones: [],
       naming_attendu: '',
+      remise_minimum: '',
     });
     setEditingPartenaire(null);
   };
