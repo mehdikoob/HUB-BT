@@ -835,6 +835,155 @@ async def export_bilan_site_excel(
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
+# Routes - Export Bilan Excel Tests Ligne
+@api_router.get("/export/bilan-ligne-excel")
+async def export_bilan_ligne_excel(
+    partenaire_id: str = Query(...),
+    date_debut: str = Query(...),
+    date_fin: str = Query(...)
+):
+    from datetime import datetime as dt
+    
+    # Récupérer le partenaire
+    partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
+    if not partenaire:
+        raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+    
+    # Récupérer tous les programmes
+    programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
+    programmes_dict = {p['id']: p['nom'] for p in programmes}
+    
+    # Query pour tous les tests ligne du partenaire dans la période
+    query = {
+        'partenaire_id': partenaire_id,
+        'date_test': {
+            '$gte': date_debut,
+            '$lte': date_fin
+        }
+    }
+    
+    tests_ligne = await db.tests_ligne.find(query, {"_id": 0}).to_list(10000)
+    
+    # Créer le workbook Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Tests ligne"
+    
+    # Styles
+    header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='C00000', end_color='C00000', fill_type='solid')
+    header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    
+    title_font = Font(name='Calibri', size=14, bold=True, color='C00000')
+    title_alignment = Alignment(horizontal='center', vertical='center')
+    
+    cell_alignment_center = Alignment(horizontal='center', vertical='center')
+    cell_alignment_left = Alignment(horizontal='left', vertical='center')
+    
+    border_style = Border(
+        left=Side(style='thin', color='000000'),
+        right=Side(style='thin', color='000000'),
+        top=Side(style='thin', color='000000'),
+        bottom=Side(style='thin', color='000000')
+    )
+    
+    # Titre principal (ligne 1 fusionnée)
+    ws.merge_cells('A1:K1')
+    title_cell = ws['A1']
+    today = dt.now().strftime('%d/%m/%Y')
+    title_cell.value = f"BILAN TESTS LIGNE – {partenaire['nom']}"
+    title_cell.font = title_font
+    title_cell.alignment = title_alignment
+    ws.row_dimensions[1].height = 25
+    
+    # En-têtes (ligne 2)
+    headers = ['Date', 'Programme', 'Partenaire', 'N° de tél', 'Messagerie vocale dédiée', 
+               'Délai d\'attente', 'Nom du conseiller', 'Décroche dédiée', 
+               'Évaluation de l\'accueil', 'Application de l\'offre', 'Commentaire']
+    
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=2, column=col_num)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+        cell.border = border_style
+    
+    ws.row_dimensions[2].height = 30
+    
+    # Données
+    for row_num, test in enumerate(tests_ligne, 3):
+        # Date
+        date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
+        try:
+            date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
+            date_formatted = date_obj.strftime('%d/%m/%Y %H:%M')
+        except:
+            date_formatted = date_str
+        
+        programme_nom = programmes_dict.get(test['programme_id'], test['programme_id'])
+        
+        # Récupérer le nom du partenaire
+        part = await db.partenaires.find_one({"id": test['partenaire_id']}, {"_id": 0})
+        partenaire_nom = part['nom'] if part else test['partenaire_id']
+        
+        row_data = [
+            date_formatted,
+            programme_nom,
+            partenaire_nom,
+            test['numero_telephone'],
+            'OUI' if test['messagerie_vocale_dediee'] else 'NON',
+            test['delai_attente'],
+            test.get('nom_conseiller', 'NC'),
+            'OUI' if test['decroche_dedie'] else 'NON',
+            test['evaluation_accueil'],
+            'OUI' if test['application_offre'] else 'NON',
+            test.get('commentaire', '')
+        ]
+        
+        for col_num, value in enumerate(row_data, 1):
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.value = value
+            cell.border = border_style
+            
+            # Alignement
+            if col_num == 11:  # Commentaire
+                cell.alignment = cell_alignment_left
+            else:
+                cell.alignment = cell_alignment_center
+    
+    # Ajuster largeurs de colonnes
+    column_widths = {
+        'A': 18,  # Date
+        'B': 20,  # Programme
+        'C': 20,  # Partenaire
+        'D': 18,  # N° de tél
+        'E': 20,  # Messagerie vocale dédiée
+        'F': 15,  # Délai d'attente
+        'G': 20,  # Nom du conseiller
+        'H': 15,  # Décroche dédiée
+        'I': 20,  # Évaluation de l'accueil
+        'J': 18,  # Application de l'offre
+        'K': 40   # Commentaire
+    }
+    
+    for col_letter, width in column_widths.items():
+        ws.column_dimensions[col_letter].width = width
+    
+    # Sauvegarder dans un buffer
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    # Nom du fichier
+    filename = f"Bilan_Ligne_{partenaire['nom']}_{today.replace('/', '-')}.xlsx"
+    
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 # Routes - Export CSV (legacy)
 @api_router.get("/export/tests-site")
 async def export_tests_site_csv(
