@@ -488,28 +488,98 @@ async def resolve_incident(incident_id: str):
 # Routes - Stats & Dashboard
 @api_router.get("/stats/dashboard")
 async def get_dashboard_stats():
+    from datetime import datetime, timezone
+    import calendar
+    
     total_programmes = await db.programmes.count_documents({})
     total_partenaires = await db.partenaires.count_documents({})
-    total_tests_site = await db.tests_site.count_documents({})
-    total_tests_ligne = await db.tests_ligne.count_documents({})
     total_incidents_ouverts = await db.incidents.count_documents({"statut": "ouvert"})
     
-    # Taux de réussite TS
-    tests_site_reussis = await db.tests_site.count_documents({"application_remise": True})
-    taux_reussite_ts = (tests_site_reussis / total_tests_site * 100) if total_tests_site > 0 else 0
+    # Calculer les dates du mois en cours
+    now = datetime.now(timezone.utc)
+    year = now.year
+    month = now.month
+    first_day = datetime(year, month, 1, tzinfo=timezone.utc).isoformat()
+    last_day_num = calendar.monthrange(year, month)[1]
+    last_day = datetime(year, month, last_day_num, 23, 59, 59, tzinfo=timezone.utc).isoformat()
     
-    # Taux de réussite TL
-    tests_ligne_reussis = await db.tests_ligne.count_documents({"application_offre": True})
-    taux_reussite_tl = (tests_ligne_reussis / total_tests_ligne * 100) if total_tests_ligne > 0 else 0
+    # Calculer J-5
+    days_until_end = last_day_num - now.day
+    is_j5_alert = days_until_end <= 5
+    
+    # Récupérer tous les partenaires
+    partenaires = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+    
+    # Pour chaque partenaire, vérifier s'il a été testé ce mois
+    tests_manquants = []
+    tests_manquants_j5 = 0
+    
+    for partenaire in partenaires:
+        part_id = partenaire['id']
+        part_nom = partenaire['nom']
+        
+        # Vérifier test site ce mois
+        test_site_count = await db.tests_site.count_documents({
+            "partenaire_id": part_id,
+            "date_test": {"$gte": first_day, "$lte": last_day}
+        })
+        
+        # Vérifier test ligne ce mois
+        test_ligne_count = await db.tests_ligne.count_documents({
+            "partenaire_id": part_id,
+            "date_test": {"$gte": first_day, "$lte": last_day}
+        })
+        
+        manquants = []
+        if test_site_count == 0:
+            manquants.append("Site")
+        if test_ligne_count == 0:
+            manquants.append("Ligne")
+        
+        if manquants:
+            tests_manquants.append({
+                "partenaire_id": part_id,
+                "partenaire_nom": part_nom,
+                "types_manquants": manquants
+            })
+    
+    # Si on est à J-5, compter les tests manquants comme critiques
+    if is_j5_alert:
+        tests_manquants_j5 = len(tests_manquants)
+    
+    # Taux de réussite TS (sur le mois)
+    total_tests_site_mois = await db.tests_site.count_documents({
+        "date_test": {"$gte": first_day, "$lte": last_day}
+    })
+    tests_site_reussis = await db.tests_site.count_documents({
+        "date_test": {"$gte": first_day, "$lte": last_day},
+        "application_remise": True
+    })
+    taux_reussite_ts = (tests_site_reussis / total_tests_site_mois * 100) if total_tests_site_mois > 0 else 0
+    
+    # Taux de réussite TL (sur le mois)
+    total_tests_ligne_mois = await db.tests_ligne.count_documents({
+        "date_test": {"$gte": first_day, "$lte": last_day}
+    })
+    tests_ligne_reussis = await db.tests_ligne.count_documents({
+        "date_test": {"$gte": first_day, "$lte": last_day},
+        "application_offre": True
+    })
+    taux_reussite_tl = (tests_ligne_reussis / total_tests_ligne_mois * 100) if total_tests_ligne_mois > 0 else 0
     
     return {
         "total_programmes": total_programmes,
         "total_partenaires": total_partenaires,
-        "total_tests_site": total_tests_site,
-        "total_tests_ligne": total_tests_ligne,
         "total_incidents_ouverts": total_incidents_ouverts,
         "taux_reussite_ts": round(taux_reussite_ts, 2),
-        "taux_reussite_tl": round(taux_reussite_tl, 2)
+        "taux_reussite_tl": round(taux_reussite_tl, 2),
+        "tests_manquants": tests_manquants,
+        "tests_manquants_count": len(tests_manquants),
+        "tests_manquants_j5": tests_manquants_j5,
+        "is_j5_alert": is_j5_alert,
+        "days_until_end": days_until_end,
+        "current_month": month,
+        "current_year": year
     }
 
 # Routes - Export Bilan Partenaire
