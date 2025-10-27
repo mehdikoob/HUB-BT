@@ -259,6 +259,12 @@ const Partenaires = () => {
                   <span className="font-medium">Naming:</span> {partenaire.naming_attendu}
                 </p>
               )}
+              {partenaire.remise_minimum !== null && partenaire.remise_minimum !== undefined && (
+                <p className="text-sm text-gray-600 mb-2">
+                  <span className="font-medium">Remise minimum:</span>{' '}
+                  <span className="text-red-600 font-semibold">-{partenaire.remise_minimum}%</span>
+                </p>
+              )}
               {partenaire.programmes_ids && partenaire.programmes_ids.length > 0 && (
                 <div className="text-sm text-gray-600">
                   <span className="font-medium">Programmes:</span>
@@ -268,6 +274,10 @@ const Partenaires = () => {
                         {getProgrammeName(pid)}
                       </span>
                     ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
                   </div>
                 </div>
               )}
