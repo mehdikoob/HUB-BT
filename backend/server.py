@@ -486,6 +486,36 @@ async def get_incidents(statut: Optional[StatutIncident] = Query(None)):
             i['resolved_at'] = datetime.fromisoformat(i['resolved_at'])
     return incidents
 
+@api_router.get("/incidents/enriched")
+async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None)):
+    """Get incidents with programme and partenaire details"""
+    query = {}
+    if statut:
+        query['statut'] = statut
+    
+    incidents = await db.incidents.find(query, {"_id": 0}).to_list(1000)
+    
+    # Enrich with programme and partenaire data
+    for incident in incidents:
+        if isinstance(incident.get('created_at'), str):
+            incident['created_at'] = datetime.fromisoformat(incident['created_at'])
+        if incident.get('resolved_at') and isinstance(incident['resolved_at'], str):
+            incident['resolved_at'] = datetime.fromisoformat(incident['resolved_at'])
+        
+        # Get programme details
+        if incident.get('programme_id'):
+            programme = await db.programmes.find_one({"id": incident['programme_id']}, {"_id": 0})
+            incident['programme_nom'] = programme['nom'] if programme else None
+        
+        # Get partenaire details
+        if incident.get('partenaire_id'):
+            partenaire = await db.partenaires.find_one({"id": incident['partenaire_id']}, {"_id": 0})
+            if partenaire:
+                incident['partenaire_nom'] = partenaire['nom']
+                incident['partenaire_contact_email'] = partenaire.get('contact_email')
+    
+    return incidents
+
 @api_router.put("/incidents/{incident_id}", response_model=Incident)
 async def resolve_incident(incident_id: str):
     existing = await db.incidents.find_one({"id": incident_id})
