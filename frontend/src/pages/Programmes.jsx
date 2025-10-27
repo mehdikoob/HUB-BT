@@ -172,6 +172,38 @@ const Programmes = () => {
                   rows={3}
                 />
               </div>
+              
+              <div>
+                <Label>Partenaires associés</Label>
+                <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
+                  {partenaires.length === 0 ? (
+                    <p className="text-sm text-gray-500">Aucun partenaire disponible</p>
+                  ) : (
+                    partenaires.map((part) => (
+                      <div key={part.id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`part-${part.id}`}
+                          data-testid={`partenaire-checkbox-${part.id}`}
+                          checked={selectedPartenairesIds.includes(part.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedPartenairesIds([...selectedPartenairesIds, part.id]);
+                            } else {
+                              setSelectedPartenairesIds(selectedPartenairesIds.filter((id) => id !== part.id));
+                            }
+                          }}
+                          className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                        />
+                        <Label htmlFor={`part-${part.id}`} className="mb-0 cursor-pointer">
+                          {part.nom}
+                        </Label>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+              
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Annuler
