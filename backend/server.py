@@ -47,6 +47,7 @@ class EvaluationAccueil(str, Enum):
 class ProgrammeBase(BaseModel):
     nom: str
     description: Optional[str] = None
+    logo_url: Optional[str] = None
 
 class ProgrammeCreate(ProgrammeBase):
     pass
