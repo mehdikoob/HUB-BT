@@ -13,14 +13,32 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const Programmes = () => {
   const [programmes, setProgrammes] = useState([]);
+  const [partenaires, setPartenaires] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProgramme, setEditingProgramme] = useState(null);
   const [formData, setFormData] = useState({ nom: '', description: '' });
+  const [selectedPartenairesIds, setSelectedPartenairesIds] = useState([]);
 
   useEffect(() => {
-    fetchProgrammes();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const [progResponse, partResponse] = await Promise.all([
+        axios.get(`${API}/programmes`),
+        axios.get(`${API}/partenaires`),
+      ]);
+      setProgrammes(progResponse.data);
+      setPartenaires(partResponse.data);
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Erreur lors du chargement');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchProgrammes = async () => {
     try {
