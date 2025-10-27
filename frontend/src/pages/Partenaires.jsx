@@ -81,6 +81,7 @@ const Partenaires = () => {
       programmes_ids: partenaire.programmes_ids || [],
       telephones: partenaire.telephones || [],
       naming_attendu: partenaire.naming_attendu || '',
+      remise_minimum: partenaire.remise_minimum || '',
     });
     setDialogOpen(true);
   };
