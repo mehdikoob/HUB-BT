@@ -458,6 +458,15 @@ const PartenairesNew = () => {
           </div>
         </Card>
       )}
+
+      {partenaires.length > 0 && filteredPartenaires.length === 0 && (
+        <Card className="border-0 shadow-sm">
+          <div className="text-center py-12">
+            <p className="text-gray-500 mb-2">Aucun partenaire trouvé</p>
+            <p className="text-sm text-gray-400">Essayez avec un autre terme de recherche</p>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
