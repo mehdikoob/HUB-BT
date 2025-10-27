@@ -580,45 +580,69 @@ async def get_dashboard_stats():
     days_until_end = last_day_num - now.day
     is_j5_alert = days_until_end <= 5
     
-    # Récupérer tous les partenaires
+    # Récupérer tous les partenaires et programmes
     partenaires = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+    programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
+    programmes_dict = {p['id']: p['nom'] for p in programmes}
     
-    # Pour chaque partenaire, vérifier s'il a été testé ce mois
+    # Calculer les tests attendus et effectués
+    # Pour chaque partenaire x programme : 1 test site + 1 test ligne attendu
+    tests_attendus = 0
+    tests_effectues = 0
     tests_manquants = []
-    tests_manquants_j5 = 0
     
     for partenaire in partenaires:
         part_id = partenaire['id']
         part_nom = partenaire['nom']
+        programmes_ids = partenaire.get('programmes_ids', [])
         
-        # Vérifier test site ce mois
-        test_site_count = await db.tests_site.count_documents({
-            "partenaire_id": part_id,
-            "date_test": {"$gte": first_day, "$lte": last_day}
-        })
-        
-        # Vérifier test ligne ce mois
-        test_ligne_count = await db.tests_ligne.count_documents({
-            "partenaire_id": part_id,
-            "date_test": {"$gte": first_day, "$lte": last_day}
-        })
-        
-        manquants = []
-        if test_site_count == 0:
-            manquants.append("Site")
-        if test_ligne_count == 0:
-            manquants.append("Ligne")
-        
-        if manquants:
-            tests_manquants.append({
+        # Pour chaque programme associé à ce partenaire
+        for prog_id in programmes_ids:
+            prog_nom = programmes_dict.get(prog_id, 'Programme inconnu')
+            tests_attendus += 2  # 1 site + 1 ligne
+            
+            # Vérifier test site ce mois pour ce partenaire x programme
+            test_site_count = await db.tests_site.count_documents({
                 "partenaire_id": part_id,
-                "partenaire_nom": part_nom,
-                "types_manquants": manquants
+                "programme_id": prog_id,
+                "date_test": {"$gte": first_day, "$lte": last_day}
             })
+            
+            # Vérifier test ligne ce mois pour ce partenaire x programme
+            test_ligne_count = await db.tests_ligne.count_documents({
+                "partenaire_id": part_id,
+                "programme_id": prog_id,
+                "date_test": {"$gte": first_day, "$lte": last_day}
+            })
+            
+            # Compter les tests effectués
+            if test_site_count > 0:
+                tests_effectues += 1
+            if test_ligne_count > 0:
+                tests_effectues += 1
+            
+            # Collecter les tests manquants
+            manquants = []
+            if test_site_count == 0:
+                manquants.append("Site")
+            if test_ligne_count == 0:
+                manquants.append("Ligne")
+            
+            if manquants:
+                tests_manquants.append({
+                    "partenaire_id": part_id,
+                    "partenaire_nom": part_nom,
+                    "programme_id": prog_id,
+                    "programme_nom": prog_nom,
+                    "types_manquants": manquants
+                })
     
-    # Si on est à J-5, compter les tests manquants comme critiques
+    # Compter le nombre de partenaires uniques avec tests manquants
+    partenaires_manquants = len(set([t['partenaire_id'] for t in tests_manquants]))
+    
+    # Si on est à J-5, compter les partenaires avec tests manquants comme critiques
     if is_j5_alert:
-        tests_manquants_j5 = len(tests_manquants)
+        tests_manquants_j5 = partenaires_manquants
     
     # Taux de réussite TS (sur le mois)
     total_tests_site_mois = await db.tests_site.count_documents({
