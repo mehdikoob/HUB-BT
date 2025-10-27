@@ -45,6 +45,18 @@ const Incidents = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet incident résolu ?')) return;
+    try {
+      await axios.delete(`${API}/incidents/${id}`);
+      toast.success('Incident supprimé');
+      fetchIncidents();
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error(error.response?.data?.detail || 'Erreur lors de la suppression');
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Chargement...</div>;
   }
