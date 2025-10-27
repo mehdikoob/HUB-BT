@@ -137,28 +137,48 @@ const TestsSite = () => {
     }
   };
 
-  const handleExportCSV = async () => {
+  const handleGenerateBilan = async () => {
+    if (!bilanData.partenaire_id) {
+      toast.error('Veuillez sélectionner un partenaire');
+      return;
+    }
+    if (!bilanData.date_debut || !bilanData.date_fin) {
+      toast.error('Veuillez sélectionner une plage de dates');
+      return;
+    }
+
     try {
-      const params = {};
-      if (filters.programme_id) params.programme_id = filters.programme_id;
-      if (filters.partenaire_id) params.partenaire_id = filters.partenaire_id;
-      
-      const response = await axios.get(`${API}/export/tests-site`, {
-        params,
+      const response = await axios.get(`${API}/export/bilan-partenaire`, {
+        params: {
+          partenaire_id: bilanData.partenaire_id,
+          date_debut: bilanData.date_debut,
+          date_fin: bilanData.date_fin,
+        },
         responseType: 'blob',
       });
+      
+      const partenaire = partenaires.find(p => p.id === bilanData.partenaire_id);
+      const partenaireNom = partenaire ? partenaire.nom : 'partenaire';
+      const filename = `bilan_${partenaireNom}_${bilanData.date_debut}_${bilanData.date_fin}.csv`;
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `tests_site_${Date.now()}.csv`);
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success('Export réussi');
+      
+      toast.success('Bilan généré avec succès');
+      setBilanDialogOpen(false);
+      setBilanData({
+        partenaire_id: '',
+        date_debut: '',
+        date_fin: '',
+      });
     } catch (error) {
       console.error('Erreur:', error);
-      toast.error('Erreur lors de l\'export');
+      toast.error('Erreur lors de la génération du bilan');
     }
   };
 
