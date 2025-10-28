@@ -239,6 +239,143 @@ def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float
         return 0.0
     return round((1 - prix_remise / prix_public) * 100, 2)
 
+async def replace_template_variables(template_text: str, incident_id: str) -> str:
+    """Replace template variables with actual data from incident"""
+    # Get incident data
+    incident = await db.incidents.find_one({"id": incident_id})
+    if not incident:
+        return template_text
+    
+    # Get related data
+    programme = await db.programmes.find_one({"id": incident.get('programme_id')}) if incident.get('programme_id') else None
+    partenaire = await db.partenaires.find_one({"id": incident.get('partenaire_id')}) if incident.get('partenaire_id') else None
+    
+    # Get test data
+    test = None
+    if incident['type_test'] == 'TS':
+        test = await db.tests_site.find_one({"id": incident['test_id']})
+    else:
+        test = await db.tests_ligne.find_one({"id": incident['test_id']})
+    
+    # Build replacement dictionary
+    replacements = {
+        '[Nom du programme]': programme['nom'] if programme else 'N/A',
+        '[Nature du problème constaté]': incident.get('description', 'N/A'),
+        '[Date du test]': datetime.fromisoformat(test['date_test']).strftime('%d/%m/%Y') if test and test.get('date_test') else 'N/A',
+        '[Nom du site / canal du test]': 'Site web' if incident['type_test'] == 'TS' else 'Téléphone',
+        '[Remise attendue]': f"{partenaire.get('remise_minimum', 'N/A')} %" if partenaire else 'N/A',
+        '[Observation]': incident.get('description', 'N/A'),
+        '[Nom du contact]': partenaire.get('contact_email', 'N/A') if partenaire else 'N/A',
+    }
+    
+    # Replace variables
+    for key, value in replacements.items():
+        template_text = template_text.replace(key, str(value))
+    
+    return template_text
+
+async def send_email_smtp(recipient: str, subject: str, body: str, signature: str = "") -> dict:
+    """Send email via SMTP Outlook"""
+    try:
+        # Get SMTP configuration from environment
+        smtp_server = os.getenv('SMTP_SERVER', 'smtp.office365.com')
+        smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        smtp_user = os.getenv('SMTP_USER', 'automatisation@qwertys.fr')
+        smtp_password = os.getenv('SMTP_PASSWORD', '')
+        
+        if not smtp_password:
+            return {"status": "error", "message": "SMTP configuration not available"}
+        
+        # Create message
+        msg = MIMEMultipart()
+        msg['From'] = smtp_user
+        msg['To'] = recipient
+        msg['Subject'] = subject
+        
+        # Add body with signature
+        full_body = body
+        if signature:
+            full_body += f"\n\n{signature}"
+        
+        msg.attach(MIMEText(full_body, 'plain'))
+        
+        # Send email
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        
+        return {"status": "success", "message": "Email sent successfully"}
+    except Exception as e:
+        logging.error(f"SMTP Error: {str(e)}")
+        return {"status": "error", "message": str(e)}
+
+async def create_email_draft_for_incident(incident_id: str):
+    """Automatically create an email draft when an incident is created"""
+    try:
+        # Get incident
+        incident = await db.incidents.find_one({"id": incident_id})
+        if not incident:
+            return
+        
+        # Get partenaire to get recipient email
+        partenaire = await db.partenaires.find_one({"id": incident.get('partenaire_id')}) if incident.get('partenaire_id') else None
+        if not partenaire or not partenaire.get('contact_email'):
+            logging.warning(f"No contact email for incident {incident_id}")
+            return
+        
+        # Get default template
+        default_template = await db.email_templates.find_one({"is_default": True})
+        if not default_template:
+            # Create default template if it doesn't exist
+            default_template = EmailTemplate(
+                name="Template par défaut",
+                subject_template="[Nom du programme] – [Nature du problème constaté]",
+                body_template="""Bonjour,
+
+J'espère que vous allez bien. 
+
+Dans le cadre de nos tests à l'aveugle réalisés régulièrement sur [Nom du site / canal du test], notre équipe a relevé un point qui pourrait nécessiter une vérification de votre côté.
+
+Détails du test :
+
+Date du test : [Date du test]
+Programme concerné : [Nom du programme]
+Remise attendue : [Remise attendue]
+Observation : [Observation]
+
+Il est possible qu'il s'agisse d'un cas isolé ou lié à nos conditions de test. Nous préférons donc vous partager l'information afin que vous puissiez vérifier de votre côté et confirmer si tout fonctionne normalement.
+
+Merci de votre retour,
+Bien cordialement,""",
+                is_default=True
+            )
+            doc = default_template.model_dump()
+            doc['created_at'] = doc['created_at'].isoformat()
+            await db.email_templates.insert_one(doc)
+        
+        # Replace variables in template
+        subject = await replace_template_variables(default_template['subject_template'], incident_id)
+        body = await replace_template_variables(default_template['body_template'], incident_id)
+        
+        # Create draft
+        draft = EmailDraft(
+            incident_id=incident_id,
+            template_id=default_template['id'],
+            subject=subject,
+            body=body,
+            recipient=partenaire['contact_email'],
+            status=EmailDraftStatus.draft
+        )
+        doc = draft.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        await db.email_drafts.insert_one(doc)
+        
+        logging.info(f"Email draft created for incident {incident_id}")
+    except Exception as e:
+        logging.error(f"Error creating email draft: {str(e)}")
+
 async def check_and_create_incident(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None):
     incident = Incident(
         test_id=test_id,
