@@ -867,21 +867,69 @@ const TestsSite = () => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('date_test')}
+                >
+                  <div className="flex items-center">
+                    Date
+                    <SortIcon columnKey="date_test" />
+                  </div>
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Programme</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Partenaire</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Appliquée</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Prix public</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Prix remisé</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">% Remise</th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('application_remise')}
+                >
+                  <div className="flex items-center">
+                    Appliquée
+                    <SortIcon columnKey="application_remise" />
+                  </div>
+                </th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('prix_public')}
+                >
+                  <div className="flex items-center">
+                    Prix public
+                    <SortIcon columnKey="prix_public" />
+                  </div>
+                </th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('prix_remise')}
+                >
+                  <div className="flex items-center">
+                    Prix remisé
+                    <SortIcon columnKey="prix_remise" />
+                  </div>
+                </th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('pct_remise_calcule')}
+                >
+                  <div className="flex items-center">
+                    % Remise
+                    <SortIcon columnKey="pct_remise_calcule" />
+                  </div>
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Naming de la remise</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Cumul codes promos</th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('cumul_codes')}
+                >
+                  <div className="flex items-center">
+                    Cumul codes promos
+                    <SortIcon columnKey="cumul_codes" />
+                  </div>
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Pièces jointes</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {tests.map((test) => (
+              {getSortedTests().map((test) => (
                 <tr key={test.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {format(new Date(test.date_test), 'dd/MM/yyyy HH:mm')}
