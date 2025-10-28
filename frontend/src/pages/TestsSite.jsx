@@ -21,6 +21,7 @@ const TestsSite = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTest, setEditingTest] = useState(null);
   const [bilanDialogOpen, setBilanDialogOpen] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [filters, setFilters] = useState({
     programme_id: '',
     partenaire_id: '',
