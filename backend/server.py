@@ -1914,7 +1914,8 @@ async def export_bilan_partenaire_ppt(
             pass
         
         filename = f"Bilan_{partenaire['nom']}_{period_label.replace(' ', '_')}.pptx"
-        filename = filename.replace('/', '_')  # Remove any slashes from filename
+        # Sanitize filename for HTTP headers (remove problematic characters)
+        filename = filename.replace('/', '_').replace('–', '-').replace('à', 'a')
         
         return StreamingResponse(
             output,
