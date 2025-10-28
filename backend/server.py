@@ -1834,167 +1834,105 @@ async def export_bilan_partenaire_ppt(
         if not programmes:
             raise HTTPException(status_code=404, detail="No programmes found")
         
+        # For now, we'll only process the FIRST programme to validate the approach
+        # TODO: Add support for multiple programmes by cloning slides
+        programme = programmes[0]
+        
+        # Get tests for this programme
+        tests_site = await db.tests_site.find({
+            "programme_id": programme['id'],
+            "partenaire_id": partenaire_id,
+            "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+        }).sort("date_test", 1).to_list(length=None)
+        
+        tests_ligne = await db.tests_ligne.find({
+            "programme_id": programme['id'],
+            "partenaire_id": partenaire_id,
+            "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+        }).sort("date_test", 1).to_list(length=None)
+        
+        # Get incidents
+        incidents = await db.incidents.find({
+            "programme_id": programme['id'],
+            "partenaire_id": partenaire_id
+        }).to_list(length=None)
+        
+        # Calculate statistics
+        total_tests_site = len(tests_site)
+        tests_site_reussis = len([t for t in tests_site if t.get('application_remise', False)])
+        pct_site = round((tests_site_reussis / total_tests_site * 100), 1) if total_tests_site > 0 else 0
+        
+        total_tests_ligne = len(tests_ligne)
+        tests_ligne_reussis = len([t for t in tests_ligne if t.get('application_offre', False)])
+        pct_ligne = round((tests_ligne_reussis / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
+        
+        # Calculate average waiting time
+        delais = []
+        for t in tests_ligne:
+            if t.get('delai_attente'):
+                try:
+                    parts = t['delai_attente'].split(':')
+                    if len(parts) == 2:
+                        minutes = int(parts[0])
+                        seconds = int(parts[1])
+                        delais.append(minutes * 60 + seconds)
+                except:
+                    pass
+        avg_delai = sum(delais) / len(delais) if delais else 0
+        avg_delai_str = f"{int(avg_delai // 60):02d}:{int(avg_delai % 60):02d}"
+        
         # Load template
         template_path = TEMPLATE_DIR / "Bilan_Blindtest_template.pptx"
         if not template_path.exists():
             raise HTTPException(status_code=500, detail="Template not found")
         
-        prs = Presentation(str(template_path))
+        # Copy template to work with
+        work_path = TEMPLATE_DIR / f"temp_{partenaire_id}.pptx"
+        shutil.copy(template_path, work_path)
         
-        # Verify template has at least 4 slides
-        if len(prs.slides) < 4:
-            raise HTTPException(status_code=500, detail="Template must have at least 4 slides")
+        # Load presentation
+        prs = Presentation(str(work_path))
         
-        # Store original template slides (BEFORE removing them)
-        template_slide_0 = list(prs.slides[0].shapes)
-        template_slide_1 = list(prs.slides[1].shapes) if len(prs.slides) > 1 else []
-        template_slide_2 = list(prs.slides[2].shapes) if len(prs.slides) > 2 else []
-        template_slide_3 = list(prs.slides[3].shapes) if len(prs.slides) > 3 else []
-        template_slide_4 = list(prs.slides[4].shapes) if len(prs.slides) > 4 else []
-        
-        # Keep references to the original slides
-        original_slides = [prs.slides[i] for i in range(min(5, len(prs.slides)))]
-        
-        # Don't remove slides - we'll add new ones and remove old ones at the end
-        # Calculate total slides for pagination
-        total_slides = len(programmes) * 3 + 1  # 3 slides per programme + 1 final SAV
-        current_slide_num = 0
+        # Prepare global replacements
         bilan_date = datetime.now(timezone.utc).strftime('%d/%m/%Y')
-        
-        # Collect all incidents for final SAV report
-        all_incidents = []
-        
-        # Track new slides to keep
-        slides_to_keep = []
-        
-        # Generate slides for each programme
-        for programme in programmes:
-            # Get tests for this programme
-            tests_site = await db.tests_site.find({
-                "programme_id": programme['id'],
-                "partenaire_id": partenaire_id,
-                "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
-            }).sort("date_test", 1).to_list(length=None)
-            
-            tests_ligne = await db.tests_ligne.find({
-                "programme_id": programme['id'],
-                "partenaire_id": partenaire_id,
-                "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
-            }).sort("date_test", 1).to_list(length=None)
-            
-            # Get incidents
-            incidents = await db.incidents.find({
-                "programme_id": programme['id'],
-                "partenaire_id": partenaire_id
-            }).to_list(length=None)
-            all_incidents.extend(incidents)
-            
-            # Calculate statistics
-            total_tests_site = len(tests_site)
-            tests_site_reussis = len([t for t in tests_site if t.get('application_remise', False)])
-            pct_site = round((tests_site_reussis / total_tests_site * 100), 1) if total_tests_site > 0 else 0
-            
-            total_tests_ligne = len(tests_ligne)
-            tests_ligne_reussis = len([t for t in tests_ligne if t.get('application_offre', False)])
-            pct_ligne = round((tests_ligne_reussis / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
-            
-            # Calculate average waiting time
-            delais = []
-            for t in tests_ligne:
-                if t.get('delai_attente'):
-                    try:
-                        parts = t['delai_attente'].split(':')
-                        if len(parts) == 2:
-                            minutes = int(parts[0])
-                            seconds = int(parts[1])
-                            delais.append(minutes * 60 + seconds)
-                    except:
-                        pass
-            avg_delai = sum(delais) / len(delais) if delais else 0
-            avg_delai_str = f"{int(avg_delai // 60):02d}:{int(avg_delai % 60):02d}"
-            
-            # Slide 1: Vue d'ensemble (duplicate from template slide 0)
-            current_slide_num += 1
-            slide1 = duplicate_slide(prs, original_slides[0])
-            slides_to_keep.append(slide1)
-            replacements1 = {
-                '{PartnerName}': partenaire['nom'],
-                '{ProgramName}': programme['nom'],
-                '{moyenne des tests sites réussis}': str(pct_site),
-                '{moyenne des tests lignes réussis}': str(pct_ligne),
-                '{temps d\'attente/nombre de test effectués}': avg_delai_str,
-            }
-            for shape in slide1.shapes:
-                replace_text_in_shape(shape, replacements1)
-            
-            # Slide 2: Tests Sites (duplicate from template slide 2)
-            current_slide_num += 1
-            slide2 = duplicate_slide(prs, original_slides[2])
-            slides_to_keep.append(slide2)
-            replacements2 = {
-                '{PartnerName}': partenaire['nom'],
-                '{ProgramName}': programme['nom'],
-            }
-            for shape in slide2.shapes:
-                replace_text_in_shape(shape, replacements2)
-            
-            # Slide 3: Tests Ligne (duplicate from template slide 3)
-            current_slide_num += 1
-            slide3 = duplicate_slide(prs, original_slides[3])
-            slides_to_keep.append(slide3)
-            replacements3 = {
-                '{PartnerName}': partenaire['nom'],
-                '{ProgramName}': programme['nom'],
-            }
-            for shape in slide3.shapes:
-                replace_text_in_shape(shape, replacements3)
-        
-        # Slide finale: Rapport SAV général
-        current_slide_num += 1
-        slide_sav_index = 4 if len(original_slides) > 4 else 3
-        slide_sav = duplicate_slide(prs, original_slides[slide_sav_index])
-        slides_to_keep.append(slide_sav)
-        replacements_sav = {
+        replacements = {
             '{PartnerName}': partenaire['nom'],
+            '{ProgramName}': programme['nom'],
+            '{Mois du trigger + année du trigger}': period_label,
+            '{moyenne des tests sites réussis}': f"{pct_site}%",
+            '{moyenne des tests lignes réussis}': f"{pct_ligne}%",
+            '{temps d\'attente/nombre de test effectués}': avg_delai_str,
+            'Bilan du': f'Bilan du {bilan_date}',
         }
-        # Add summary of all incidents
-        incident_summary = f"Total incidents: {len(all_incidents)}"
         
-        for shape in slide_sav.shapes:
-            replace_text_in_shape(shape, replacements_sav)
-        
-        # Now remove the original template slides (the first 5)
-        for i in range(min(5, len(original_slides)) - 1, -1, -1):
-            rId = prs.slides._sldIdLst[i].rId
-            prs.part.drop_rel(rId)
-            del prs.slides._sldIdLst[i]
-        
-        # Add footer with date and pagination to all slides
-        for i, slide in enumerate(prs.slides):
-            for shape in slide.shapes:
-                if shape.has_text_frame:
-                    # Try to add date in footer
-                    if 'Bilan du' in shape.text or '{date}' in shape.text:
-                        shape.text = f"Bilan du {bilan_date}"
-                    # Try to add pagination
-                    elif '/' in shape.text and len(shape.text) < 10:
-                        shape.text = f"{i + 1}/{total_slides}"
+        # Replace text in ALL slides
+        for slide in prs.slides:
+            replace_text_in_slide(slide, replacements)
         
         # Save to BytesIO
         output = io.BytesIO()
         prs.save(output)
         output.seek(0)
         
+        # Clean up temp file
+        try:
+            work_path.unlink()
+        except:
+            pass
+        
         filename = f"Bilan_{partenaire['nom']}_{period_label.replace(' ', '_')}.pptx"
+        filename = filename.replace('/', '_')  # Remove any slashes from filename
         
         return StreamingResponse(
             output,
             media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
         )
         
     except Exception as e:
         logging.error(f"Error generating PPT: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 # Include the router in the main app
