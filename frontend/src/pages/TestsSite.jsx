@@ -1014,6 +1014,20 @@ const TestsSite = () => {
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm">
+                    {alerts.length > 0 ? (
+                      <div className="space-y-1">
+                        {alerts.map((alert, idx) => (
+                          <div key={idx} className="flex items-center gap-1 text-xs text-red-700">
+                            <AlertTriangle size={14} className="flex-shrink-0" />
+                            <span>{alert}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-green-600 text-xs">✓ OK</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
                     <div className="flex gap-1">
                       <Button
                         size="sm"
