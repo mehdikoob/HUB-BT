@@ -430,7 +430,7 @@ const TestsSite = () => {
                     <Label htmlFor="programme_id">Programme *</Label>
                     <Select
                       value={formData.programme_id}
-                      onValueChange={(value) => setFormData({ ...formData, programme_id: value })}
+                      onValueChange={handleProgrammeChange}
                       required
                     >
                       <SelectTrigger data-testid="test-site-programme-select">
@@ -449,7 +449,7 @@ const TestsSite = () => {
                     <Label htmlFor="partenaire_id">Partenaire *</Label>
                     <Select
                       value={formData.partenaire_id}
-                      onValueChange={(value) => setFormData({ ...formData, partenaire_id: value })}
+                      onValueChange={handlePartenaireChange}
                       required
                     >
                       <SelectTrigger data-testid="test-site-partenaire-select">
@@ -465,6 +465,25 @@ const TestsSite = () => {
                     </Select>
                   </div>
                 </div>
+                
+                {/* Display URL if available */}
+                {partenaireUrl && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <Label className="text-sm text-blue-800 font-semibold mb-1 flex items-center gap-2">
+                      <Globe size={16} />
+                      Site web du partenaire pour ce programme :
+                    </Label>
+                    <a 
+                      href={partenaireUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline font-medium text-sm break-all"
+                    >
+                      {partenaireUrl}
+                    </a>
+                  </div>
+                )}
+                
                 <div>
                   <Label htmlFor="date_test">Date du test *</Label>
                   <Input
