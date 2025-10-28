@@ -45,6 +45,7 @@ const TestsSite = () => {
     attachments: [],
   });
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [partenaireUrl, setPartenaireUrl] = useState('');
 
   // Calculate discount percentage automatically
   const calculateRemisePercentage = () => {
@@ -56,6 +57,32 @@ const TestsSite = () => {
       return percentage.toFixed(1);
     }
     return '';
+  };
+
+  // Get URL for selected partenaire and programme
+  const updatePartenaireUrl = (programmeId, partenaireId) => {
+    if (!programmeId || !partenaireId) {
+      setPartenaireUrl('');
+      return;
+    }
+
+    const partenaire = partenaires.find(p => p.id === partenaireId);
+    if (partenaire && partenaire.contacts_programmes) {
+      const contact = partenaire.contacts_programmes.find(c => c.programme_id === programmeId);
+      setPartenaireUrl(contact?.url_site || '');
+    } else {
+      setPartenaireUrl('');
+    }
+  };
+
+  const handleProgrammeChange = (value) => {
+    setFormData({ ...formData, programme_id: value });
+    updatePartenaireUrl(value, formData.partenaire_id);
+  };
+
+  const handlePartenaireChange = (value) => {
+    setFormData({ ...formData, partenaire_id: value });
+    updatePartenaireUrl(formData.programme_id, value);
   };
 
   const handleFileUpload = async (e) => {
