@@ -101,3 +101,97 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Complete the implementation of the 'Alertes' column for Tests Site and Tests Ligne pages to visually highlight issues with individual tests."
+
+backend:
+  - task: "Backend API endpoints for Tests Site and Tests Ligne"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Backend endpoints already exist and working. No changes needed."
+
+frontend:
+  - task: "Alertes column implementation in Tests Site"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/TestsSite.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Completed implementation of Alertes column in TestsSite.jsx:
+          - AlertTriangle icon already imported
+          - getTestAlerts() function already existed (lines 380-399)
+          - Added missing Alertes cell in table rows (lines 1016-1028)
+          - Alerts displayed with red warning icon for issues
+          - Shows green checkmark for tests with no alerts
+          - Row background turns red (bg-red-50) when alerts exist
+          - Detects: remise non appliquée, prix remisé > prix public, remise négative
+  
+  - task: "Alertes column implementation in Tests Ligne"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/TestsLigne.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Completed implementation of Alertes column in TestsLigne.jsx:
+          - Added AlertTriangle icon import
+          - Created getTestAlerts() function (lines 320-344) to detect:
+            * Offre non appliquée (application_offre = false)
+            * Accueil médiocre or moyen
+            * Délai d'attente > 3 minutes
+          - Added "Alertes" column header in table
+          - Added alerts display cell in table rows
+          - Shows red warning icon for issues, green checkmark when OK
+          - Row background turns red when alerts exist
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Alertes column implementation in Tests Site"
+    - "Alertes column implementation in Tests Ligne"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Implementation completed for Alertes feature:
+      
+      TESTS SITE:
+      - Fixed missing Alertes column display (was calculating but not showing)
+      - Alerts now properly displayed in dedicated column before Actions
+      - Visual indicators: red AlertTriangle icon + message for issues, green checkmark for OK
+      
+      TESTS LIGNE:
+      - Full implementation from scratch
+      - Alert detection logic for ligne-specific criteria
+      - Visual display matching Tests Site pattern
+      
+      Frontend compiled successfully after fixing syntax error.
+      Ready for comprehensive UI testing to verify:
+      1. Alertes column appears in both tables
+      2. Alert detection logic works correctly
+      3. Visual styling (red backgrounds, icons) displays properly
+      4. No console errors or warnings
