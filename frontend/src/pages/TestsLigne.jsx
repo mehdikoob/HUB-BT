@@ -339,7 +339,7 @@ const TestsLigne = () => {
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Nouveau test ligne</DialogTitle>
+                <DialogTitle>{editingTest ? 'Modifier le test ligne' : 'Nouveau test ligne'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
