@@ -1841,16 +1841,17 @@ async def export_bilan_partenaire_ppt(
         if len(prs.slides) < 4:
             raise HTTPException(status_code=500, detail="Template must have at least 4 slides")
         
-        # Store original slides as templates
-        template_slides = list(prs.slides)
+        # Store original template slides (BEFORE removing them)
+        template_slide_0 = list(prs.slides[0].shapes)
+        template_slide_1 = list(prs.slides[1].shapes) if len(prs.slides) > 1 else []
+        template_slide_2 = list(prs.slides[2].shapes) if len(prs.slides) > 2 else []
+        template_slide_3 = list(prs.slides[3].shapes) if len(prs.slides) > 3 else []
+        template_slide_4 = list(prs.slides[4].shapes) if len(prs.slides) > 4 else []
         
-        # Remove all slides (we'll recreate from templates)
-        slide_indices = list(range(len(prs.slides) - 1, -1, -1))
-        for idx in slide_indices:
-            rId = prs.slides._sldIdLst[idx].rId
-            prs.part.drop_rel(rId)
-            del prs.slides._sldIdLst[idx]
+        # Keep references to the original slides
+        original_slides = [prs.slides[i] for i in range(min(5, len(prs.slides)))]
         
+        # Don't remove slides - we'll add new ones and remove old ones at the end
         # Calculate total slides for pagination
         total_slides = len(programmes) * 3 + 1  # 3 slides per programme + 1 final SAV
         current_slide_num = 0
@@ -1858,6 +1859,9 @@ async def export_bilan_partenaire_ppt(
         
         # Collect all incidents for final SAV report
         all_incidents = []
+        
+        # Track new slides to keep
+        slides_to_keep = []
         
         # Generate slides for each programme
         for programme in programmes:
