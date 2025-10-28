@@ -1753,6 +1753,21 @@ def replace_text_in_table(table, replacements):
                         if key in run.text:
                             run.text = run.text.replace(key, str(value))
 
+def duplicate_slide(prs, slide_index):
+    """Duplicate a slide in the presentation"""
+    template_slide = prs.slides[slide_index]
+    blank_layout = prs.slide_layouts[6]
+    
+    new_slide = prs.slides.add_slide(blank_layout)
+    
+    # Copy all shapes from template
+    for shape in template_slide.shapes:
+        el = shape.element
+        newel = deepcopy(el)
+        new_slide.shapes._spTree.insert_element_before(newel, 'p:extLst')
+    
+    return new_slide
+
 def format_french_month(date_obj):
     """Format date to French month name"""
     months_fr = {
@@ -1762,11 +1777,19 @@ def format_french_month(date_obj):
     }
     return months_fr.get(date_obj.month, str(date_obj.month))
 
+def add_table_row_data(table, row_data):
+    """Add a row to a table with the given data"""
+    # Add new row
+    row = table.rows.add()
+    for i, cell_value in enumerate(row_data):
+        if i < len(row.cells):
+            row.cells[i].text = str(cell_value)
+
 # Routes - Bilan Partenaire PPT Export
 @api_router.get("/export/bilan-partenaire-ppt")
 async def export_bilan_partenaire_ppt(
     partenaire_id: str = Query(...),
-    period_type: str = Query(...),  # "month", "year", "rolling"
+    period_type: str = Query(...),
     year: Optional[int] = Query(None),
     month: Optional[int] = Query(None)
 ):
@@ -1777,11 +1800,11 @@ async def export_bilan_partenaire_ppt(
         if not partenaire:
             raise HTTPException(status_code=404, detail="Partenaire not found")
         
-        # Calculate date range based on period type
+        # Calculate date range
         today = datetime.now(timezone.utc)
         if period_type == "month":
             if not year or not month:
-                raise HTTPException(status_code=400, detail="Year and month required for monthly report")
+                raise HTTPException(status_code=400, detail="Year and month required")
             date_debut = datetime(year, month, 1, tzinfo=timezone.utc)
             if month == 12:
                 date_fin = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
@@ -1790,7 +1813,7 @@ async def export_bilan_partenaire_ppt(
             period_label = f"{format_french_month(date_debut)} {year}"
         elif period_type == "year":
             if not year:
-                raise HTTPException(status_code=400, detail="Year required for yearly report")
+                raise HTTPException(status_code=400, detail="Year required")
             date_debut = datetime(year, 1, 1, tzinfo=timezone.utc)
             date_fin = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
             period_label = f"Année {year}"
@@ -1801,13 +1824,13 @@ async def export_bilan_partenaire_ppt(
         else:
             raise HTTPException(status_code=400, detail="Invalid period_type")
         
-        # Get all programmes for this partner (sorted alphabetically)
+        # Get programmes sorted alphabetically
         programme_ids = partenaire.get('programmes_ids', [])
         programmes = await db.programmes.find({"id": {"$in": programme_ids}}).to_list(length=None)
         programmes = sorted(programmes, key=lambda p: p['nom'])
         
         if not programmes:
-            raise HTTPException(status_code=404, detail="No programmes found for this partner")
+            raise HTTPException(status_code=404, detail="No programmes found")
         
         # Load template
         template_path = TEMPLATE_DIR / "Bilan_Blindtest_template.pptx"
@@ -1816,40 +1839,49 @@ async def export_bilan_partenaire_ppt(
         
         prs = Presentation(str(template_path))
         
-        # Get template slides (first 4 slides)
+        # Verify template has at least 4 slides
         if len(prs.slides) < 4:
             raise HTTPException(status_code=500, detail="Template must have at least 4 slides")
         
-        # Remove all slides first (we'll recreate them)
+        # Store original slides as templates
+        template_slides = list(prs.slides)
+        
+        # Remove all slides (we'll recreate from templates)
         slide_indices = list(range(len(prs.slides) - 1, -1, -1))
         for idx in slide_indices:
             rId = prs.slides._sldIdLst[idx].rId
             prs.part.drop_rel(rId)
             del prs.slides._sldIdLst[idx]
         
-        # For each programme, generate 4 slides
-        slide_number = 1
-        total_slides = len(programmes) * 4
+        # Calculate total slides for pagination
+        total_slides = len(programmes) * 3 + 1  # 3 slides per programme + 1 final SAV
+        current_slide_num = 0
+        bilan_date = datetime.now(timezone.utc).strftime('%d/%m/%Y')
         
+        # Collect all incidents for final SAV report
+        all_incidents = []
+        
+        # Generate slides for each programme
         for programme in programmes:
-            # Get tests for this programme and partner
+            # Get tests for this programme
             tests_site = await db.tests_site.find({
                 "programme_id": programme['id'],
                 "partenaire_id": partenaire_id,
-                "date_test": {
-                    "$gte": date_debut.isoformat(),
-                    "$lt": date_fin.isoformat()
-                }
+                "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
             }).sort("date_test", 1).to_list(length=None)
             
             tests_ligne = await db.tests_ligne.find({
                 "programme_id": programme['id'],
                 "partenaire_id": partenaire_id,
-                "date_test": {
-                    "$gte": date_debut.isoformat(),
-                    "$lt": date_fin.isoformat()
-                }
+                "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
             }).sort("date_test", 1).to_list(length=None)
+            
+            # Get incidents
+            incidents = await db.incidents.find({
+                "programme_id": programme['id'],
+                "partenaire_id": partenaire_id
+            }).to_list(length=None)
+            all_incidents.extend(incidents)
             
             # Calculate statistics
             total_tests_site = len(tests_site)
@@ -1875,41 +1907,103 @@ async def export_bilan_partenaire_ppt(
             avg_delai = sum(delais) / len(delais) if delais else 0
             avg_delai_str = f"{int(avg_delai // 60):02d}:{int(avg_delai % 60):02d}"
             
-            # Get incidents for this programme/partner
-            incidents = await db.incidents.find({
-                "programme_id": programme['id'],
-                "partenaire_id": partenaire_id
-            }).to_list(length=None)
-            
-            # Prepare replacements
-            replacements = {
+            # Slide 1: Vue d'ensemble (duplicate from template slide 0)
+            current_slide_num += 1
+            slide1 = duplicate_slide(prs, 0)
+            replacements1 = {
                 '{PartnerName}': partenaire['nom'],
                 '{ProgramName}': programme['nom'],
-                '{Mois du trigger + année du trigger}': period_label,
                 '{moyenne des tests sites réussis}': str(pct_site),
                 '{moyenne des tests lignes réussis}': str(pct_ligne),
                 '{temps d\'attente/nombre de test effectués}': avg_delai_str,
             }
+            for shape in slide1.shapes:
+                replace_text_in_shape(shape, replacements1)
             
-            # Create slides (copy from template and modify)
-            # Note: Since we can't easily copy slides in python-pptx, we'll use the blank layout
-            # This is a limitation - ideally we'd clone the exact template slides
-            blank_layout = prs.slide_layouts[6]  # Blank layout
+            # Slide 2: Tests Sites (duplicate from template slide 1 or 2)
+            current_slide_num += 1
+            slide2 = duplicate_slide(prs, 2)  # Assuming slide 2 is Tests Sites template
+            replacements2 = {
+                '{PartnerName}': partenaire['nom'],
+                '{ProgramName}': programme['nom'],
+            }
+            for shape in slide2.shapes:
+                replace_text_in_shape(shape, replacements2)
+                # If it's a table, add test data
+                if shape.has_table:
+                    table = shape.table
+                    # Add rows for each test
+                    for test in tests_site:
+                        test_date = datetime.fromisoformat(test['date_test'])
+                        row_data = [
+                            format_french_month(test_date),
+                            test_date.strftime('%d/%m/%Y'),
+                            f"{test['prix_public']:.2f} € VS {test['prix_remise']:.2f} € (-{test.get('pct_remise_calcule', 0)}%)",
+                            'OUI' if test.get('application_remise') else 'NON',
+                            test.get('naming_constate', ''),
+                            'OUI' if test.get('cumul_codes') else 'NON',
+                        ]
+                        add_table_row_data(table, row_data)
             
-            # Slide 1: Vue d'ensemble
-            slide = prs.slides.add_slide(blank_layout)
-            # Add title and content here
-            # (This is simplified - in production you'd need to recreate the exact template layout)
-            
-            # Add more slides...
-            # This is getting very long, so I'll create a simplified version
-            
+            # Slide 3: Tests Ligne (duplicate from template slide 2 or 3)
+            current_slide_num += 1
+            slide3 = duplicate_slide(prs, 3)  # Assuming slide 3 is Tests Ligne template
+            replacements3 = {
+                '{PartnerName}': partenaire['nom'],
+                '{ProgramName}': programme['nom'],
+            }
+            for shape in slide3.shapes:
+                replace_text_in_shape(shape, replacements3)
+                # If it's a table, add test data
+                if shape.has_table:
+                    table = shape.table
+                    for test in tests_ligne:
+                        test_date = datetime.fromisoformat(test['date_test'])
+                        row_data = [
+                            format_french_month(test_date),
+                            test_date.strftime('%d/%m/%Y'),
+                            test.get('numero_telephone', ''),
+                            'OUI' if test.get('messagerie_vocale_dediee') else 'NON',
+                            test.get('delai_attente', 'NC'),
+                            test.get('nom_conseiller', 'NC'),
+                            'OUI' if test.get('decroche_dedie') else 'NON',
+                            test.get('evaluation_accueil', 'Bien'),
+                            'OUI' if test.get('application_offre') else 'NON',
+                        ]
+                        add_table_row_data(table, row_data)
+        
+        # Slide finale: Rapport SAV général
+        current_slide_num += 1
+        slide_sav = duplicate_slide(prs, 4 if len(template_slides) > 4 else 3)
+        replacements_sav = {
+            '{PartnerName}': partenaire['nom'],
+            'RAPPORT SAV': f'RAPPORT SAV – {period_label}',
+        }
+        # Add summary of all incidents
+        incident_summary = f"Total incidents: {len(all_incidents)}\n"
+        for inc in all_incidents[:10]:  # Limit to 10 incidents
+            incident_summary += f"- {inc.get('description', 'N/A')}\n"
+        
+        for shape in slide_sav.shapes:
+            replace_text_in_shape(shape, replacements_sav)
+            if shape.has_text_frame and 'résume les faits' in shape.text:
+                shape.text = incident_summary
+        
+        # Add footer with date and pagination to all slides
+        for i, slide in enumerate(prs.slides):
+            for shape in slide.shapes:
+                if shape.has_text_frame:
+                    text = shape.text
+                    if '{date}' in text or 'Bilan du' in text:
+                        shape.text = f"Bilan du {bilan_date}"
+                    if '{page}' in text or '/' in text:
+                        shape.text = f"{i + 1}/{total_slides}"
+        
         # Save to BytesIO
         output = io.BytesIO()
         prs.save(output)
         output.seek(0)
         
-        # Generate filename
         filename = f"Bilan_{partenaire['nom']}_{period_label.replace(' ', '_')}.pptx"
         
         return StreamingResponse(
