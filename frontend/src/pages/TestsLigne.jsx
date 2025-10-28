@@ -848,8 +848,10 @@ const TestsLigne = () => {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {getSortedTests().map((test) => (
-                <tr key={test.id} className="hover:bg-gray-50">
+              {getSortedTests().map((test) => {
+                const alerts = getTestAlerts(test);
+                return (
+                <tr key={test.id} className={`hover:bg-gray-50 ${alerts.length > 0 ? 'bg-red-50' : ''}`}>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {format(new Date(test.date_test), 'dd/MM/yyyy HH:mm')}
                   </td>
