@@ -377,7 +377,7 @@ const TestsLigne = () => {
                     <Label htmlFor="programme_id">Programme *</Label>
                     <Select
                       value={formData.programme_id}
-                      onValueChange={(value) => setFormData({ ...formData, programme_id: value })}
+                      onValueChange={handleProgrammeChange}
                       required
                     >
                       <SelectTrigger data-testid="test-ligne-programme-select">
@@ -396,7 +396,7 @@ const TestsLigne = () => {
                     <Label htmlFor="partenaire_id">Partenaire *</Label>
                     <Select
                       value={formData.partenaire_id}
-                      onValueChange={(value) => setFormData({ ...formData, partenaire_id: value })}
+                      onValueChange={handlePartenaireChange}
                       required
                     >
                       <SelectTrigger data-testid="test-ligne-partenaire-select">
@@ -412,6 +412,20 @@ const TestsLigne = () => {
                     </Select>
                   </div>
                 </div>
+                
+                {/* Display telephone if available */}
+                {partenaireTelephone && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <Label className="text-sm text-purple-800 font-semibold mb-1 flex items-center gap-2">
+                      <Phone size={16} />
+                      Numéro de téléphone du partenaire pour ce programme :
+                    </Label>
+                    <p className="text-purple-900 font-medium text-lg">
+                      {partenaireTelephone}
+                    </p>
+                  </div>
+                )}
+                
                 <div>
                   <Label htmlFor="date_test">Date du test *</Label>
                   <Input
