@@ -32,6 +32,32 @@ const Dashboard = () => {
     );
   }
 
+  // Group tests by programme
+  const groupTestsByProgramme = (tests) => {
+    if (!tests || tests.length === 0) return [];
+    
+    const grouped = {};
+    tests.forEach(test => {
+      const progId = test.programme_id;
+      const progNom = test.programme_nom;
+      
+      if (!grouped[progId]) {
+        grouped[progId] = {
+          programme_id: progId,
+          programme_nom: progNom,
+          partenaires: []
+        };
+      }
+      
+      grouped[progId].partenaires.push({
+        partenaire_nom: test.partenaire_nom,
+        types_manquants: test.types_manquants
+      });
+    });
+    
+    return Object.values(grouped);
+  };
+
   const statCards = [
     {
       title: 'Programmes enregistrés',
