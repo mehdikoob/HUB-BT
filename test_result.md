@@ -184,11 +184,11 @@ frontend:
 
   - task: "Messagerie - Backend API"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -200,6 +200,56 @@ frontend:
           - Auto-generation of draft on incident creation
           - Template variable replacement system
           - Email history tracking
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ COMPREHENSIVE MESSAGERIE BACKEND API TESTING COMPLETED:
+          
+          **EMAIL TEMPLATES ENDPOINTS - ALL WORKING:**
+          - GET /api/email-templates: ✅ Returns templates list
+          - POST /api/email-templates: ✅ Creates new templates
+          - PUT /api/email-templates/{id}: ✅ Updates templates
+          - DELETE /api/email-templates/{id}: ✅ Deletes templates
+          - PUT /api/email-templates/{id}/set-default: ✅ Sets default template
+          
+          **SIGNATURES ENDPOINTS - ALL WORKING:**
+          - GET /api/signatures: ✅ Returns signatures list
+          - POST /api/signatures: ✅ Creates new signatures
+          - PUT /api/signatures/{id}: ✅ Updates signatures
+          - DELETE /api/signatures/{id}: ✅ Deletes signatures
+          
+          **EMAIL DRAFTS ENDPOINTS - ALL WORKING:**
+          - GET /api/email-drafts: ✅ Returns drafts list
+          - GET /api/email-drafts/{id}: ✅ Returns specific draft
+          - POST /api/email-drafts: ✅ Creates new drafts
+          - PUT /api/email-drafts/{id}: ✅ Updates drafts
+          - DELETE /api/email-drafts/{id}: ✅ Deletes drafts
+          - POST /api/email-drafts/{id}/send: ✅ Handles email sending gracefully (fails with proper error when SMTP not configured)
+          
+          **EMAIL HISTORY ENDPOINT - WORKING:**
+          - GET /api/email-history: ✅ Returns email history
+          
+          **AUTO-DRAFT GENERATION - WORKING:**
+          - ✅ Automatically creates email drafts when incidents are created
+          - ✅ Auto-creates default template when none exists
+          - ✅ Template variable replacement working correctly
+          - ✅ Variables properly replaced: [Nom du programme], [Nature du problème constaté], [Date du test], [Observation]
+          
+          **SMTP INTEGRATION - PROPERLY CONFIGURED:**
+          - ✅ Email sending fails gracefully with "SMTP configuration not available" when password empty
+          - ✅ Error handling working correctly for missing SMTP credentials
+          
+          **BUG FIXED DURING TESTING:**
+          - Fixed EmailTemplate object subscriptable error in auto-draft generation
+          - Template creation and variable replacement now working without errors
+          
+          **TECHNICAL VERIFICATION:**
+          - All endpoints return proper HTTP status codes
+          - Data validation working correctly
+          - Database operations successful
+          - No critical errors in backend logs after fix
+          
+          ALL MESSAGERIE BACKEND APIS FULLY FUNCTIONAL! 🚀
           
   - task: "Messagerie - Frontend UI"
     implemented: true
