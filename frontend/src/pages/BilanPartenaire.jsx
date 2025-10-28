@@ -230,8 +230,8 @@ const BilanPartenaire = () => {
           {/* Info Box */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>ℹ️ Information :</strong> Le bilan PowerPoint contiendra 4 slides par programme du partenaire 
-              (Vue d'ensemble, Tests Sites, Tests Ligne, Rapport SAV).
+              <strong>ℹ️ Information :</strong> Le bilan PowerPoint contiendra 3 slides par programme du partenaire 
+              (Vue d'ensemble, Tests Sites, Tests Ligne), et une 4ème slide d'un rapport SAV général par bilan.
             </p>
           </div>
 
