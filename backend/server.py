@@ -165,6 +165,71 @@ class Incident(IncidentBase):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     resolved_at: Optional[datetime] = None
 
+# Models - Email Template
+class EmailTemplateBase(BaseModel):
+    name: str
+    subject_template: str
+    body_template: str
+    is_default: bool = False
+
+class EmailTemplateCreate(EmailTemplateBase):
+    pass
+
+class EmailTemplate(EmailTemplateBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# Models - User Signature
+class UserSignatureBase(BaseModel):
+    user_name: str
+    signature_text: str
+
+class UserSignatureCreate(UserSignatureBase):
+    pass
+
+class UserSignature(UserSignatureBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# Models - Email Draft
+class EmailDraftStatus(str, Enum):
+    draft = "draft"
+    sent = "sent"
+
+class EmailDraftBase(BaseModel):
+    incident_id: str
+    template_id: Optional[str] = None
+    subject: str
+    body: str
+    recipient: str
+    status: EmailDraftStatus = EmailDraftStatus.draft
+
+class EmailDraftCreate(EmailDraftBase):
+    pass
+
+class EmailDraft(EmailDraftBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    sent_at: Optional[datetime] = None
+
+# Models - Email History
+class EmailHistoryBase(BaseModel):
+    incident_id: str
+    draft_id: str
+    recipient: str
+    subject: str
+    body: str
+    status: str  # 'success' or 'failed'
+    error_message: Optional[str] = None
+
+class EmailHistory(EmailHistoryBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    sent_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 # Helper functions
 def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float:
     if prix_public <= 0:
