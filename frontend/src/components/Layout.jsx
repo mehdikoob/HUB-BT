@@ -13,7 +13,6 @@ const Layout = () => {
     { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site' },
     { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne' },
     { path: '/incidents', icon: AlertCircle, label: 'Incidents' },
-    { path: '/contacts', icon: Contact2, label: 'Contacts' },
   ];
 
   const isActive = (path) => {
