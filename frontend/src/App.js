@@ -8,6 +8,7 @@ import TestsSite from './pages/TestsSite';
 import TestsLigne from './pages/TestsLigne';
 import Incidents from './pages/Incidents';
 import Messagerie from './pages/Messagerie';
+import BilanPartenaire from './pages/BilanPartenaire';
 import Layout from './components/Layout';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="tests-ligne" element={<TestsLigne />} />
           <Route path="incidents" element={<Incidents />} />
           <Route path="messagerie" element={<Messagerie />} />
+          <Route path="bilan-partenaire" element={<BilanPartenaire />} />
         </Route>
       </Routes>
     </BrowserRouter>
