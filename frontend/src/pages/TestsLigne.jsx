@@ -141,6 +141,25 @@ const TestsLigne = () => {
       application_offre: true,
       commentaire: '',
     });
+    setEditingTest(null);
+  };
+
+  const handleEdit = (test) => {
+    setEditingTest(test);
+    setFormData({
+      programme_id: test.programme_id,
+      partenaire_id: test.partenaire_id,
+      date_test: format(new Date(test.date_test), "yyyy-MM-dd'T'HH:mm"),
+      numero_telephone: test.numero_telephone,
+      messagerie_vocale_dediee: test.messagerie_vocale_dediee,
+      decroche_dedie: test.decroche_dedie,
+      delai_attente: test.delai_attente,
+      nom_conseiller: test.nom_conseiller || 'NC',
+      evaluation_accueil: test.evaluation_accueil || 'Bien',
+      application_offre: test.application_offre,
+      commentaire: test.commentaire || '',
+    });
+    setDialogOpen(true);
   };
 
   const handleDelete = async (id) => {
