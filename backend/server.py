@@ -1805,6 +1805,326 @@ def format_french_month(date_obj):
     }
     return months_fr.get(date_obj.month, str(date_obj.month))
 
+# Routes - DEBUG Bilan Partenaire
+@api_router.get("/debug/bilan-partenaire-analysis")
+async def debug_bilan_partenaire_analysis(
+    partenaire_id: str = Query(...),
+    period_type: str = Query(default="month"),
+    year: int = Query(default=2025),
+    month: int = Query(default=10)
+):
+    """Ultra-verbose debug analysis for PowerPoint generation"""
+    try:
+        debug_report = {
+            "SECTION_A_SCHEMA": {},
+            "SECTION_B_MAPPING": {},
+            "SECTION_C_SAMPLE": {},
+            "SECTION_D_PLACEHOLDERS": [],
+            "SECTION_E_TABLES_EXEMPLE": [],
+            "SECTION_F_DRYRUN_MAP": {},
+            "SECTION_G_TABLES_COUNT": {},
+            "SECTION_H_ASSERTS": {},
+            "SECTION_I_FALLBACK": {}
+        }
+        
+        # PHASE 1 - DATA CONTRACT
+        # Get partenaire
+        partenaire = await db.partenaires.find_one({"id": partenaire_id})
+        if not partenaire:
+            return {"error": "Partenaire not found"}
+        
+        # Get programmes
+        programme_ids = partenaire.get('programmes_ids', [])
+        programmes = await db.programmes.find({"id": {"$in": programme_ids}}).to_list(length=None)
+        programmes = sorted(programmes, key=lambda p: p['nom'])
+        
+        if not programmes:
+            return {"error": "No programmes found"}
+        
+        programme = programmes[0]
+        
+        # Calculate period
+        today = datetime.now(timezone.utc)
+        if period_type == "month":
+            date_debut = datetime(year, month, 1, tzinfo=timezone.utc)
+            if month == 12:
+                date_fin = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+            else:
+                date_fin = datetime(year, month + 1, 1, tzinfo=timezone.utc)
+            period_label = f"{format_french_month(date_debut)} {year}"
+        elif period_type == "year":
+            date_debut = datetime(year, 1, 1, tzinfo=timezone.utc)
+            date_fin = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+            period_label = f"Année {year}"
+        else:
+            date_fin = today
+            date_debut = datetime(today.year - 1, today.month, 1, tzinfo=timezone.utc)
+            period_label = f"Année glissante"
+        
+        # Get tests
+        tests_site = await db.tests_site.find({
+            "programme_id": programme['id'],
+            "partenaire_id": partenaire_id,
+            "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+        }).sort("date_test", 1).to_list(length=3)
+        
+        tests_ligne = await db.tests_ligne.find({
+            "programme_id": programme['id'],
+            "partenaire_id": partenaire_id,
+            "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+        }).sort("date_test", 1).to_list(length=3)
+        
+        # SECTION A - SCHEMA
+        debug_report["SECTION_A_SCHEMA"] = {
+            "partner": {
+                "type": "object",
+                "keys": list(partenaire.keys()) if partenaire else [],
+                "sample_id": partenaire.get('id', 'N/A'),
+                "sample_name": partenaire.get('nom', 'N/A')
+            },
+            "program": {
+                "type": "object",
+                "keys": list(programme.keys()) if programme else [],
+                "sample_id": programme.get('id', 'N/A'),
+                "sample_name": programme.get('nom', 'N/A')
+            },
+            "period": {
+                "type": "object",
+                "year": year,
+                "month": month if period_type == "month" else None,
+                "label": period_label,
+                "date_debut": date_debut.isoformat(),
+                "date_fin": date_fin.isoformat()
+            },
+            "testsSites": {
+                "type": "array",
+                "count": len(tests_site),
+                "keys": list(tests_site[0].keys()) if tests_site else []
+            },
+            "testsLignes": {
+                "type": "array",
+                "count": len(tests_ligne),
+                "keys": list(tests_ligne[0].keys()) if tests_ligne else []
+            }
+        }
+        
+        # SECTION B - MAPPING
+        debug_report["SECTION_B_MAPPING"] = {
+            "{PartnerName}": f"partner.nom = '{partenaire.get('nom', 'N/A')}'",
+            "{ProgramName}": f"program.nom = '{programme.get('nom', 'N/A')}'",
+            "{Mois du trigger + année du trigger}": f"period_label = '{period_label}'",
+            "{moyenne des tests sites réussis}": "calculated from testsSites.application_remise",
+            "{moyenne des tests lignes réussis}": "calculated from testsLignes.application_offre",
+            "{temps d'attente/nombre de test effectués}": "calculated from testsLignes.delai_attente",
+            "Bilan du": f"current_date = '{datetime.now(timezone.utc).strftime('%d/%m/%Y')}'",
+            "{nom de la remise}": "NOT MAPPED",
+            "{info case MD}": "NOT MAPPED",
+            "{info case DD}": "NOT MAPPED",
+            "{commentaire sur l'accueil}": "NOT MAPPED"
+        }
+        
+        # SECTION C - SAMPLE DATA
+        debug_report["SECTION_C_SAMPLE"] = {
+            "partnerName": partenaire.get('nom', 'N/A'),
+            "programName": programme.get('nom', 'N/A'),
+            "period": period_label,
+            "testsSites": [
+                {k: str(v) for k, v in test.items() if k != '_id'} 
+                for test in tests_site[:3]
+            ],
+            "testsLignes": [
+                {k: str(v) for k, v in test.items() if k != '_id'} 
+                for test in tests_ligne[:3]
+            ]
+        }
+        
+        # PHASE 2 - SCAN TEMPLATE
+        template_path = TEMPLATE_DIR / "Bilan_Blindtest_template.pptx"
+        if template_path.exists():
+            prs = Presentation(str(template_path))
+            
+            placeholders_found = []
+            tables_found = []
+            
+            for slide_idx, slide in enumerate(prs.slides):
+                slide_type = "Unknown"
+                
+                # Check slide title
+                for shape in slide.shapes:
+                    if shape.has_text_frame:
+                        text = shape.text
+                        
+                        # Determine slide type
+                        if 'Sites' in text:
+                            slide_type = "Tests Sites"
+                        elif 'Ligne' in text:
+                            slide_type = "Tests Ligne"
+                        elif 'SAV' in text:
+                            slide_type = "Rapport SAV"
+                        elif 'Blind test' in text and slide_type == "Unknown":
+                            slide_type = "Vue d'ensemble"
+                        
+                        # Find placeholders
+                        import re
+                        patterns = [r'\{([^}]+)\}', r'\{\{([^}]+)\}\}', r'\[\[([^]]+)\]\]']
+                        for pattern in patterns:
+                            matches = re.findall(pattern, text)
+                            for match in matches:
+                                placeholders_found.append({
+                                    "slide": slide_idx,
+                                    "slideType": slide_type,
+                                    "location": "text_frame",
+                                    "placeholder": f"{{{match}}}",
+                                    "mappedKey": f"partner.nom / program.nom / period" if "Partner" in match or "Program" in match else "CALCULATED" if "moyenne" in match or "temps" in match else "NOT MAPPED",
+                                    "status": "OK" if ("Partner" in match or "Program" in match or "trigger" in match or "moyenne" in match or "temps" in match) else "NON MAPPÉ"
+                                })
+                    
+                    # Check for tables
+                    if shape.has_table:
+                        tables_found.append({
+                            "slide": slide_idx,
+                            "slideType": slide_type,
+                            "rows": len(shape.table.rows),
+                            "columns": len(shape.table.rows[0].cells) if shape.table.rows else 0,
+                            "recommendation": "KEEP_AND_FILL" if slide_type in ["Tests Sites", "Tests Ligne"] else "KEEP_AS_IS"
+                        })
+            
+            debug_report["SECTION_D_PLACEHOLDERS"] = placeholders_found
+            debug_report["SECTION_E_TABLES_EXEMPLE"] = tables_found
+        else:
+            debug_report["SECTION_D_PLACEHOLDERS"] = ["Template file not found"]
+            debug_report["SECTION_E_TABLES_EXEMPLE"] = ["Template file not found"]
+        
+        # PHASE 3 - DRY RUN
+        # Calculate statistics
+        total_tests_site = len(tests_site)
+        tests_site_reussis = len([t for t in tests_site if t.get('application_remise', False)])
+        pct_site = round((tests_site_reussis / total_tests_site * 100), 1) if total_tests_site > 0 else 0
+        
+        total_tests_ligne = len(tests_ligne)
+        tests_ligne_reussis = len([t for t in tests_ligne if t.get('application_offre', False)])
+        pct_ligne = round((tests_ligne_reussis / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
+        
+        delais = []
+        for t in tests_ligne:
+            if t.get('delai_attente'):
+                try:
+                    parts = t['delai_attente'].split(':')
+                    if len(parts) == 2:
+                        minutes = int(parts[0])
+                        seconds = int(parts[1])
+                        delais.append(minutes * 60 + seconds)
+                except:
+                    pass
+        avg_delai = sum(delais) / len(delais) if delais else 0
+        avg_delai_str = f"{int(avg_delai // 60):02d}:{int(avg_delai % 60):02d}"
+        
+        # SECTION F - DRYRUN MAP
+        debug_report["SECTION_F_DRYRUN_MAP"] = {
+            "{PartnerName}": partenaire.get('nom', 'EMPTY'),
+            "{ProgramName}": programme.get('nom', 'EMPTY'),
+            "{Mois du trigger + année du trigger}": period_label,
+            "{moyenne des tests sites réussis}": f"{pct_site}%",
+            "{moyenne des tests lignes réussis}": f"{pct_ligne}%",
+            "{temps d'attente/nombre de test effectués}": avg_delai_str,
+            "Bilan du": f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')}"
+        }
+        
+        # Prepare table rows
+        site_rows = []
+        for test in tests_site:
+            try:
+                test_date = datetime.fromisoformat(test['date_test'])
+                pct_remise = test.get('pct_remise_calcule', 0)
+                site_rows.append([
+                    format_french_month(test_date),
+                    test_date.strftime('%d/%m/%Y'),
+                    f"{test.get('prix_public', 0):.2f} € VS {test.get('prix_remise', 0):.2f} €",
+                    'OUI' if test.get('application_remise') else 'NON',
+                    test.get('naming_constate', 'N/A'),
+                    'OUI' if test.get('cumul_codes') else 'NON'
+                ])
+            except:
+                pass
+        
+        ligne_rows = []
+        for test in tests_ligne:
+            try:
+                test_date = datetime.fromisoformat(test['date_test'])
+                ligne_rows.append([
+                    format_french_month(test_date),
+                    test_date.strftime('%d/%m/%Y'),
+                    test.get('numero_telephone', 'N/A'),
+                    'OUI' if test.get('messagerie_vocale_dediee') else 'NON',
+                    test.get('delai_attente', 'N/A'),
+                    test.get('nom_conseiller', 'N/A'),
+                    'OUI' if test.get('decroche_dedie') else 'NON',
+                    test.get('evaluation_accueil', 'N/A'),
+                    'OUI' if test.get('application_offre') else 'NON'
+                ])
+            except:
+                pass
+        
+        # SECTION G - TABLES COUNT
+        debug_report["SECTION_G_TABLES_COUNT"] = {
+            "sitesRowsPrepared": len(site_rows),
+            "lignesRowsPrepared": len(ligne_rows)
+        }
+        
+        # SECTION H - ASSERTIONS
+        assertions = {}
+        
+        # A1: No unmapped placeholders
+        unmapped = [p for p in debug_report["SECTION_D_PLACEHOLDERS"] if isinstance(p, dict) and p.get("status") == "NON MAPPÉ"]
+        assertions["A1_NO_UNMAPPED"] = {
+            "status": "PASS" if len(unmapped) == 0 else "FAIL",
+            "detail": f"Found {len(unmapped)} unmapped placeholders" if unmapped else "All placeholders mapped"
+        }
+        
+        # A2: No remaining braces in values
+        has_braces = any("{" in str(v) for v in debug_report["SECTION_F_DRYRUN_MAP"].values())
+        assertions["A2_NO_BRACES"] = {
+            "status": "FAIL" if has_braces else "PASS",
+            "detail": "Some values still contain braces" if has_braces else "No braces in resolved values"
+        }
+        
+        # A3/T1/T2: Table data validation
+        if len(tests_site) > 0 or len(tests_ligne) > 0:
+            assertions["T1_SITES_NOT_EMPTY"] = {
+                "status": "PASS" if len(site_rows) > 0 else "FAIL",
+                "detail": f"Prepared {len(site_rows)} rows for Sites" if len(site_rows) > 0 else "TABLE_SITES_VIDE_ANORMALE"
+            }
+            assertions["T2_LIGNES_NOT_EMPTY"] = {
+                "status": "PASS" if len(ligne_rows) > 0 else "FAIL",
+                "detail": f"Prepared {len(ligne_rows)} rows for Lignes" if len(ligne_rows) > 0 else "TABLE_LIGNES_VIDE_ANORMALE"
+            }
+        
+        # A4: Partner and program names not empty
+        assertions["A4_NAMES_NOT_EMPTY"] = {
+            "status": "PASS" if partenaire.get('nom') and programme.get('nom') else "FAIL",
+            "detail": f"Partner: {partenaire.get('nom', 'EMPTY')}, Program: {programme.get('nom', 'EMPTY')}"
+        }
+        
+        debug_report["SECTION_H_ASSERTS"] = assertions
+        
+        # SECTION I - FALLBACK
+        debug_report["SECTION_I_FALLBACK"] = {
+            "F1_TEXT_ANCHORS_NEEDED": "NO",
+            "F2_TABLE_RECREATION_NEEDED": "NO",
+            "reason": "Current approach adds rows to existing tables. If tables don't exist in template, F2 would be needed.",
+            "recommendation": "Verify template contains tables on Sites and Lignes slides"
+        }
+        
+        return debug_report
+        
+    except Exception as e:
+        logging.error(f"Debug analysis error: {str(e)}")
+        import traceback
+        return {
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }
+
 # Routes - Bilan Partenaire PPT Export
 @api_router.get("/export/bilan-partenaire-ppt")
 async def export_bilan_partenaire_ppt(
