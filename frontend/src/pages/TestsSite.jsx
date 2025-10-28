@@ -225,6 +225,27 @@ const TestsSite = () => {
       return;
     }
 
+    // Check if test already exists this month for this partenaire/programme (only for new tests)
+    if (!editingTest) {
+      const testDate = new Date(formData.date_test);
+      const currentMonth = testDate.getMonth();
+      const currentYear = testDate.getFullYear();
+      
+      const existingTest = tests.find(t => {
+        const tDate = new Date(t.date_test);
+        return t.partenaire_id === formData.partenaire_id &&
+               t.programme_id === formData.programme_id &&
+               tDate.getMonth() === currentMonth &&
+               tDate.getFullYear() === currentYear;
+      });
+
+      if (existingTest) {
+        const monthName = testDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        toast.error(`Un test site existe déjà pour ce partenaire sur ce programme en ${monthName}. Maximum 1 test par mois.`);
+        return;
+      }
+    }
+
     try {
       const submitData = {
         ...formData,
