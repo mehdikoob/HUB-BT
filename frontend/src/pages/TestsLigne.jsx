@@ -46,6 +46,46 @@ const TestsLigne = () => {
     commentaire: '',
   });
   const [partenaireTelephone, setPartenaireTelephone] = useState('');
+  const [filteredPartenaires, setFilteredPartenaires] = useState([]);
+  const [filteredProgrammes, setFilteredProgrammes] = useState([]);
+
+  // Initialize date with current datetime when dialog opens
+  useEffect(() => {
+    if (dialogOpen && !editingTest) {
+      const now = new Date();
+      const formattedDate = format(now, "yyyy-MM-dd'T'HH:mm");
+      setFormData(prev => ({ ...prev, date_test: formattedDate }));
+    }
+  }, [dialogOpen, editingTest]);
+
+  // Filter partenaires based on selected programme
+  useEffect(() => {
+    if (formData.programme_id) {
+      const filtered = partenaires.filter(p => 
+        p.programmes_ids && p.programmes_ids.includes(formData.programme_id)
+      );
+      setFilteredPartenaires(filtered);
+    } else {
+      setFilteredPartenaires(partenaires);
+    }
+  }, [formData.programme_id, partenaires]);
+
+  // Filter programmes based on selected partenaire
+  useEffect(() => {
+    if (formData.partenaire_id) {
+      const partenaire = partenaires.find(p => p.id === formData.partenaire_id);
+      if (partenaire && partenaire.programmes_ids) {
+        const filtered = programmes.filter(prog => 
+          partenaire.programmes_ids.includes(prog.id)
+        );
+        setFilteredProgrammes(filtered);
+      } else {
+        setFilteredProgrammes(programmes);
+      }
+    } else {
+      setFilteredProgrammes(programmes);
+    }
+  }, [formData.partenaire_id, partenaires, programmes]);
 
   useEffect(() => {
     fetchData();
