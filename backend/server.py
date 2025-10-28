@@ -25,6 +25,7 @@ from pptx import Presentation
 from pptx.util import Inches, Pt
 from copy import deepcopy
 import zipfile
+import shutil
 from lxml import etree
 
 ROOT_DIR = Path(__file__).parent
