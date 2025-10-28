@@ -477,7 +477,7 @@ const TestsSite = () => {
                         <SelectValue placeholder="Sélectionnez un programme" />
                       </SelectTrigger>
                       <SelectContent>
-                        {programmes.map((prog) => (
+                        {filteredProgrammes.map((prog) => (
                           <SelectItem key={prog.id} value={prog.id}>
                             {prog.nom}
                           </SelectItem>
@@ -496,7 +496,7 @@ const TestsSite = () => {
                         <SelectValue placeholder="Sélectionnez un partenaire" />
                       </SelectTrigger>
                       <SelectContent>
-                        {partenaires.map((part) => (
+                        {filteredPartenaires.map((part) => (
                           <SelectItem key={part.id} value={part.id}>
                             {part.nom}
                           </SelectItem>
