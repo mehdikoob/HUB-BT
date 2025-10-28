@@ -164,13 +164,20 @@ const TestsSite = () => {
         prix_public: parseFloat(formData.prix_public),
         prix_remise: parseFloat(formData.prix_remise),
         date_test: new Date(formData.date_test).toISOString(),
-        attachments: formData.attachments.map(att => att.url), // Send only URLs
+        attachments: formData.attachments.map(att => typeof att === 'string' ? att : att.url), // Handle both string URLs and objects
       };
       
-      await axios.post(`${API}/tests-site`, submitData);
-      toast.success('Test site enregistré avec succès');
+      if (editingTest) {
+        await axios.put(`${API}/tests-site/${editingTest.id}`, submitData);
+        toast.success('Test site modifié avec succès');
+      } else {
+        await axios.post(`${API}/tests-site`, submitData);
+        toast.success('Test site enregistré avec succès');
+      }
+      
       setDialogOpen(false);
       resetForm();
+      setEditingTest(null);
       fetchTests();
     } catch (error) {
       console.error('Erreur:', error);
