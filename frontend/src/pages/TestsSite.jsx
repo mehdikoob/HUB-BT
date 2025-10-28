@@ -726,6 +726,30 @@ const TestsSite = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
+                    {test.attachments && test.attachments.length > 0 ? (
+                      <div className="flex gap-1">
+                        {test.attachments.map((url, idx) => {
+                          const isPdf = url.toLowerCase().endsWith('.pdf');
+                          const Icon = isPdf ? FileText : FileImage;
+                          return (
+                            <a
+                              key={idx}
+                              href={`${process.env.REACT_APP_BACKEND_URL}${url}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800"
+                              title={`Fichier ${idx + 1}`}
+                            >
+                              <Icon size={20} />
+                            </a>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 italic text-xs">Aucune</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
                     <Button
                       size="sm"
                       variant="ghost"
