@@ -313,20 +313,23 @@ const PartenairesNew = () => {
                               <div>
                                 <Label className="text-sm text-gray-600 flex items-center gap-2">
                                   <Globe size={16} />
-                                  URL du site
+                                  URL du partenaire pour ce programme
                                 </Label>
                                 <Input
                                   data-testid={`url-${prog.id}`}
                                   value={contact?.url_site || ''}
                                   onChange={(e) => updateContactProgramme(prog.id, 'url_site', e.target.value)}
-                                  placeholder="https://www.exemple.com"
+                                  placeholder="https://www.exemple.com/programme"
                                   className="mt-1"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Site web dédié du partenaire pour ce programme
+                                </p>
                               </div>
                               <div>
                                 <Label className="text-sm text-gray-600 flex items-center gap-2">
                                   <Phone size={16} />
-                                  Numéro de téléphone
+                                  Numéro de téléphone dédié
                                 </Label>
                                 <Input
                                   data-testid={`tel-${prog.id}`}
@@ -335,6 +338,9 @@ const PartenairesNew = () => {
                                   placeholder="+33 X XX XX XX XX"
                                   className="mt-1"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Téléphone du partenaire spécifique à ce programme
+                                </p>
                               </div>
                             </div>
                           )}
