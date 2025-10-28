@@ -685,6 +685,7 @@ const TestsSite = () => {
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">% Remise</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Naming de la remise</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Cumul codes promos</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Pièces jointes</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
