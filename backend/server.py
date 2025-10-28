@@ -356,13 +356,23 @@ Bien cordialement,""",
             await db.email_templates.insert_one(doc)
         
         # Replace variables in template
-        subject = await replace_template_variables(default_template['subject_template'], incident_id)
-        body = await replace_template_variables(default_template['body_template'], incident_id)
+        # Handle both dict (from DB) and EmailTemplate object (newly created)
+        if isinstance(default_template, dict):
+            subject_template = default_template['subject_template']
+            body_template = default_template['body_template']
+            template_id = default_template['id']
+        else:
+            subject_template = default_template.subject_template
+            body_template = default_template.body_template
+            template_id = default_template.id
+            
+        subject = await replace_template_variables(subject_template, incident_id)
+        body = await replace_template_variables(body_template, incident_id)
         
         # Create draft
         draft = EmailDraft(
             incident_id=incident_id,
-            template_id=default_template['id'],
+            template_id=template_id,
             subject=subject,
             body=body,
             recipient=partenaire['contact_email'],
