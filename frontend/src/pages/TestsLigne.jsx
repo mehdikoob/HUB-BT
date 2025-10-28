@@ -317,6 +317,34 @@ const TestsLigne = () => {
       <ArrowDown size={14} className="ml-1 text-blue-600" />;
   };
 
+  // Check if test has any alerts
+  const getTestAlerts = (test) => {
+    const alerts = [];
+    
+    // Offre non appliquée
+    if (!test.application_offre) {
+      alerts.push('Offre non appliquée');
+    }
+    
+    // Évaluation médiocre ou moyenne
+    if (test.evaluation_accueil === 'Médiocre' || test.evaluation_accueil === 'Moyen') {
+      alerts.push(`Accueil ${test.evaluation_accueil.toLowerCase()}`);
+    }
+    
+    // Délai d'attente trop long (> 3 minutes)
+    if (test.delai_attente) {
+      const parts = test.delai_attente.split(':');
+      if (parts.length === 2) {
+        const minutes = parseInt(parts[0], 10);
+        if (minutes > 3) {
+          alerts.push('Délai d\'attente élevé');
+        }
+      }
+    }
+    
+    return alerts;
+  };
+
   const handleGenerateBilan = async () => {
     if (!bilanData.partenaire_id) {
       toast.error('Veuillez sélectionner un partenaire');
