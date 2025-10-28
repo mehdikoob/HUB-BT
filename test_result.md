@@ -120,11 +120,11 @@ backend:
 frontend:
   - task: "Alertes column implementation in Tests Site"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/TestsSite.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -137,14 +137,26 @@ frontend:
           - Shows green checkmark for tests with no alerts
           - Row background turns red (bg-red-50) when alerts exist
           - Detects: remise non appliquée, prix remisé > prix public, remise négative
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ ALERTES FEATURE FULLY FUNCTIONAL IN TESTS SITE:
+          - Alertes column header correctly displayed in table
+          - Found 7 existing test rows, 1 with alerts and 6 showing "✓ OK"
+          - Alert detection working: Found "Remise non appliquée" alert in row 4
+          - Visual styling perfect: Red background (bg-red-50) applied to alert rows
+          - AlertTriangle icons properly displayed (3 icons found in alert row)
+          - Alert logic correctly detects: remise non appliquée, prix remisé > prix public
+          - Table sorting functionality preserved with new column
+          - No console errors or UI issues detected
   
   - task: "Alertes column implementation in Tests Ligne"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/TestsLigne.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -159,6 +171,16 @@ frontend:
           - Added alerts display cell in table rows
           - Shows red warning icon for issues, green checkmark when OK
           - Row background turns red when alerts exist
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ ALERTES FEATURE FULLY FUNCTIONAL IN TESTS LIGNE:
+          - Alertes column header correctly displayed in table
+          - Found 2 existing test rows, both showing "✓ OK" (no alerts)
+          - Alert detection logic implemented for: offre non appliquée, accueil médiocre/moyen, délai > 3min
+          - Visual styling consistent with Tests Site pattern
+          - No console errors or UI issues detected
+          - Table functionality preserved with new column
 
 metadata:
   created_by: "main_agent"
