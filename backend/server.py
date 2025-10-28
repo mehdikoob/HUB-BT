@@ -1780,11 +1780,18 @@ def replace_text_in_slide(slide, replacements):
 
 def clear_table_data_rows(table, header_rows=1):
     """Clear all data rows from a table, keeping only headers"""
-    rows_to_delete = len(table.rows) - header_rows
-    for _ in range(rows_to_delete):
-        # Remove from the bottom up
-        if len(table.rows) > header_rows:
-            table._tbl.remove(table.rows[-1]._tr)
+    # Calculate how many rows to delete
+    total_rows = len(table.rows)
+    rows_to_delete = total_rows - header_rows
+    
+    # Only delete if there are rows beyond headers
+    if rows_to_delete > 0:
+        for _ in range(rows_to_delete):
+            # Remove from the bottom up
+            try:
+                table._tbl.remove(table.rows[header_rows]._tr)
+            except:
+                break
 
 def fill_table_with_data(table, data_rows, header_rows=1):
     """Fill a table with data rows"""
@@ -1793,17 +1800,23 @@ def fill_table_with_data(table, data_rows, header_rows=1):
     
     # If no data, add a single row with message
     if not data_rows:
-        row = table.rows.add()
-        row.cells[0].text = "Aucun test disponible pour cette période"
-        # Merge cells if needed
+        try:
+            row = table.rows.add()
+            row.cells[0].text = "Aucun test disponible pour cette période"
+        except:
+            pass
         return
     
     # Add data rows
     for row_data in data_rows:
-        row = table.rows.add()
-        for i, cell_value in enumerate(row_data):
-            if i < len(row.cells):
-                row.cells[i].text = str(cell_value)
+        try:
+            row = table.rows.add()
+            for i, cell_value in enumerate(row_data):
+                if i < len(row.cells):
+                    row.cells[i].text = str(cell_value)
+        except Exception as e:
+            logging.error(f"Error adding row to table: {str(e)}")
+            continue
 
 def format_french_month(date_obj):
     """Format date to French month name"""
