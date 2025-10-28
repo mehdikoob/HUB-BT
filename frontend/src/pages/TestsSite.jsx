@@ -797,8 +797,6 @@ const TestsSite = () => {
                       </Button>
                     </div>
                   </td>
-                    </Button>
-                  </td>
                 </tr>
               ))}
             </tbody>
