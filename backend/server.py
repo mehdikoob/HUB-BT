@@ -94,6 +94,7 @@ class TestSiteBase(BaseModel):
     naming_constate: Optional[str] = None
     cumul_codes: bool
     commentaire: Optional[str] = None
+    attachments: List[str] = []  # URLs ou chemins des fichiers joints (jpeg, png, pdf)
 
 class TestSiteCreate(TestSiteBase):
     pass
