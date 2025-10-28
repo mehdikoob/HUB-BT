@@ -1,0 +1,265 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { FileBarChart, Download, Calendar } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { Label } from '../components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { toast } from 'sonner';
+
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const BilanPartenaire = () => {
+  const [partenaires, setPartenaires] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [selectedPartenaire, setSelectedPartenaire] = useState('');
+  const [periodType, setPeriodType] = useState('month');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  const months = [
+    { value: 1, label: 'Janvier' },
+    { value: 2, label: 'Février' },
+    { value: 3, label: 'Mars' },
+    { value: 4, label: 'Avril' },
+    { value: 5, label: 'Mai' },
+    { value: 6, label: 'Juin' },
+    { value: 7, label: 'Juillet' },
+    { value: 8, label: 'Août' },
+    { value: 9, label: 'Septembre' },
+    { value: 10, label: 'Octobre' },
+    { value: 11, label: 'Novembre' },
+    { value: 12, label: 'Décembre' },
+  ];
+
+  useEffect(() => {
+    fetchPartenaires();
+  }, []);
+
+  const fetchPartenaires = async () => {
+    try {
+      const response = await axios.get(`${API}/partenaires`);
+      setPartenaires(response.data);
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Erreur lors du chargement des partenaires');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateBilan = async () => {
+    if (!selectedPartenaire) {
+      toast.error('Veuillez sélectionner un partenaire');
+      return;
+    }
+
+    setGenerating(true);
+
+    try {
+      const params = {
+        partenaire_id: selectedPartenaire,
+        period_type: periodType,
+      };
+
+      if (periodType === 'month') {
+        params.year = selectedYear;
+        params.month = selectedMonth;
+      } else if (periodType === 'year') {
+        params.year = selectedYear;
+      }
+
+      const response = await axios.get(`${API}/export/bilan-partenaire-ppt`, {
+        params,
+        responseType: 'blob',
+      });
+
+      // Get partenaire name for filename
+      const partenaire = partenaires.find(p => p.id === selectedPartenaire);
+      const partenaireNom = partenaire ? partenaire.nom : 'partenaire';
+      
+      // Get period label for filename
+      let periodLabel = '';
+      if (periodType === 'month') {
+        const monthLabel = months.find(m => m.value === selectedMonth)?.label || selectedMonth;
+        periodLabel = `${monthLabel}_${selectedYear}`;
+      } else if (periodType === 'year') {
+        periodLabel = `Annee_${selectedYear}`;
+      } else {
+        periodLabel = 'Annee_Glissante';
+      }
+
+      const filename = `Bilan_${partenaireNom}_${periodLabel}.pptx`;
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      toast.success('Bilan PowerPoint généré avec succès');
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error(error.response?.data?.detail || 'Erreur lors de la génération du bilan');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-8">Chargement...</div>;
+  }
+
+  return (
+    <div data-testid="bilan-partenaire-page">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
+          <FileBarChart className="inline-block mr-3" size={40} />
+          Bilan Partenaire
+        </h1>
+        <p className="text-gray-600">Génération de rapports PowerPoint par partenaire</p>
+      </div>
+
+      <Card className="border-0 shadow-sm p-8 max-w-3xl">
+        <div className="space-y-6">
+          {/* Partenaire Selection */}
+          <div>
+            <Label htmlFor="partenaire" className="text-base font-semibold mb-2 block">
+              Sélectionner un partenaire *
+            </Label>
+            <Select value={selectedPartenaire} onValueChange={setSelectedPartenaire}>
+              <SelectTrigger data-testid="select-partenaire" className="w-full">
+                <SelectValue placeholder="Choisir un partenaire" />
+              </SelectTrigger>
+              <SelectContent>
+                {partenaires
+                  .sort((a, b) => a.nom.localeCompare(b.nom))
+                  .map((partenaire) => (
+                    <SelectItem key={partenaire.id} value={partenaire.id}>
+                      {partenaire.nom}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Period Type Selection */}
+          <div>
+            <Label htmlFor="period-type" className="text-base font-semibold mb-2 block">
+              <Calendar className="inline-block mr-2" size={18} />
+              Type de période *
+            </Label>
+            <Select value={periodType} onValueChange={setPeriodType}>
+              <SelectTrigger data-testid="select-period-type" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="month">Année + Mois</SelectItem>
+                <SelectItem value="year">Année complète</SelectItem>
+                <SelectItem value="rolling">Année glissante (12 derniers mois)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Year and Month Selection (conditional) */}
+          {periodType === 'month' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="year" className="text-sm font-medium mb-2 block">
+                  Année
+                </Label>
+                <Select value={selectedYear.toString()} onValueChange={(val) => setSelectedYear(parseInt(val))}>
+                  <SelectTrigger data-testid="select-year">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="month" className="text-sm font-medium mb-2 block">
+                  Mois
+                </Label>
+                <Select value={selectedMonth.toString()} onValueChange={(val) => setSelectedMonth(parseInt(val))}>
+                  <SelectTrigger data-testid="select-month">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value.toString()}>
+                        {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {periodType === 'year' && (
+            <div>
+              <Label htmlFor="year-only" className="text-sm font-medium mb-2 block">
+                Année
+              </Label>
+              <Select value={selectedYear.toString()} onValueChange={(val) => setSelectedYear(parseInt(val))}>
+                <SelectTrigger data-testid="select-year-only">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Info Box */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-800">
+              <strong>ℹ️ Information :</strong> Le bilan PowerPoint contiendra 4 slides par programme du partenaire 
+              (Vue d'ensemble, Tests Sites, Tests Ligne, Rapport SAV).
+            </p>
+          </div>
+
+          {/* Generate Button */}
+          <div className="pt-4">
+            <Button
+              onClick={handleGenerateBilan}
+              disabled={!selectedPartenaire || generating}
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-6 text-lg"
+              data-testid="generate-bilan-btn"
+            >
+              {generating ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                  Génération en cours...
+                </>
+              ) : (
+                <>
+                  <Download size={24} className="mr-3" />
+                  Générer le bilan PowerPoint
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default BilanPartenaire;
