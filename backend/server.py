@@ -388,6 +388,9 @@ async def check_and_create_incident(test_id: str, type_test: TypeTest, descripti
     doc = incident.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.incidents.insert_one(doc)
+    
+    # Automatically create email draft for this incident
+    await create_email_draft_for_incident(incident.id)
 
 # Routes - Root
 @api_router.get("/")
