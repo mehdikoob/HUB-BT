@@ -1888,7 +1888,7 @@ async def export_bilan_partenaire_ppt(
                 '{Mois du trigger + année du trigger}': period_label,
                 '{moyenne des tests sites réussis}': str(pct_site),
                 '{moyenne des tests lignes réussis}': str(pct_ligne),
-                '{temps d'attente/nombre de test effectués}': avg_delai_str,
+                '{temps d\'attente/nombre de test effectués}': avg_delai_str,
             }
             
             # Create slides (copy from template and modify)
