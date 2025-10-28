@@ -109,10 +109,17 @@ const TestsLigne = () => {
         date_test: new Date(formData.date_test).toISOString(),
       };
       
-      await axios.post(`${API}/tests-ligne`, submitData);
-      toast.success('Test ligne enregistré avec succès');
+      if (editingTest) {
+        await axios.put(`${API}/tests-ligne/${editingTest.id}`, submitData);
+        toast.success('Test ligne modifié avec succès');
+      } else {
+        await axios.post(`${API}/tests-ligne`, submitData);
+        toast.success('Test ligne enregistré avec succès');
+      }
+      
       setDialogOpen(false);
       resetForm();
+      setEditingTest(null);
       fetchTests();
     } catch (error) {
       console.error('Erreur:', error);
