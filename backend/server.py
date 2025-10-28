@@ -1778,6 +1778,33 @@ def replace_text_in_slide(slide, replacements):
                                     run.text = original_text.replace(key, str(value))
                                     original_text = run.text
 
+def clear_table_data_rows(table, header_rows=1):
+    """Clear all data rows from a table, keeping only headers"""
+    rows_to_delete = len(table.rows) - header_rows
+    for _ in range(rows_to_delete):
+        # Remove from the bottom up
+        if len(table.rows) > header_rows:
+            table._tbl.remove(table.rows[-1]._tr)
+
+def fill_table_with_data(table, data_rows, header_rows=1):
+    """Fill a table with data rows"""
+    # Clear existing data rows (keep header)
+    clear_table_data_rows(table, header_rows)
+    
+    # If no data, add a single row with message
+    if not data_rows:
+        row = table.rows.add()
+        row.cells[0].text = "Aucun test disponible pour cette période"
+        # Merge cells if needed
+        return
+    
+    # Add data rows
+    for row_data in data_rows:
+        row = table.rows.add()
+        for i, cell_value in enumerate(row_data):
+            if i < len(row.cells):
+                row.cells[i].text = str(cell_value)
+
 def format_french_month(date_obj):
     """Format date to French month name"""
     months_fr = {
