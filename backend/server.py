@@ -1924,11 +1924,76 @@ async def export_bilan_partenaire_ppt(
             '{moyenne des tests lignes réussis}': f"{pct_ligne}%",
             '{temps d\'attente/nombre de test effectués}': avg_delai_str,
             'Bilan du': f'Bilan du {bilan_date}',
+            '{nom de la remise}': '',  # TODO: Add actual discount name
+            '{info case MD}': '',
+            '{info case DD}': '',
+            '{commentaire sur l\'accueil}': '',
         }
         
         # Replace text in ALL slides
-        for slide in prs.slides:
+        for slide_idx, slide in enumerate(prs.slides):
             replace_text_in_slide(slide, replacements)
+            
+            # Check if slide contains tables and fill them
+            for shape in slide.shapes:
+                if shape.has_table:
+                    table = shape.table
+                    
+                    # Determine which type of table based on slide title or position
+                    slide_has_sites = False
+                    slide_has_ligne = False
+                    
+                    # Check slide title to determine type
+                    for s in slide.shapes:
+                        if s.has_text_frame and 'Sites' in s.text:
+                            slide_has_sites = True
+                        if s.has_text_frame and 'Ligne' in s.text:
+                            slide_has_ligne = True
+                    
+                    # Fill Tests Sites table
+                    if slide_has_sites:
+                        site_rows = []
+                        for test in tests_site:
+                            try:
+                                test_date = datetime.fromisoformat(test['date_test'])
+                                pct_remise = test.get('pct_remise_calcule', 0)
+                                row_data = [
+                                    format_french_month(test_date),
+                                    test_date.strftime('%d/%m/%Y'),
+                                    f"{test.get('prix_public', 0):.2f} € VS {test.get('prix_remise', 0):.2f} € ({pct_remise:.1f}%)",
+                                    'OUI' if test.get('application_remise') else 'NON',
+                                    test.get('naming_constate', 'N/A'),
+                                    'OUI' if test.get('cumul_codes') else 'NON',
+                                    f"{test.get('prix_public', 0) - test.get('prix_remise', 0):.2f} €" if test.get('prix_public', 0) > test.get('prix_remise', 0) else '0 €'
+                                ]
+                                site_rows.append(row_data)
+                            except Exception as e:
+                                logging.error(f"Error processing test site: {str(e)}")
+                        
+                        fill_table_with_data(table, site_rows, header_rows=1)
+                    
+                    # Fill Tests Ligne table
+                    elif slide_has_ligne:
+                        ligne_rows = []
+                        for test in tests_ligne:
+                            try:
+                                test_date = datetime.fromisoformat(test['date_test'])
+                                row_data = [
+                                    format_french_month(test_date),
+                                    test_date.strftime('%d/%m/%Y'),
+                                    test.get('numero_telephone', 'N/A'),
+                                    'OUI' if test.get('messagerie_vocale_dediee') else 'NON',
+                                    test.get('delai_attente', 'N/A'),
+                                    test.get('nom_conseiller', 'N/A'),
+                                    'OUI' if test.get('decroche_dedie') else 'NON',
+                                    test.get('evaluation_accueil', 'N/A'),
+                                    'OUI' if test.get('application_offre') else 'NON'
+                                ]
+                                ligne_rows.append(row_data)
+                            except Exception as e:
+                                logging.error(f"Error processing test ligne: {str(e)}")
+                        
+                        fill_table_with_data(table, ligne_rows, header_rows=1)
         
         # Save to BytesIO
         output = io.BytesIO()
