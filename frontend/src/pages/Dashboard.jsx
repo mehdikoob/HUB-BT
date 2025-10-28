@@ -181,18 +181,27 @@ const Dashboard = () => {
                   Il reste {stats.days_until_end} jour{stats.days_until_end > 1 ? 's' : ''} avant la fin du mois. 
                   <span className="font-semibold"> {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''} n'ont pas encore été testé{stats.partenaires_manquants > 1 ? 's' : ''}</span> ce mois-ci.
                 </p>
-                <div className="space-y-2">
-                  {stats.tests_manquants?.map((test, idx) => (
-                    <div key={idx} className="text-sm bg-white rounded px-3 py-2">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-gray-900">{test.partenaire_nom}</span>
-                        <span className="text-xs text-gray-500">{test.programme_nom}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        {test.types_manquants.map((type, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">
-                            {type}
-                          </span>
+                
+                {/* Grouped by programme */}
+                <div className="space-y-4">
+                  {groupTestsByProgramme(stats.tests_manquants)?.map((programme, idx) => (
+                    <div key={idx} className="bg-white rounded-lg p-4 border border-red-200">
+                      <h4 className="text-md font-semibold text-red-800 mb-3 flex items-center">
+                        <span className="bg-red-100 px-2 py-1 rounded text-sm mr-2">Programme</span>
+                        {programme.programme_nom}
+                      </h4>
+                      <div className="space-y-2 pl-4">
+                        {programme.partenaires.map((partenaire, pIdx) => (
+                          <div key={pIdx} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
+                            <span className="text-sm font-medium text-gray-900">{partenaire.partenaire_nom}</span>
+                            <div className="flex gap-2">
+                              {partenaire.types_manquants.map((type, tIdx) => (
+                                <span key={tIdx} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">
+                                  {type}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
