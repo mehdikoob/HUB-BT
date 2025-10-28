@@ -376,6 +376,28 @@ const TestsSite = () => {
       <ArrowDown size={14} className="ml-1 text-blue-600" />;
   };
 
+  // Check if test has any alerts
+  const getTestAlerts = (test) => {
+    const alerts = [];
+    
+    // Remise non appliquée
+    if (!test.application_remise) {
+      alerts.push('Remise non appliquée');
+    }
+    
+    // Prix remisé supérieur au prix public
+    if (test.prix_remise > test.prix_public) {
+      alerts.push('Prix remisé supérieur au prix public');
+    }
+    
+    // Pourcentage de remise négatif ou trop élevé
+    if (test.pct_remise_calcule < 0) {
+      alerts.push('Remise négative détectée');
+    }
+    
+    return alerts;
+  };
+
   const handleGenerateBilan = async () => {
     if (!bilanData.partenaire_id) {
       toast.error('Veuillez sélectionner un partenaire');
