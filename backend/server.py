@@ -1737,37 +1737,46 @@ async def get_email_history(incident_id: Optional[str] = None):
     return history
 
 # Helper functions for PowerPoint generation
+def clone_slide_xml(prs_zip_path, slide_index, output_path):
+    """Clone a slide by manipulating the PPTX ZIP structure"""
+    # Extract the pptx
+    with zipfile.ZipFile(prs_zip_path, 'r') as zip_ref:
+        zip_ref.extractall(output_path)
+    
+    # Read slide XML
+    slide_path = f'{output_path}/ppt/slides/slide{slide_index + 1}.xml'
+    with open(slide_path, 'rb') as f:
+        slide_tree = etree.parse(f)
+    
+    return slide_tree
+
 def replace_text_in_shape(shape, replacements):
     """Replace placeholder text in a shape"""
     if shape.has_text_frame:
         for paragraph in shape.text_frame.paragraphs:
             for run in paragraph.runs:
+                original_text = run.text
                 for key, value in replacements.items():
-                    if key in run.text:
-                        run.text = run.text.replace(key, str(value))
+                    if key in original_text:
+                        run.text = original_text.replace(key, str(value))
+                        original_text = run.text
 
-def replace_text_in_table(table, replacements):
-    """Replace placeholder text in a table"""
-    for row in table.rows:
-        for cell in row.cells:
-            for paragraph in cell.text_frame.paragraphs:
-                for run in paragraph.runs:
-                    for key, value in replacements.items():
-                        if key in run.text:
-                            run.text = run.text.replace(key, str(value))
-
-def duplicate_slide(prs, source_slide):
-    """Duplicate a slide in the presentation by copying from source"""
-    blank_layout = prs.slide_layouts[6]
-    new_slide = prs.slides.add_slide(blank_layout)
-    
-    # Copy all shapes from source slide
-    for shape in source_slide.shapes:
-        el = shape.element
-        newel = deepcopy(el)
-        new_slide.shapes._spTree.insert_element_before(newel, 'p:extLst')
-    
-    return new_slide
+def replace_text_in_slide(slide, replacements):
+    """Replace all placeholder text in a slide"""
+    for shape in slide.shapes:
+        replace_text_in_shape(shape, replacements)
+        # Also check tables
+        if shape.has_table:
+            table = shape.table
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.text_frame.paragraphs:
+                        for run in paragraph.runs:
+                            original_text = run.text
+                            for key, value in replacements.items():
+                                if key in original_text:
+                                    run.text = original_text.replace(key, str(value))
+                                    original_text = run.text
 
 def format_french_month(date_obj):
     """Format date to French month name"""
@@ -1777,14 +1786,6 @@ def format_french_month(date_obj):
         9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
     }
     return months_fr.get(date_obj.month, str(date_obj.month))
-
-def add_table_row_data(table, row_data):
-    """Add a row to a table with the given data"""
-    # Add new row
-    row = table.rows.add()
-    for i, cell_value in enumerate(row_data):
-        if i < len(row.cells):
-            row.cells[i].text = str(cell_value)
 
 # Routes - Bilan Partenaire PPT Export
 @api_router.get("/export/bilan-partenaire-ppt")
