@@ -415,6 +415,36 @@ async def get_test_site(test_id: str):
         test['created_at'] = datetime.fromisoformat(test['created_at'])
     return test
 
+@api_router.put("/tests-site/{test_id}", response_model=TestSite)
+async def update_test_site(test_id: str, input: TestSiteCreate):
+    # Check if test exists
+    existing = await db.tests_site.find_one({"id": test_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Test non trouvé")
+    
+    # Calculate percentage
+    pct_remise = calculate_remise_percentage(input.prix_public, input.prix_remise)
+    
+    # Prepare update data
+    update_data = input.model_dump()
+    update_data['pct_remise_calcule'] = pct_remise
+    update_data['date_test'] = update_data['date_test'].isoformat()
+    
+    # Update in database
+    await db.tests_site.update_one(
+        {"id": test_id},
+        {"$set": update_data}
+    )
+    
+    # Get updated document
+    updated = await db.tests_site.find_one({"id": test_id}, {"_id": 0})
+    if isinstance(updated.get('date_test'), str):
+        updated['date_test'] = datetime.fromisoformat(updated['date_test'])
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    
+    return updated
+
 @api_router.delete("/tests-site/{test_id}")
 async def delete_test_site(test_id: str):
     result = await db.tests_site.delete_one({"id": test_id})
