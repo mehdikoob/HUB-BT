@@ -34,14 +34,14 @@ const Dashboard = () => {
 
   const statCards = [
     {
-      title: 'Programmes',
+      title: 'Programmes enregistrés',
       value: stats?.total_programmes || 0,
       icon: FileText,
       color: 'text-red-600',
       bg: 'bg-red-50',
     },
     {
-      title: 'Partenaires',
+      title: 'Partenaires enregistrés',
       value: stats?.total_partenaires || 0,
       icon: Users,
       color: 'text-blue-600',
