@@ -188,6 +188,7 @@ const TestsSite = () => {
       naming_constate: '',
       cumul_codes: false,
       commentaire: '',
+      attachments: [],
     });
   };
 
