@@ -226,26 +226,40 @@ const Dashboard = () => {
                 <p className="text-orange-800 mb-3">
                   {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''} n'ont pas encore été testé{stats.partenaires_manquants > 1 ? 's' : ''} ce mois-ci sur tous les programmes.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {stats.tests_manquants?.slice(0, 8).map((test, idx) => (
-                    <div key={idx} className="text-sm bg-white rounded px-3 py-2">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-gray-900">{test.partenaire_nom}</span>
-                        <span className="text-xs text-gray-500 italic">{test.programme_nom}</span>
-                      </div>
-                      <div className="flex gap-1">
-                        {test.types_manquants.map((type, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-medium">
-                            {type}
-                          </span>
+                
+                {/* Grouped by programme */}
+                <div className="space-y-3">
+                  {groupTestsByProgramme(stats.tests_manquants)?.slice(0, 5).map((programme, idx) => (
+                    <div key={idx} className="bg-white rounded-lg p-3 border border-orange-200">
+                      <h4 className="text-sm font-semibold text-orange-800 mb-2 flex items-center">
+                        <span className="bg-orange-100 px-2 py-0.5 rounded text-xs mr-2">Programme</span>
+                        {programme.programme_nom}
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-3">
+                        {programme.partenaires.slice(0, 6).map((partenaire, pIdx) => (
+                          <div key={pIdx} className="flex items-center justify-between bg-gray-50 rounded px-2 py-1.5 text-xs">
+                            <span className="font-medium text-gray-900">{partenaire.partenaire_nom}</span>
+                            <div className="flex gap-1">
+                              {partenaire.types_manquants.map((type, tIdx) => (
+                                <span key={tIdx} className="px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-medium">
+                                  {type}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
                         ))}
                       </div>
+                      {programme.partenaires.length > 6 && (
+                        <p className="text-xs text-orange-600 mt-2 pl-3">
+                          ... et {programme.partenaires.length - 6} autre{programme.partenaires.length - 6 > 1 ? 's' : ''} partenaire{programme.partenaires.length - 6 > 1 ? 's' : ''}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
-                {stats.tests_manquants_count > 8 && (
-                  <p className="text-sm text-orange-700 mt-2">
-                    ... et {stats.tests_manquants_count - 8} autre{stats.tests_manquants_count - 8 > 1 ? 's' : ''} combinaison{stats.tests_manquants_count - 8 > 1 ? 's' : ''} partenaire/programme
+                {groupTestsByProgramme(stats.tests_manquants)?.length > 5 && (
+                  <p className="text-sm text-orange-700 mt-3">
+                    ... et {groupTestsByProgramme(stats.tests_manquants).length - 5} autre{groupTestsByProgramme(stats.tests_manquants).length - 5 > 1 ? 's' : ''} programme{groupTestsByProgramme(stats.tests_manquants).length - 5 > 1 ? 's' : ''}
                   </p>
                 )}
               </div>
