@@ -1778,36 +1778,14 @@ def replace_text_in_slide(slide, replacements):
                                     run.text = original_text.replace(key, str(value))
                                     original_text = run.text
 
-def clear_table_data_rows(table, header_rows=1):
-    """Clear all data rows from a table, keeping only headers"""
-    # Calculate how many rows to delete
-    total_rows = len(table.rows)
-    rows_to_delete = total_rows - header_rows
-    
-    # Only delete if there are rows beyond headers
-    if rows_to_delete > 0:
-        for _ in range(rows_to_delete):
-            # Remove from the bottom up
-            try:
-                table._tbl.remove(table.rows[header_rows]._tr)
-            except:
-                break
-
 def fill_table_with_data(table, data_rows, header_rows=1):
-    """Fill a table with data rows"""
-    # Clear existing data rows (keep header)
-    clear_table_data_rows(table, header_rows)
-    
-    # If no data, add a single row with message
+    """Fill a table with data rows - simplified approach"""
+    # If no data, return without modifying
     if not data_rows:
-        try:
-            row = table.rows.add()
-            row.cells[0].text = "Aucun test disponible pour cette période"
-        except:
-            pass
+        logging.info("No data to fill in table")
         return
     
-    # Add data rows
+    # Add data rows directly without clearing
     for row_data in data_rows:
         try:
             row = table.rows.add()
