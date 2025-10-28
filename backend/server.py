@@ -2125,7 +2125,7 @@ async def debug_bilan_partenaire_analysis(
             "traceback": traceback.format_exc()
         }
 
-# Routes - Bilan Partenaire PPT Export
+# Routes - Bilan Partenaire PPT Export (STRICT MODE)
 @api_router.get("/export/bilan-partenaire-ppt")
 async def export_bilan_partenaire_ppt(
     partenaire_id: str = Query(...),
@@ -2133,15 +2133,44 @@ async def export_bilan_partenaire_ppt(
     year: Optional[int] = Query(None),
     month: Optional[int] = Query(None)
 ):
-    """Generate PowerPoint report for a partner"""
+    """Generate PowerPoint report - STRICT MODE with full validation"""
     try:
-        # Get partenaire
+        # Logs collection
+        logs = {
+            "placeholdersReplaced": 0,
+            "placeholdersRestants": [],
+            "periodUsed": "",
+            "periodFallbackApplied": False,
+            "rowsSites": 0,
+            "rowsLignes": 0,
+            "incidentsSynthese": ""
+        }
+        
+        # === GET DATA ===
         partenaire = await db.partenaires.find_one({"id": partenaire_id})
         if not partenaire:
             raise HTTPException(status_code=404, detail="Partenaire not found")
         
-        # Calculate date range
+        partner_name = partenaire.get('nom', '')
+        if not partner_name:
+            raise HTTPException(status_code=400, detail="ASSERTION FAIL: partner.name is empty")
+        
+        # Get programmes
+        programme_ids = partenaire.get('programmes_ids', [])
+        programmes = await db.programmes.find({"id": {"$in": programme_ids}}).to_list(length=None)
+        programmes = sorted(programmes, key=lambda p: p['nom'])
+        
+        if not programmes:
+            raise HTTPException(status_code=404, detail="No programmes found")
+        
+        programme = programmes[0]
+        program_name = programme.get('nom', '')
+        if not program_name:
+            raise HTTPException(status_code=400, detail="ASSERTION FAIL: program.name is empty")
+        
+        # === PERIOD CALCULATION WITH FALLBACK ===
         today = datetime.now(timezone.utc)
+        
         if period_type == "month":
             if not year or not month:
                 raise HTTPException(status_code=400, detail="Year and month required")
@@ -2157,39 +2186,81 @@ async def export_bilan_partenaire_ppt(
             date_debut = datetime(year, 1, 1, tzinfo=timezone.utc)
             date_fin = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
             period_label = f"Année {year}"
-        elif period_type == "rolling":
+        else:  # rolling
             date_fin = today
             date_debut = datetime(today.year - 1, today.month, 1, tzinfo=timezone.utc)
-            period_label = f"Année glissante – {format_french_month(date_debut)} {date_debut.year} à {format_french_month(date_fin)} {date_fin.year}"
-        else:
-            raise HTTPException(status_code=400, detail="Invalid period_type")
+            period_label = f"Année glissante"
         
-        # Get programmes sorted alphabetically
-        programme_ids = partenaire.get('programmes_ids', [])
-        programmes = await db.programmes.find({"id": {"$in": programme_ids}}).to_list(length=None)
-        programmes = sorted(programmes, key=lambda p: p['nom'])
-        
-        if not programmes:
-            raise HTTPException(status_code=404, detail="No programmes found")
-        
-        # For now, we'll only process the FIRST programme to validate the approach
-        # TODO: Add support for multiple programmes by cloning slides
-        programme = programmes[0]
-        
-        # Get tests for this programme
+        # Check if period is in future or has no data
         tests_site = await db.tests_site.find({
             "programme_id": programme['id'],
             "partenaire_id": partenaire_id,
             "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
-        }).sort("date_test", 1).to_list(length=None)
+        }).to_list(length=None)
         
         tests_ligne = await db.tests_ligne.find({
             "programme_id": programme['id'],
             "partenaire_id": partenaire_id,
             "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
-        }).sort("date_test", 1).to_list(length=None)
+        }).to_list(length=None)
         
-        # Calculate statistics
+        # FALLBACK: If no data, find last complete month with data
+        if len(tests_site) == 0 and len(tests_ligne) == 0:
+            logging.warning("PERIOD_FALLBACK: No data for requested period, searching last complete month")
+            
+            # Find last test date
+            last_test_site = await db.tests_site.find({
+                "programme_id": programme['id'],
+                "partenaire_id": partenaire_id
+            }).sort("date_test", -1).to_list(length=1)
+            
+            last_test_ligne = await db.tests_ligne.find({
+                "programme_id": programme['id'],
+                "partenaire_id": partenaire_id
+            }).sort("date_test", -1).to_list(length=1)
+            
+            last_date = None
+            if last_test_site:
+                last_date = datetime.fromisoformat(last_test_site[0]['date_test'])
+            if last_test_ligne and (not last_date or datetime.fromisoformat(last_test_ligne[0]['date_test']) > last_date):
+                last_date = datetime.fromisoformat(last_test_ligne[0]['date_test'])
+            
+            if last_date:
+                # Use that month
+                date_debut = datetime(last_date.year, last_date.month, 1, tzinfo=timezone.utc)
+                if last_date.month == 12:
+                    date_fin = datetime(last_date.year + 1, 1, 1, tzinfo=timezone.utc)
+                else:
+                    date_fin = datetime(last_date.year, last_date.month + 1, 1, tzinfo=timezone.utc)
+                period_label = f"{format_french_month(date_debut)} {last_date.year}"
+                logs["periodFallbackApplied"] = True
+                
+                # Re-fetch data
+                tests_site = await db.tests_site.find({
+                    "programme_id": programme['id'],
+                    "partenaire_id": partenaire_id,
+                    "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+                }).to_list(length=None)
+                
+                tests_ligne = await db.tests_ligne.find({
+                    "programme_id": programme['id'],
+                    "partenaire_id": partenaire_id,
+                    "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+                }).to_list(length=None)
+        
+        logs["periodUsed"] = period_label
+        
+        # Sort by date descending
+        tests_site = sorted(tests_site, key=lambda t: t.get('date_test', ''), reverse=True)
+        tests_ligne = sorted(tests_ligne, key=lambda t: t.get('date_test', ''), reverse=True)
+        
+        # Get incidents
+        incidents = await db.incidents.find({
+            "programme_id": programme['id'],
+            "partenaire_id": partenaire_id
+        }).to_list(length=None)
+        
+        # === CALCULATE STATISTICS ===
         total_tests_site = len(tests_site)
         tests_site_reussis = len([t for t in tests_site if t.get('application_remise', False)])
         pct_site = round((tests_site_reussis / total_tests_site * 100), 1) if total_tests_site > 0 else 0
@@ -2198,128 +2269,199 @@ async def export_bilan_partenaire_ppt(
         tests_ligne_reussis = len([t for t in tests_ligne if t.get('application_offre', False)])
         pct_ligne = round((tests_ligne_reussis / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
         
-        # Calculate average waiting time
+        # Average waiting time
         delais = []
         for t in tests_ligne:
             if t.get('delai_attente'):
                 try:
                     parts = t['delai_attente'].split(':')
                     if len(parts) == 2:
-                        minutes = int(parts[0])
-                        seconds = int(parts[1])
-                        delais.append(minutes * 60 + seconds)
+                        delais.append(int(parts[0]) * 60 + int(parts[1]))
                 except:
                     pass
         avg_delai = sum(delais) / len(delais) if delais else 0
         avg_delai_str = f"{int(avg_delai // 60):02d}:{int(avg_delai % 60):02d}"
         
-        # Load template
+        # Average accueil
+        accueils = [t.get('evaluation_accueil', '') for t in tests_ligne if t.get('evaluation_accueil')]
+        commentaire_accueil = "—"
+        if accueils:
+            # Count most common
+            from collections import Counter
+            most_common = Counter(accueils).most_common(1)[0][0]
+            commentaire_accueil = most_common
+        
+        # Partner settings
+        naming_remise = partenaire.get('naming_attendu', 'Non communiqué')
+        
+        # Messagerie/Decroche based on tests ligne
+        md_count = len([t for t in tests_ligne if t.get('messagerie_vocale_dediee')])
+        dd_count = len([t for t in tests_ligne if t.get('decroche_dedie')])
+        info_md = "Oui" if md_count > len(tests_ligne) / 2 else "Non" if len(tests_ligne) > 0 else "—"
+        info_dd = "Oui" if dd_count > len(tests_ligne) / 2 else "Non" if len(tests_ligne) > 0 else "—"
+        
+        # === INCIDENTS SYNTHESE ===
+        if incidents:
+            nb_incidents = len(incidents)
+            types = [inc.get('description', 'N/A')[:30] for inc in incidents]
+            from collections import Counter
+            top_types = Counter(types).most_common(2)
+            synthese_types = ", ".join([t[0] for t in top_types])
+            
+            logs["incidentsSynthese"] = f"{nb_incidents} incident(s) détecté(s). Principaux types: {synthese_types}."
+        else:
+            logs["incidentsSynthese"] = "Aucun incident sur la période."
+        
+        # === LOAD TEMPLATE ===
         template_path = TEMPLATE_DIR / "Bilan_Blindtest_template.pptx"
         if not template_path.exists():
             raise HTTPException(status_code=500, detail="Template not found")
         
-        # Copy template to work with
         work_path = TEMPLATE_DIR / f"temp_{partenaire_id}.pptx"
         shutil.copy(template_path, work_path)
-        
-        # Load presentation
         prs = Presentation(str(work_path))
         
-        # Prepare global replacements
+        # === MAPPING DICTIONARY ===
         bilan_date = datetime.now(timezone.utc).strftime('%d/%m/%Y')
-        replacements = {
-            '{PartnerName}': partenaire['nom'],
-            '{ProgramName}': programme['nom'],
-            '{Mois du trigger + année du trigger}': period_label,
-            '{moyenne des tests sites réussis}': f"{pct_site}%",
-            '{moyenne des tests lignes réussis}': f"{pct_ligne}%",
-            '{temps d\'attente/nombre de test effectués}': avg_delai_str,
-            'Bilan du': f'Bilan du {bilan_date}',
-            '{nom de la remise}': '',  # TODO: Add actual discount name
-            '{info case MD}': '',
-            '{info case DD}': '',
-            '{commentaire sur l\'accueil}': '',
+        mapping = {
+            "PartnerName": partner_name,
+            "ProgramName": program_name,
+            "Mois du trigger + année du trigger": period_label,
+            "moyenne des tests sites réussis": f"{pct_site}%",
+            "moyenne des tests lignes réussis": f"{pct_ligne}%",
+            "temps d'attente/nombre de test effectués": avg_delai_str,
+            "temps d'attente": avg_delai_str,
+            "nom de la remise": naming_remise,
+            "info case MD": info_md,
+            "info case DD": info_dd,
+            "commentaire sur l'accueil": commentaire_accueil,
+            "Agent qui résume les faits inscrits lors des incidents dans la case dédiée aux commentaires": logs["incidentsSynthese"]
         }
         
-        # Replace text in ALL slides
-        for slide_idx, slide in enumerate(prs.slides):
-            replace_text_in_slide(slide, replacements)
+        # === REPLACE PLACEHOLDERS WITH TOLERANT REGEX ===
+        import re
+        placeholder_pattern = re.compile(r'\{\{\s*([A-Za-z0-9_é èàù\'\-]+?)\s*\}\}|\{\s*([A-Za-z0-9_é èàù\'\-]+?)\s*\}', re.IGNORECASE)
+        
+        def normalize_key(key):
+            """Normalize key by removing extra spaces and lowercasing"""
+            return key.strip().lower()
+        
+        # Normalize mapping keys
+        normalized_mapping = {normalize_key(k): v for k, v in mapping.items()}
+        
+        def replace_placeholder(match):
+            key = match.group(1) or match.group(2)
+            normalized_key = normalize_key(key)
             
-            # Check if slide contains tables and fill them
+            if normalized_key in normalized_mapping:
+                logs["placeholdersReplaced"] += 1
+                return str(normalized_mapping[normalized_key])
+            else:
+                logs["placeholdersRestants"].append(f"{{{key}}}")
+                return match.group(0)  # Keep original if not mapped
+        
+        # Replace in all slides
+        for slide_idx, slide in enumerate(prs.slides):
             for shape in slide.shapes:
+                if shape.has_text_frame:
+                    for paragraph in shape.text_frame.paragraphs:
+                        for run in paragraph.runs:
+                            original = run.text
+                            run.text = placeholder_pattern.sub(replace_placeholder, original)
+                
+                # Handle tables differently - reconstruct them
                 if shape.has_table:
                     table = shape.table
                     
-                    # Determine which type of table based on slide title or position
-                    slide_has_sites = False
-                    slide_has_ligne = False
+                    # Determine table type from slide content
+                    is_sites_table = False
+                    is_lignes_table = False
                     
-                    # Check slide title to determine type
                     for s in slide.shapes:
-                        if s.has_text_frame and 'Sites' in s.text:
-                            slide_has_sites = True
+                        if s.has_text_frame and 'Sites' in s.text and 'Ligne' not in s.text:
+                            is_sites_table = True
                         if s.has_text_frame and 'Ligne' in s.text:
-                            slide_has_ligne = True
+                            is_lignes_table = True
                     
-                    # Fill Tests Sites table
-                    if slide_has_sites:
-                        site_rows = []
-                        for test in tests_site:
-                            try:
-                                test_date = datetime.fromisoformat(test['date_test'])
-                                pct_remise = test.get('pct_remise_calcule', 0)
-                                row_data = [
-                                    format_french_month(test_date),
-                                    test_date.strftime('%d/%m/%Y'),
-                                    f"{test.get('prix_public', 0):.2f} € VS {test.get('prix_remise', 0):.2f} € ({pct_remise:.1f}%)",
-                                    'OUI' if test.get('application_remise') else 'NON',
-                                    test.get('naming_constate', 'N/A'),
-                                    'OUI' if test.get('cumul_codes') else 'NON',
-                                    f"{test.get('prix_public', 0) - test.get('prix_remise', 0):.2f} €" if test.get('prix_public', 0) > test.get('prix_remise', 0) else '0 €'
-                                ]
-                                site_rows.append(row_data)
-                            except Exception as e:
-                                logging.error(f"Error processing test site: {str(e)}")
-                        
-                        fill_table_with_data(table, site_rows, header_rows=1)
+                    if is_sites_table:
+                        # Fill Sites table
+                        if tests_site:
+                            for test in tests_site:
+                                try:
+                                    test_date = datetime.fromisoformat(test['date_test'])
+                                    row_data = [
+                                        test_date.strftime('%d/%m/%Y'),
+                                        test.get('url', 'N/A'),
+                                        test.get('url', 'N/A'),
+                                        'OK' if test.get('application_remise') else 'KO',
+                                        'N/A',
+                                        str(test.get('pct_remise_calcule', 0)),
+                                        test.get('naming_constate', '')
+                                    ]
+                                    fill_table_with_data(table, [row_data], header_rows=1)
+                                    logs["rowsSites"] += 1
+                                except Exception as e:
+                                    logging.error(f"Error filling sites table: {str(e)}")
+                        else:
+                            fill_table_with_data(table, [["Aucun test disponible pour cette période", "", "", "", "", "", ""]], header_rows=1)
                     
-                    # Fill Tests Ligne table
-                    elif slide_has_ligne:
-                        ligne_rows = []
-                        for test in tests_ligne:
-                            try:
-                                test_date = datetime.fromisoformat(test['date_test'])
-                                row_data = [
-                                    format_french_month(test_date),
-                                    test_date.strftime('%d/%m/%Y'),
-                                    test.get('numero_telephone', 'N/A'),
-                                    'OUI' if test.get('messagerie_vocale_dediee') else 'NON',
-                                    test.get('delai_attente', 'N/A'),
-                                    test.get('nom_conseiller', 'N/A'),
-                                    'OUI' if test.get('decroche_dedie') else 'NON',
-                                    test.get('evaluation_accueil', 'N/A'),
-                                    'OUI' if test.get('application_offre') else 'NON'
-                                ]
-                                ligne_rows.append(row_data)
-                            except Exception as e:
-                                logging.error(f"Error processing test ligne: {str(e)}")
-                        
-                        fill_table_with_data(table, ligne_rows, header_rows=1)
+                    elif is_lignes_table:
+                        # Fill Lignes table
+                        if tests_ligne:
+                            for test in tests_ligne:
+                                try:
+                                    test_date = datetime.fromisoformat(test['date_test'])
+                                    row_data = [
+                                        test_date.strftime('%d/%m/%Y'),
+                                        test.get('numero_telephone', 'N/A'),
+                                        'OK' if test.get('application_offre') else 'KO',
+                                        test.get('delai_attente', 'N/A'),
+                                        'Oui' if test.get('messagerie_vocale_dediee') else 'Non',
+                                        'Oui' if test.get('decroche_dedie') else 'Non',
+                                        test.get('evaluation_accueil', 'N/A'),
+                                        ''
+                                    ]
+                                    fill_table_with_data(table, [row_data], header_rows=1)
+                                    logs["rowsLignes"] += 1
+                                except Exception as e:
+                                    logging.error(f"Error filling lignes table: {str(e)}")
+                        else:
+                            fill_table_with_data(table, [["Aucun test disponible pour cette période", "", "", "", "", "", "", ""]], header_rows=1)
         
-        # Save to BytesIO
+        # === FINAL ASSERTION: Check for remaining placeholders ===
+        remaining_placeholders = []
+        for slide in prs.slides:
+            for shape in slide.shapes:
+                if shape.has_text_frame:
+                    text = shape.text
+                    if re.search(r'\{[^}]+\}', text):
+                        remaining_placeholders.append(text[:100])
+        
+        if remaining_placeholders:
+            raise HTTPException(
+                status_code=500,
+                detail=f"ASSERTION FAIL: Unresolved placeholders found: {logs['placeholdersRestants']}"
+            )
+        
+        # === CHECK TABLE REBUILD ===
+        if (len(tests_site) > 0 or len(tests_ligne) > 0) and (logs["rowsSites"] == 0 and logs["rowsLignes"] == 0):
+            raise HTTPException(status_code=500, detail="TABLES_REBUILD_FAILED: Data exists but no rows inserted")
+        
+        # === SAVE PPT ===
         output = io.BytesIO()
         prs.save(output)
         output.seek(0)
         
-        # Clean up temp file
+        # Clean up
         try:
             work_path.unlink()
         except:
             pass
         
-        filename = f"Bilan_{partenaire['nom']}_{period_label.replace(' ', '_')}.pptx"
-        # Sanitize filename for HTTP headers (remove problematic characters)
-        filename = filename.replace('/', '_').replace('–', '-').replace('à', 'a')
+        filename = f"Bilan_Blindtest_{partner_name}_{program_name}_{period_label}.pptx".replace(' ', '_').replace('/', '_')
+        
+        # Log summary
+        logging.info(f"PPT Generated: {logs}")
         
         return StreamingResponse(
             output,
