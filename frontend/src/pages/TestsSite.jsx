@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Plus, FileBarChart, Trash2, Filter, Upload, Paperclip, X, FileImage, FileText } from 'lucide-react';
+import { Plus, FileBarChart, Trash2, Filter, Upload, Paperclip, X, FileImage, FileText, Pencil } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
@@ -19,6 +19,7 @@ const TestsSite = () => {
   const [partenaires, setPartenaires] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingTest, setEditingTest] = useState(null);
   const [bilanDialogOpen, setBilanDialogOpen] = useState(false);
   const [filters, setFilters] = useState({
     programme_id: '',
