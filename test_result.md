@@ -182,6 +182,43 @@ frontend:
           - No console errors or UI issues detected
           - Table functionality preserved with new column
 
+  - task: "Messagerie - Backend API"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Implemented complete backend for Messagerie:
+          - Added models: EmailTemplate, UserSignature, EmailDraft, EmailHistory
+          - Created 20+ API endpoints for email management
+          - SMTP sending function with Outlook integration
+          - Auto-generation of draft on incident creation
+          - Template variable replacement system
+          - Email history tracking
+          
+  - task: "Messagerie - Frontend UI"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/Messagerie.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Created Messagerie.jsx with 4 tabs:
+          - Brouillons: Draft management with send capability
+          - Templates: Template management with default selection
+          - Signatures: User signature management
+          - Historique: Sent email history with status
+          Added to menu in Layout.jsx and routing in App.js
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
