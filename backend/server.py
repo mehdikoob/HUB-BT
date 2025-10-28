@@ -1483,6 +1483,241 @@ async def export_tests_ligne_csv(
         headers={"Content-Disposition": "attachment; filename=tests_ligne.csv"}
     )
 
+# Routes - Email Templates
+@api_router.get("/email-templates", response_model=List[EmailTemplate])
+async def get_email_templates():
+    templates = await db.email_templates.find().to_list(length=None)
+    return templates
+
+@api_router.post("/email-templates", response_model=EmailTemplate)
+async def create_email_template(input: EmailTemplateCreate):
+    # If this is set as default, unset other defaults
+    if input.is_default:
+        await db.email_templates.update_many(
+            {"is_default": True},
+            {"$set": {"is_default": False}}
+        )
+    
+    template = EmailTemplate(**input.model_dump())
+    doc = template.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.email_templates.insert_one(doc)
+    return template
+
+@api_router.put("/email-templates/{template_id}", response_model=EmailTemplate)
+async def update_email_template(template_id: str, input: EmailTemplateCreate):
+    existing = await db.email_templates.find_one({"id": template_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Template not found")
+    
+    # If this is set as default, unset other defaults
+    if input.is_default:
+        await db.email_templates.update_many(
+            {"is_default": True, "id": {"$ne": template_id}},
+            {"$set": {"is_default": False}}
+        )
+    
+    update_data = input.model_dump()
+    await db.email_templates.update_one(
+        {"id": template_id},
+        {"$set": update_data}
+    )
+    
+    updated = await db.email_templates.find_one({"id": template_id})
+    return EmailTemplate(**updated)
+
+@api_router.delete("/email-templates/{template_id}")
+async def delete_email_template(template_id: str):
+    result = await db.email_templates.delete_one({"id": template_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return {"message": "Template deleted"}
+
+@api_router.put("/email-templates/{template_id}/set-default")
+async def set_default_template(template_id: str):
+    # Unset all defaults
+    await db.email_templates.update_many(
+        {"is_default": True},
+        {"$set": {"is_default": False}}
+    )
+    
+    # Set this one as default
+    result = await db.email_templates.update_one(
+        {"id": template_id},
+        {"$set": {"is_default": True}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Template not found")
+    
+    return {"message": "Default template set"}
+
+# Routes - User Signatures
+@api_router.get("/signatures", response_model=List[UserSignature])
+async def get_signatures():
+    signatures = await db.signatures.find().to_list(length=None)
+    return signatures
+
+@api_router.post("/signatures", response_model=UserSignature)
+async def create_signature(input: UserSignatureCreate):
+    signature = UserSignature(**input.model_dump())
+    doc = signature.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.signatures.insert_one(doc)
+    return signature
+
+@api_router.put("/signatures/{signature_id}", response_model=UserSignature)
+async def update_signature(signature_id: str, input: UserSignatureCreate):
+    existing = await db.signatures.find_one({"id": signature_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Signature not found")
+    
+    update_data = input.model_dump()
+    await db.signatures.update_one(
+        {"id": signature_id},
+        {"$set": update_data}
+    )
+    
+    updated = await db.signatures.find_one({"id": signature_id})
+    return UserSignature(**updated)
+
+@api_router.delete("/signatures/{signature_id}")
+async def delete_signature(signature_id: str):
+    result = await db.signatures.delete_one({"id": signature_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Signature not found")
+    return {"message": "Signature deleted"}
+
+# Routes - Email Drafts
+@api_router.get("/email-drafts", response_model=List[EmailDraft])
+async def get_email_drafts(status: Optional[str] = None):
+    query = {}
+    if status:
+        query['status'] = status
+    drafts = await db.email_drafts.find(query).to_list(length=None)
+    return drafts
+
+@api_router.get("/email-drafts/{draft_id}", response_model=EmailDraft)
+async def get_email_draft(draft_id: str):
+    draft = await db.email_drafts.find_one({"id": draft_id})
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    return EmailDraft(**draft)
+
+@api_router.post("/email-drafts", response_model=EmailDraft)
+async def create_email_draft(input: EmailDraftCreate):
+    draft = EmailDraft(**input.model_dump())
+    doc = draft.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.email_drafts.insert_one(doc)
+    return draft
+
+@api_router.put("/email-drafts/{draft_id}", response_model=EmailDraft)
+async def update_email_draft(draft_id: str, input: EmailDraftCreate):
+    existing = await db.email_drafts.find_one({"id": draft_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    
+    update_data = input.model_dump()
+    await db.email_drafts.update_one(
+        {"id": draft_id},
+        {"$set": update_data}
+    )
+    
+    updated = await db.email_drafts.find_one({"id": draft_id})
+    return EmailDraft(**updated)
+
+@api_router.delete("/email-drafts/{draft_id}")
+async def delete_email_draft(draft_id: str):
+    result = await db.email_drafts.delete_one({"id": draft_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    return {"message": "Draft deleted"}
+
+class SendEmailRequest(BaseModel):
+    signature_id: Optional[str] = None
+
+@api_router.post("/email-drafts/{draft_id}/send")
+async def send_email_draft(draft_id: str, request: SendEmailRequest):
+    # Get draft
+    draft = await db.email_drafts.find_one({"id": draft_id})
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    
+    if draft['status'] == 'sent':
+        raise HTTPException(status_code=400, detail="Draft already sent")
+    
+    # Get signature if provided
+    signature_text = ""
+    if request.signature_id:
+        signature = await db.signatures.find_one({"id": request.signature_id})
+        if signature:
+            signature_text = signature['signature_text']
+    
+    # Send email
+    result = await send_email_smtp(
+        draft['recipient'],
+        draft['subject'],
+        draft['body'],
+        signature_text
+    )
+    
+    if result['status'] == 'success':
+        # Update draft status
+        await db.email_drafts.update_one(
+            {"id": draft_id},
+            {"$set": {
+                "status": "sent",
+                "sent_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # Create history entry
+        history = EmailHistory(
+            incident_id=draft['incident_id'],
+            draft_id=draft_id,
+            recipient=draft['recipient'],
+            subject=draft['subject'],
+            body=draft['body'] + f"\n\n{signature_text}" if signature_text else draft['body'],
+            status='success'
+        )
+        history_doc = history.model_dump()
+        history_doc['sent_at'] = history_doc['sent_at'].isoformat()
+        await db.email_history.insert_one(history_doc)
+        
+        # Update incident status to indicate contact was made
+        await db.incidents.update_one(
+            {"id": draft['incident_id']},
+            {"$set": {"statut": "resolu"}}
+        )
+        
+        return {"message": "Email sent successfully", "status": "success"}
+    else:
+        # Log failure in history
+        history = EmailHistory(
+            incident_id=draft['incident_id'],
+            draft_id=draft_id,
+            recipient=draft['recipient'],
+            subject=draft['subject'],
+            body=draft['body'],
+            status='failed',
+            error_message=result['message']
+        )
+        history_doc = history.model_dump()
+        history_doc['sent_at'] = history_doc['sent_at'].isoformat()
+        await db.email_history.insert_one(history_doc)
+        
+        raise HTTPException(status_code=500, detail=result['message'])
+
+# Routes - Email History
+@api_router.get("/email-history", response_model=List[EmailHistory])
+async def get_email_history(incident_id: Optional[str] = None):
+    query = {}
+    if incident_id:
+        query['incident_id'] = incident_id
+    history = await db.email_history.find(query).sort("sent_at", -1).to_list(length=None)
+    return history
+
 # Include the router in the main app
 app.include_router(api_router)
 
