@@ -1911,7 +1911,8 @@ async def export_bilan_partenaire_ppt(
             
             # Slide 1: Vue d'ensemble (duplicate from template slide 0)
             current_slide_num += 1
-            slide1 = duplicate_slide(prs, 0)
+            slide1 = duplicate_slide(prs, original_slides[0])
+            slides_to_keep.append(slide1)
             replacements1 = {
                 '{PartnerName}': partenaire['nom'],
                 '{ProgramName}': programme['nom'],
@@ -1922,83 +1923,57 @@ async def export_bilan_partenaire_ppt(
             for shape in slide1.shapes:
                 replace_text_in_shape(shape, replacements1)
             
-            # Slide 2: Tests Sites (duplicate from template slide 1 or 2)
+            # Slide 2: Tests Sites (duplicate from template slide 2)
             current_slide_num += 1
-            slide2 = duplicate_slide(prs, 2)  # Assuming slide 2 is Tests Sites template
+            slide2 = duplicate_slide(prs, original_slides[2])
+            slides_to_keep.append(slide2)
             replacements2 = {
                 '{PartnerName}': partenaire['nom'],
                 '{ProgramName}': programme['nom'],
             }
             for shape in slide2.shapes:
                 replace_text_in_shape(shape, replacements2)
-                # If it's a table, add test data
-                if shape.has_table:
-                    table = shape.table
-                    # Add rows for each test
-                    for test in tests_site:
-                        test_date = datetime.fromisoformat(test['date_test'])
-                        row_data = [
-                            format_french_month(test_date),
-                            test_date.strftime('%d/%m/%Y'),
-                            f"{test['prix_public']:.2f} € VS {test['prix_remise']:.2f} € (-{test.get('pct_remise_calcule', 0)}%)",
-                            'OUI' if test.get('application_remise') else 'NON',
-                            test.get('naming_constate', ''),
-                            'OUI' if test.get('cumul_codes') else 'NON',
-                        ]
-                        add_table_row_data(table, row_data)
             
-            # Slide 3: Tests Ligne (duplicate from template slide 2 or 3)
+            # Slide 3: Tests Ligne (duplicate from template slide 3)
             current_slide_num += 1
-            slide3 = duplicate_slide(prs, 3)  # Assuming slide 3 is Tests Ligne template
+            slide3 = duplicate_slide(prs, original_slides[3])
+            slides_to_keep.append(slide3)
             replacements3 = {
                 '{PartnerName}': partenaire['nom'],
                 '{ProgramName}': programme['nom'],
             }
             for shape in slide3.shapes:
                 replace_text_in_shape(shape, replacements3)
-                # If it's a table, add test data
-                if shape.has_table:
-                    table = shape.table
-                    for test in tests_ligne:
-                        test_date = datetime.fromisoformat(test['date_test'])
-                        row_data = [
-                            format_french_month(test_date),
-                            test_date.strftime('%d/%m/%Y'),
-                            test.get('numero_telephone', ''),
-                            'OUI' if test.get('messagerie_vocale_dediee') else 'NON',
-                            test.get('delai_attente', 'NC'),
-                            test.get('nom_conseiller', 'NC'),
-                            'OUI' if test.get('decroche_dedie') else 'NON',
-                            test.get('evaluation_accueil', 'Bien'),
-                            'OUI' if test.get('application_offre') else 'NON',
-                        ]
-                        add_table_row_data(table, row_data)
         
         # Slide finale: Rapport SAV général
         current_slide_num += 1
-        slide_sav = duplicate_slide(prs, 4 if len(template_slides) > 4 else 3)
+        slide_sav_index = 4 if len(original_slides) > 4 else 3
+        slide_sav = duplicate_slide(prs, original_slides[slide_sav_index])
+        slides_to_keep.append(slide_sav)
         replacements_sav = {
             '{PartnerName}': partenaire['nom'],
-            'RAPPORT SAV': f'RAPPORT SAV – {period_label}',
         }
         # Add summary of all incidents
-        incident_summary = f"Total incidents: {len(all_incidents)}\n"
-        for inc in all_incidents[:10]:  # Limit to 10 incidents
-            incident_summary += f"- {inc.get('description', 'N/A')}\n"
+        incident_summary = f"Total incidents: {len(all_incidents)}"
         
         for shape in slide_sav.shapes:
             replace_text_in_shape(shape, replacements_sav)
-            if shape.has_text_frame and 'résume les faits' in shape.text:
-                shape.text = incident_summary
+        
+        # Now remove the original template slides (the first 5)
+        for i in range(min(5, len(original_slides)) - 1, -1, -1):
+            rId = prs.slides._sldIdLst[i].rId
+            prs.part.drop_rel(rId)
+            del prs.slides._sldIdLst[i]
         
         # Add footer with date and pagination to all slides
         for i, slide in enumerate(prs.slides):
             for shape in slide.shapes:
                 if shape.has_text_frame:
-                    text = shape.text
-                    if '{date}' in text or 'Bilan du' in text:
+                    # Try to add date in footer
+                    if 'Bilan du' in shape.text or '{date}' in shape.text:
                         shape.text = f"Bilan du {bilan_date}"
-                    if '{page}' in text or '/' in text:
+                    # Try to add pagination
+                    elif '/' in shape.text and len(shape.text) < 10:
                         shape.text = f"{i + 1}/{total_slides}"
         
         # Save to BytesIO
