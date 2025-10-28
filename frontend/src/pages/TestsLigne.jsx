@@ -266,6 +266,57 @@ const TestsLigne = () => {
     }
   };
 
+  // Sorting functions
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedTests = () => {
+    if (!sortConfig.key) return tests;
+
+    const sortedTests = [...tests].sort((a, b) => {
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
+
+      // Handle date sorting
+      if (sortConfig.key === 'date_test') {
+        aVal = new Date(aVal);
+        bVal = new Date(bVal);
+      }
+
+      // Handle boolean sorting
+      if (sortConfig.key === 'messagerie_vocale_dediee' || sortConfig.key === 'decroche_dedie' || sortConfig.key === 'application_offre') {
+        aVal = aVal ? 1 : 0;
+        bVal = bVal ? 1 : 0;
+      }
+
+      // Handle string sorting (case insensitive)
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = bVal?.toLowerCase() || '';
+      }
+
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return sortedTests;
+  };
+
+  const SortIcon = ({ columnKey }) => {
+    if (sortConfig.key !== columnKey) {
+      return <ArrowUpDown size={14} className="ml-1 text-gray-400" />;
+    }
+    return sortConfig.direction === 'asc' ? 
+      <ArrowUp size={14} className="ml-1 text-blue-600" /> : 
+      <ArrowDown size={14} className="ml-1 text-blue-600" />;
+  };
+
   const handleGenerateBilan = async () => {
     if (!bilanData.partenaire_id) {
       toast.error('Veuillez sélectionner un partenaire');
