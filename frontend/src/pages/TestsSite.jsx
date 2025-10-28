@@ -163,6 +163,7 @@ const TestsSite = () => {
         prix_public: parseFloat(formData.prix_public),
         prix_remise: parseFloat(formData.prix_remise),
         date_test: new Date(formData.date_test).toISOString(),
+        attachments: formData.attachments.map(att => att.url), // Send only URLs
       };
       
       await axios.post(`${API}/tests-site`, submitData);
