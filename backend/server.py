@@ -422,6 +422,47 @@ async def delete_test_site(test_id: str):
         raise HTTPException(status_code=404, detail="Test non trouvé")
     return {"message": "Test supprimé"}
 
+@api_router.post("/upload-attachment")
+async def upload_attachment(file: UploadFile = File(...)):
+    """Upload a file (jpeg, png, pdf) and return the URL"""
+    # Validate file type
+    allowed_extensions = [".jpg", ".jpeg", ".png", ".pdf"]
+    file_extension = Path(file.filename).suffix.lower()
+    
+    if file_extension not in allowed_extensions:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Type de fichier non autorisé. Formats acceptés : {', '.join(allowed_extensions)}"
+        )
+    
+    # Validate file size (max 10MB)
+    file.file.seek(0, 2)  # Seek to end
+    file_size = file.file.tell()
+    file.file.seek(0)  # Reset to start
+    
+    if file_size > 10 * 1024 * 1024:  # 10MB
+        raise HTTPException(status_code=400, detail="Fichier trop volumineux (max 10MB)")
+    
+    # Generate unique filename
+    unique_filename = f"{uuid.uuid4()}{file_extension}"
+    file_path = UPLOAD_DIR / unique_filename
+    
+    # Save file
+    try:
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'enregistrement du fichier: {str(e)}")
+    finally:
+        file.file.close()
+    
+    # Return the URL
+    return {
+        "filename": file.filename,
+        "url": f"/uploads/{unique_filename}",
+        "size": file_size
+    }
+
 # Routes - Tests Ligne
 @api_router.post("/tests-ligne", response_model=TestLigne)
 async def create_test_ligne(input: TestLigneCreate):
