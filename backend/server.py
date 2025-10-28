@@ -563,6 +563,36 @@ async def get_test_ligne(test_id: str):
         test['created_at'] = datetime.fromisoformat(test['created_at'])
     return test
 
+@api_router.put("/tests-ligne/{test_id}", response_model=TestLigne)
+async def update_test_ligne(test_id: str, input: TestLigneCreate):
+    # Check if test exists
+    existing = await db.tests_ligne.find_one({"id": test_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Test non trouvé")
+    
+    # Prepare update data
+    update_data = input.model_dump()
+    update_data['date_test'] = update_data['date_test'].isoformat()
+    if update_data.get('delai_attente') and isinstance(update_data['delai_attente'], time):
+        update_data['delai_attente'] = update_data['delai_attente'].strftime('%H:%M:%S')
+    
+    # Update in database
+    await db.tests_ligne.update_one(
+        {"id": test_id},
+        {"$set": update_data}
+    )
+    
+    # Get updated document
+    updated = await db.tests_ligne.find_one({"id": test_id}, {"_id": 0})
+    if isinstance(updated.get('date_test'), str):
+        updated['date_test'] = datetime.fromisoformat(updated['date_test'])
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated.get('delai_attente'), str):
+        updated['delai_attente'] = datetime.strptime(updated['delai_attente'], '%H:%M:%S').time()
+    
+    return updated
+
 @api_router.delete("/tests-ligne/{test_id}")
 async def delete_test_ligne(test_id: str):
     result = await db.tests_ligne.delete_one({"id": test_id})
