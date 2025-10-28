@@ -41,7 +41,9 @@ const TestsSite = () => {
     naming_constate: '',
     cumul_codes: false,
     commentaire: '',
+    attachments: [],
   });
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   // Calculate discount percentage automatically
   const calculateRemisePercentage = () => {
