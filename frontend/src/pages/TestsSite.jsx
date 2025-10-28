@@ -776,13 +776,27 @@ const TestsSite = () => {
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(test.id)}
-                      data-testid={`delete-test-${test.id}`}
-                    >
-                      <Trash2 size={16} className="text-red-600" />
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEdit(test)}
+                        data-testid={`edit-test-${test.id}`}
+                        title="Modifier"
+                      >
+                        <Pencil size={16} className="text-blue-600" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(test.id)}
+                        data-testid={`delete-test-${test.id}`}
+                        title="Supprimer"
+                      >
+                        <Trash2 size={16} className="text-red-600" />
+                      </Button>
+                    </div>
+                  </td>
                     </Button>
                   </td>
                 </tr>
