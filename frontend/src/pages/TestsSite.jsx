@@ -1050,7 +1050,8 @@ const TestsSite = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
