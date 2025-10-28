@@ -1850,12 +1850,6 @@ async def export_bilan_partenaire_ppt(
             "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
         }).sort("date_test", 1).to_list(length=None)
         
-        # Get incidents
-        incidents = await db.incidents.find({
-            "programme_id": programme['id'],
-            "partenaire_id": partenaire_id
-        }).to_list(length=None)
-        
         # Calculate statistics
         total_tests_site = len(tests_site)
         tests_site_reussis = len([t for t in tests_site if t.get('application_remise', False)])
