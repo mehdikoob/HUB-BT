@@ -505,6 +505,72 @@ const TestsSite = () => {
                     rows={3}
                   />
                 </div>
+                
+                {/* File attachments section */}
+                <div>
+                  <Label>Pièces jointes (jpeg, png, pdf)</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    <input
+                      type="file"
+                      id="file-upload"
+                      accept=".jpg,.jpeg,.png,.pdf"
+                      onChange={handleFileUpload}
+                      disabled={uploadingFile}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className={`flex flex-col items-center justify-center cursor-pointer ${
+                        uploadingFile ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      <Upload className="text-gray-400 mb-2" size={32} />
+                      <span className="text-sm text-gray-600">
+                        {uploadingFile ? 'Upload en cours...' : 'Cliquez pour ajouter un fichier'}
+                      </span>
+                      <span className="text-xs text-gray-400 mt-1">
+                        JPEG, PNG ou PDF (max 10MB)
+                      </span>
+                    </label>
+                  </div>
+                  
+                  {/* List of attached files */}
+                  {formData.attachments.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {formData.attachments.map((file, index) => {
+                        const isPdf = file.filename?.toLowerCase().endsWith('.pdf');
+                        const Icon = isPdf ? FileText : FileImage;
+                        
+                        return (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-2 bg-gray-50 rounded border"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Icon size={20} className="text-gray-600" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-700">{file.filename}</p>
+                                <p className="text-xs text-gray-500">
+                                  {(file.size / 1024).toFixed(1)} KB
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeAttachment(index)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <X size={18} />
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+                
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                     Annuler
