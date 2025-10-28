@@ -308,47 +308,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       )}
-
-      {/* Success Rates */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="text-red-600" size={20} />
-              Taux de réussite Tests Site
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="text-5xl font-bold text-red-600">
-                {stats?.taux_reussite_ts || 0}%
-              </div>
-              <div className="text-sm text-gray-600">
-                Tests avec remise appliquée correctement
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="text-purple-600" size={20} />
-              Taux de réussite Tests Ligne
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="text-5xl font-bold text-purple-600">
-                {stats?.taux_reussite_tl || 0}%
-              </div>
-              <div className="text-sm text-gray-600">
-                Tests avec offre appliquée correctement
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };
