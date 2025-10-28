@@ -21,10 +21,15 @@ from enum import Enum
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
+from pptx import Presentation
+from pptx.util import Inches, Pt
+from copy import deepcopy
 
 ROOT_DIR = Path(__file__).parent
 UPLOAD_DIR = ROOT_DIR / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
+TEMPLATE_DIR = ROOT_DIR / "templates"
+TEMPLATE_DIR.mkdir(exist_ok=True)
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
