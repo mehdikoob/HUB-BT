@@ -1753,15 +1753,13 @@ def replace_text_in_table(table, replacements):
                         if key in run.text:
                             run.text = run.text.replace(key, str(value))
 
-def duplicate_slide(prs, slide_index):
-    """Duplicate a slide in the presentation"""
-    template_slide = prs.slides[slide_index]
+def duplicate_slide(prs, source_slide):
+    """Duplicate a slide in the presentation by copying from source"""
     blank_layout = prs.slide_layouts[6]
-    
     new_slide = prs.slides.add_slide(blank_layout)
     
-    # Copy all shapes from template
-    for shape in template_slide.shapes:
+    # Copy all shapes from source slide
+    for shape in source_slide.shapes:
         el = shape.element
         newel = deepcopy(el)
         new_slide.shapes._spTree.insert_element_before(newel, 'p:extLst')
