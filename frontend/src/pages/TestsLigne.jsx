@@ -45,6 +45,7 @@ const TestsLigne = () => {
     application_offre: true,
     commentaire: '',
   });
+  const [partenaireTelephone, setPartenaireTelephone] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -67,6 +68,35 @@ const TestsLigne = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Get telephone for selected partenaire and programme
+  const updatePartenaireTelephone = (programmeId, partenaireId) => {
+    if (!programmeId || !partenaireId) {
+      setPartenaireTelephone('');
+      return;
+    }
+
+    const partenaire = partenaires.find(p => p.id === partenaireId);
+    if (partenaire && partenaire.contacts_programmes) {
+      const contact = partenaire.contacts_programmes.find(c => c.programme_id === programmeId);
+      const tel = contact?.numero_telephone || '';
+      setPartenaireTelephone(tel);
+      // Also update formData with the telephone
+      setFormData(prev => ({ ...prev, numero_telephone: tel }));
+    } else {
+      setPartenaireTelephone('');
+    }
+  };
+
+  const handleProgrammeChange = (value) => {
+    setFormData({ ...formData, programme_id: value });
+    updatePartenaireTelephone(value, formData.partenaire_id);
+  };
+
+  const handlePartenaireChange = (value) => {
+    setFormData({ ...formData, partenaire_id: value });
+    updatePartenaireTelephone(formData.programme_id, value);
   };
 
   const fetchTests = async () => {
