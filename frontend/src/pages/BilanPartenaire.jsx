@@ -149,83 +149,44 @@ const BilanPartenaire = () => {
             </Select>
           </div>
 
-          {/* Period Type Selection */}
+          {/* Period Selection - Custom Date Range */}
           <div>
-            <Label htmlFor="period-type" className="text-base font-semibold mb-2 block">
+            <Label htmlFor="period-range" className="text-base font-semibold mb-2 block">
               <Calendar className="inline-block mr-2" size={18} />
-              Type de période *
+              Période d'analyse *
             </Label>
-            <Select value={periodType} onValueChange={setPeriodType}>
-              <SelectTrigger data-testid="select-period-type" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="month">Année + Mois</SelectItem>
-                <SelectItem value="year">Année complète</SelectItem>
-                <SelectItem value="rolling">Année glissante (12 derniers mois)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Year and Month Selection (conditional) */}
-          {periodType === 'month' && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="year" className="text-sm font-medium mb-2 block">
-                  Année
+                <Label htmlFor="date-debut" className="text-sm font-medium mb-2 block">
+                  Date de début
                 </Label>
-                <Select value={selectedYear.toString()} onValueChange={(val) => setSelectedYear(parseInt(val))}>
-                  <SelectTrigger data-testid="select-year">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="date-debut"
+                  type="date"
+                  value={dateDebut}
+                  onChange={(e) => setDateDebut(e.target.value)}
+                  className="w-full"
+                  data-testid="date-debut"
+                />
               </div>
               <div>
-                <Label htmlFor="month" className="text-sm font-medium mb-2 block">
-                  Mois
+                <Label htmlFor="date-fin" className="text-sm font-medium mb-2 block">
+                  Date de fin
                 </Label>
-                <Select value={selectedMonth.toString()} onValueChange={(val) => setSelectedMonth(parseInt(val))}>
-                  <SelectTrigger data-testid="select-month">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {months.map((month) => (
-                      <SelectItem key={month.value} value={month.value.toString()}>
-                        {month.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="date-fin"
+                  type="date"
+                  value={dateFin}
+                  onChange={(e) => setDateFin(e.target.value)}
+                  className="w-full"
+                  data-testid="date-fin"
+                />
               </div>
             </div>
-          )}
-
-          {periodType === 'year' && (
-            <div>
-              <Label htmlFor="year-only" className="text-sm font-medium mb-2 block">
-                Année
-              </Label>
-              <Select value={selectedYear.toString()} onValueChange={(val) => setSelectedYear(parseInt(val))}>
-                <SelectTrigger data-testid="select-year-only">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+            <p className="text-xs text-gray-500 mt-2">
+              💡 Sélectionnez une période personnalisée pour analyser les tests
+            </p>
+          </div>
 
           {/* Info Box */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
