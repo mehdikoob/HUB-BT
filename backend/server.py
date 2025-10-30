@@ -2434,13 +2434,15 @@ async def export_bilan_partenaire_ppt(
             for shape in slide.shapes:
                 if shape.has_text_frame:
                     text = shape.text
-                    if re.search(r'\{[^}]+\}', text):
-                        remaining_placeholders.append(text[:100])
+                    matches = re.findall(r'\{[^}]+\}', text)
+                    if matches:
+                        for match in matches:
+                            remaining_placeholders.append(match)
         
-        if remaining_placeholders:
+        if remaining_placeholders and len(logs['placeholdersRestants']) > 0:
             raise HTTPException(
                 status_code=500,
-                detail=f"ASSERTION FAIL: Unresolved placeholders found: {logs['placeholdersRestants']}"
+                detail=f"ASSERTION FAIL: Unresolved placeholders found: {list(set(remaining_placeholders))}"
             )
         
         # === CHECK TABLE REBUILD ===
