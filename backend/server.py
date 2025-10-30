@@ -2435,19 +2435,19 @@ async def export_bilan_partenaire_ppt(
             
             # Table
             if tests_ligne:
-            rows = min(len(tests_ligne) + 1, 15)
-            cols = 7
-            table = slide3.shapes.add_table(rows, cols, Inches(0.5), Inches(1.5), Inches(9), Inches(5)).table
-            
-            # Header
-            headers = ['Date', 'Téléphone', 'Délai', 'Msg. Vocale', 'Décroche', 'Accueil', 'OK?']
-            for i, header in enumerate(headers):
-                cell = table.cell(0, i)
-                cell.text = header
-                cell.text_frame.paragraphs[0].font.bold = True
-                cell.text_frame.paragraphs[0].font.size = Pt(11)
-                cell.fill.solid()
-                cell.fill.fore_color.rgb = RGBColor(200, 200, 200)
+                rows = min(len(tests_ligne) + 1, 15)
+                cols = 7
+                table = slide3.shapes.add_table(rows, cols, Inches(0.5), Inches(1.5), Inches(9), Inches(5)).table
+                
+                # Header
+                headers = ['Date', 'Téléphone', 'Délai', 'Msg. Vocale', 'Décroche', 'Accueil', 'OK?']
+                for i, header in enumerate(headers):
+                    cell = table.cell(0, i)
+                    cell.text = header
+                    cell.text_frame.paragraphs[0].font.bold = True
+                    cell.text_frame.paragraphs[0].font.size = Pt(11)
+                    cell.fill.solid()
+                    cell.fill.fore_color.rgb = RGBColor(200, 200, 200)
             
             # Data rows
             for idx, test in enumerate(tests_ligne[:14]):
