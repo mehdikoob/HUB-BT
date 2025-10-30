@@ -49,23 +49,25 @@ const BilanPartenaire = () => {
       return;
     }
 
+    if (!dateDebut || !dateFin) {
+      toast.error('Veuillez sélectionner une période (date début et fin)');
+      return;
+    }
+
+    if (new Date(dateDebut) > new Date(dateFin)) {
+      toast.error('La date de début doit être antérieure à la date de fin');
+      return;
+    }
+
     setGenerating(true);
 
     try {
-      const params = {
-        partenaire_id: selectedPartenaire,
-        period_type: periodType,
-      };
-
-      if (periodType === 'month') {
-        params.year = selectedYear;
-        params.month = selectedMonth;
-      } else if (periodType === 'year') {
-        params.year = selectedYear;
-      }
-
       const response = await axios.get(`${API}/export/bilan-partenaire-ppt`, {
-        params,
+        params: {
+          partenaire_id: selectedPartenaire,
+          date_debut: dateDebut,
+          date_fin: dateFin
+        },
         responseType: 'blob',
       });
 
@@ -73,16 +75,10 @@ const BilanPartenaire = () => {
       const partenaire = partenaires.find(p => p.id === selectedPartenaire);
       const partenaireNom = partenaire ? partenaire.nom : 'partenaire';
       
-      // Get period label for filename
-      let periodLabel = '';
-      if (periodType === 'month') {
-        const monthLabel = months.find(m => m.value === selectedMonth)?.label || selectedMonth;
-        periodLabel = `${monthLabel}_${selectedYear}`;
-      } else if (periodType === 'year') {
-        periodLabel = `Annee_${selectedYear}`;
-      } else {
-        periodLabel = 'Annee_Glissante';
-      }
+      // Format period label for filename
+      const dateDebutObj = new Date(dateDebut);
+      const dateFinObj = new Date(dateFin);
+      const periodLabel = `${dateDebutObj.toLocaleDateString('fr-FR')}_au_${dateFinObj.toLocaleDateString('fr-FR')}`.replace(/\//g, '-');
 
       const filename = `Bilan_${partenaireNom}_${periodLabel}.pptx`;
 
