@@ -2467,9 +2467,9 @@ async def export_bilan_partenaire_ppt(
         prs.save(output)
         output.seek(0)
         
-        filename = f"Bilan_{partner_name}_{program_name}_{period_label}.pptx".replace(' ', '_').replace('/', '_')
+        filename = f"Bilan_{partner_name}_{period_label}.pptx".replace(' ', '_').replace('/', '_')
         
-        logging.info(f"PPT Generated: {total_tests_site} sites, {total_tests_ligne} lignes")
+        logging.info(f"PPT Generated for {len(programmes)} programmes: {total_slides} slides total")
         
         return StreamingResponse(
             output,
