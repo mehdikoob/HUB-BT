@@ -2195,13 +2195,13 @@ async def export_bilan_partenaire_ppt(
         tests_site = await db.tests_site.find({
             "programme_id": programme['id'],
             "partenaire_id": partenaire_id,
-            "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+            "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
         }).to_list(length=None)
         
         tests_ligne = await db.tests_ligne.find({
             "programme_id": programme['id'],
             "partenaire_id": partenaire_id,
-            "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+            "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
         }).to_list(length=None)
         
         # FALLBACK: If no data, find last complete month with data
@@ -2227,25 +2227,25 @@ async def export_bilan_partenaire_ppt(
             
             if last_date:
                 # Use that month
-                date_debut = datetime(last_date.year, last_date.month, 1, tzinfo=timezone.utc)
+                date_debut_obj = datetime(last_date.year, last_date.month, 1, tzinfo=timezone.utc)
                 if last_date.month == 12:
-                    date_fin = datetime(last_date.year + 1, 1, 1, tzinfo=timezone.utc)
+                    date_fin_obj = datetime(last_date.year + 1, 1, 1, tzinfo=timezone.utc)
                 else:
-                    date_fin = datetime(last_date.year, last_date.month + 1, 1, tzinfo=timezone.utc)
-                period_label = f"{format_french_month(date_debut)} {last_date.year}"
+                    date_fin_obj = datetime(last_date.year, last_date.month + 1, 1, tzinfo=timezone.utc)
+                period_label = f"{format_french_month(date_debut_obj)} {last_date.year}"
                 logs["periodFallbackApplied"] = True
                 
                 # Re-fetch data
                 tests_site = await db.tests_site.find({
                     "programme_id": programme['id'],
                     "partenaire_id": partenaire_id,
-                    "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+                    "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
                 }).to_list(length=None)
                 
                 tests_ligne = await db.tests_ligne.find({
                     "programme_id": programme['id'],
                     "partenaire_id": partenaire_id,
-                    "date_test": {"$gte": date_debut.isoformat(), "$lt": date_fin.isoformat()}
+                    "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
                 }).to_list(length=None)
         
         logs["periodUsed"] = period_label
