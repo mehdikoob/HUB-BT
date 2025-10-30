@@ -2125,8 +2125,299 @@ async def debug_bilan_partenaire_analysis(
             "traceback": traceback.format_exc()
         }
 
-# Routes - Bilan Partenaire PPT Export (STRICT MODE)
+# Routes - Bilan Partenaire PPT Export (FROM SCRATCH)
 @api_router.get("/export/bilan-partenaire-ppt")
+async def export_bilan_partenaire_ppt(
+    partenaire_id: str = Query(...),
+    date_debut: str = Query(...),
+    date_fin: str = Query(...)
+):
+    """Generate PowerPoint report from scratch with real data"""
+    try:
+        from pptx.util import Inches, Pt
+        from pptx.enum.text import PP_ALIGN
+        from pptx.dml.color import RGBColor
+        
+        # === GET DATA ===
+        partenaire = await db.partenaires.find_one({"id": partenaire_id})
+        if not partenaire:
+            raise HTTPException(status_code=404, detail="Partenaire not found")
+        
+        partner_name = partenaire.get('nom', '')
+        
+        # Get programmes
+        programme_ids = partenaire.get('programmes_ids', [])
+        programmes = await db.programmes.find({"id": {"$in": programme_ids}}).to_list(length=None)
+        programmes = sorted(programmes, key=lambda p: p['nom'])
+        
+        if not programmes:
+            raise HTTPException(status_code=404, detail="No programmes found")
+        
+        programme = programmes[0]
+        program_name = programme.get('nom', '')
+        
+        # Parse dates
+        date_debut_obj = datetime.fromisoformat(date_debut).replace(tzinfo=timezone.utc)
+        date_fin_obj = datetime.fromisoformat(date_fin).replace(tzinfo=timezone.utc, hour=23, minute=59, second=59)
+        
+        # Generate period label
+        if date_debut_obj.year == date_fin_obj.year and date_debut_obj.month == date_fin_obj.month:
+            period_label = f"{format_french_month(date_debut_obj)} {date_debut_obj.year}"
+        elif date_debut_obj.year == date_fin_obj.year:
+            period_label = f"{format_french_month(date_debut_obj)} - {format_french_month(date_fin_obj)} {date_debut_obj.year}"
+        else:
+            period_label = f"{format_french_month(date_debut_obj)} {date_debut_obj.year} - {format_french_month(date_fin_obj)} {date_fin_obj.year}"
+        
+        # Get tests data
+        tests_site = await db.tests_site.find({
+            "programme_id": programme['id'],
+            "partenaire_id": partenaire_id,
+            "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
+        }).sort("date_test", -1).to_list(length=None)
+        
+        tests_ligne = await db.tests_ligne.find({
+            "programme_id": programme['id'],
+            "partenaire_id": partenaire_id,
+            "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
+        }).sort("date_test", -1).to_list(length=None)
+        
+        # === CALCULATE STATISTICS ===
+        # Sites
+        total_tests_site = len(tests_site)
+        tests_site_reussis = len([t for t in tests_site if t.get('application_remise', False)])
+        pct_site = round((tests_site_reussis / total_tests_site * 100), 1) if total_tests_site > 0 else 0
+        
+        # Lignes
+        total_tests_ligne = len(tests_ligne)
+        tests_ligne_reussis = len([t for t in tests_ligne if t.get('application_offre', False)])
+        pct_ligne = round((tests_ligne_reussis / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
+        
+        # Average waiting time
+        delais = []
+        for t in tests_ligne:
+            if t.get('delai_attente'):
+                try:
+                    parts = t['delai_attente'].split(':')
+                    if len(parts) == 2:
+                        delais.append(int(parts[0]) * 60 + int(parts[1]))
+                except:
+                    pass
+        avg_delai = sum(delais) / len(delais) if delais else 0
+        avg_delai_str = f"{int(avg_delai // 60):02d}:{int(avg_delai % 60):02d}"
+        
+        # Average accueil
+        accueils = [t.get('evaluation_accueil', '') for t in tests_ligne if t.get('evaluation_accueil')]
+        accueil_counts = {}
+        for acc in accueils:
+            accueil_counts[acc] = accueil_counts.get(acc, 0) + 1
+        commentaire_accueil = max(accueil_counts, key=accueil_counts.get) if accueil_counts else "—"
+        
+        # Messagerie/Decroche stats
+        md_count = len([t for t in tests_ligne if t.get('messagerie_vocale_dediee')])
+        dd_count = len([t for t in tests_ligne if t.get('decroche_dedie')])
+        pct_md = round((md_count / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
+        pct_dd = round((dd_count / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
+        
+        # === CREATE PRESENTATION FROM SCRATCH ===
+        prs = Presentation()
+        prs.slide_width = Inches(10)
+        prs.slide_height = Inches(7.5)
+        
+        # === SLIDE 1: VUE D'ENSEMBLE ===
+        slide_layout = prs.slide_layouts[6]  # Blank layout
+        slide1 = prs.slides.add_slide(slide_layout)
+        
+        # Title
+        title_box = slide1.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
+        title_frame = title_box.text_frame
+        title_frame.text = f"Blind test – {partner_name} x {program_name}"
+        title_para = title_frame.paragraphs[0]
+        title_para.font.size = Pt(32)
+        title_para.font.bold = True
+        title_para.font.color.rgb = RGBColor(0, 0, 128)
+        
+        # Subtitle - Period
+        subtitle_box = slide1.shapes.add_textbox(Inches(0.5), Inches(1.5), Inches(9), Inches(0.5))
+        subtitle_frame = subtitle_box.text_frame
+        subtitle_frame.text = period_label
+        subtitle_para = subtitle_frame.paragraphs[0]
+        subtitle_para.font.size = Pt(20)
+        subtitle_para.font.color.rgb = RGBColor(100, 100, 100)
+        
+        # Statistics boxes
+        y_pos = 2.5
+        
+        # Tests Sites
+        box1 = slide1.shapes.add_textbox(Inches(1), Inches(y_pos), Inches(3.5), Inches(1.5))
+        tf1 = box1.text_frame
+        tf1.text = f"Tests Sites\n\n{pct_site}% de réussite\n({tests_site_reussis}/{total_tests_site} tests)"
+        for para in tf1.paragraphs:
+            para.font.size = Pt(16)
+            para.alignment = PP_ALIGN.CENTER
+        
+        # Tests Lignes
+        box2 = slide1.shapes.add_textbox(Inches(5.5), Inches(y_pos), Inches(3.5), Inches(1.5))
+        tf2 = box2.text_frame
+        tf2.text = f"Tests Ligne\n\n{pct_ligne}% de réussite\n({tests_ligne_reussis}/{total_tests_ligne} tests)"
+        for para in tf2.paragraphs:
+            para.font.size = Pt(16)
+            para.alignment = PP_ALIGN.CENTER
+        
+        # Additional stats
+        box3 = slide1.shapes.add_textbox(Inches(1), Inches(y_pos + 2), Inches(3.5), Inches(1.5))
+        tf3 = box3.text_frame
+        tf3.text = f"Temps d'attente moyen\n\n{avg_delai_str}"
+        for para in tf3.paragraphs:
+            para.font.size = Pt(16)
+            para.alignment = PP_ALIGN.CENTER
+        
+        box4 = slide1.shapes.add_textbox(Inches(5.5), Inches(y_pos + 2), Inches(3.5), Inches(1.5))
+        tf4 = box4.text_frame
+        tf4.text = f"Accueil\n\n{commentaire_accueil}"
+        for para in tf4.paragraphs:
+            para.font.size = Pt(16)
+            para.alignment = PP_ALIGN.CENTER
+        
+        # Footer
+        footer = slide1.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
+        footer.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page 1/3"
+        footer.text_frame.paragraphs[0].font.size = Pt(10)
+        footer.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
+        
+        # === SLIDE 2: TESTS SITES ===
+        slide2 = prs.slides.add_slide(slide_layout)
+        
+        # Title
+        title2 = slide2.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(0.7))
+        title2.text_frame.text = f"Tests Sites – {partner_name} x {program_name}"
+        title2.text_frame.paragraphs[0].font.size = Pt(24)
+        title2.text_frame.paragraphs[0].font.bold = True
+        
+        # Table
+        if tests_site:
+            rows = min(len(tests_site) + 1, 15)  # Max 14 tests + header
+            cols = 7
+            table = slide2.shapes.add_table(rows, cols, Inches(0.5), Inches(1.5), Inches(9), Inches(5)).table
+            
+            # Header
+            headers = ['Date', 'URL', 'Prix Public', 'Prix Remisé', 'Remise', 'OK?', 'Naming']
+            for i, header in enumerate(headers):
+                cell = table.cell(0, i)
+                cell.text = header
+                cell.text_frame.paragraphs[0].font.bold = True
+                cell.text_frame.paragraphs[0].font.size = Pt(11)
+                cell.fill.solid()
+                cell.fill.fore_color.rgb = RGBColor(200, 200, 200)
+            
+            # Data rows
+            for idx, test in enumerate(tests_site[:14]):
+                if idx + 1 >= rows:
+                    break
+                try:
+                    test_date = datetime.fromisoformat(test['date_test'])
+                    table.cell(idx + 1, 0).text = test_date.strftime('%d/%m/%Y')
+                    table.cell(idx + 1, 1).text = test.get('url', 'N/A')[:30]
+                    table.cell(idx + 1, 2).text = f"{test.get('prix_public', 0):.2f} €"
+                    table.cell(idx + 1, 3).text = f"{test.get('prix_remise', 0):.2f} €"
+                    table.cell(idx + 1, 4).text = f"{test.get('pct_remise_calcule', 0):.1f}%"
+                    table.cell(idx + 1, 5).text = '✓' if test.get('application_remise') else '✗'
+                    table.cell(idx + 1, 6).text = test.get('naming_constate', '')[:20]
+                    
+                    # Font size
+                    for col in range(cols):
+                        table.cell(idx + 1, col).text_frame.paragraphs[0].font.size = Pt(9)
+                except Exception as e:
+                    logging.error(f"Error adding test site row: {str(e)}")
+        else:
+            no_data = slide2.shapes.add_textbox(Inches(2), Inches(3), Inches(6), Inches(1))
+            no_data.text_frame.text = "Aucun test site disponible pour cette période"
+            no_data.text_frame.paragraphs[0].font.size = Pt(18)
+            no_data.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        
+        # Footer
+        footer2 = slide2.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
+        footer2.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page 2/3"
+        footer2.text_frame.paragraphs[0].font.size = Pt(10)
+        footer2.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
+        
+        # === SLIDE 3: TESTS LIGNE ===
+        slide3 = prs.slides.add_slide(slide_layout)
+        
+        # Title
+        title3 = slide3.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(0.7))
+        title3.text_frame.text = f"Tests Ligne – {partner_name} x {program_name}"
+        title3.text_frame.paragraphs[0].font.size = Pt(24)
+        title3.text_frame.paragraphs[0].font.bold = True
+        
+        # Table
+        if tests_ligne:
+            rows = min(len(tests_ligne) + 1, 15)
+            cols = 7
+            table = slide3.shapes.add_table(rows, cols, Inches(0.5), Inches(1.5), Inches(9), Inches(5)).table
+            
+            # Header
+            headers = ['Date', 'Téléphone', 'Délai', 'Msg. Vocale', 'Décroche', 'Accueil', 'OK?']
+            for i, header in enumerate(headers):
+                cell = table.cell(0, i)
+                cell.text = header
+                cell.text_frame.paragraphs[0].font.bold = True
+                cell.text_frame.paragraphs[0].font.size = Pt(11)
+                cell.fill.solid()
+                cell.fill.fore_color.rgb = RGBColor(200, 200, 200)
+            
+            # Data rows
+            for idx, test in enumerate(tests_ligne[:14]):
+                if idx + 1 >= rows:
+                    break
+                try:
+                    test_date = datetime.fromisoformat(test['date_test'])
+                    table.cell(idx + 1, 0).text = test_date.strftime('%d/%m/%Y')
+                    table.cell(idx + 1, 1).text = test.get('numero_telephone', 'N/A')[:15]
+                    table.cell(idx + 1, 2).text = test.get('delai_attente', 'N/A')
+                    table.cell(idx + 1, 3).text = '✓' if test.get('messagerie_vocale_dediee') else '✗'
+                    table.cell(idx + 1, 4).text = '✓' if test.get('decroche_dedie') else '✗'
+                    table.cell(idx + 1, 5).text = test.get('evaluation_accueil', 'N/A')[:15]
+                    table.cell(idx + 1, 6).text = '✓' if test.get('application_offre') else '✗'
+                    
+                    # Font size
+                    for col in range(cols):
+                        table.cell(idx + 1, col).text_frame.paragraphs[0].font.size = Pt(9)
+                except Exception as e:
+                    logging.error(f"Error adding test ligne row: {str(e)}")
+        else:
+            no_data = slide3.shapes.add_textbox(Inches(2), Inches(3), Inches(6), Inches(1))
+            no_data.text_frame.text = "Aucun test ligne disponible pour cette période"
+            no_data.text_frame.paragraphs[0].font.size = Pt(18)
+            no_data.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        
+        # Footer
+        footer3 = slide3.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
+        footer3.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page 3/3"
+        footer3.text_frame.paragraphs[0].font.size = Pt(10)
+        footer3.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
+        
+        # === SAVE PPT ===
+        output = io.BytesIO()
+        prs.save(output)
+        output.seek(0)
+        
+        filename = f"Bilan_{partner_name}_{program_name}_{period_label}.pptx".replace(' ', '_').replace('/', '_')
+        
+        logging.info(f"PPT Generated: {total_tests_site} sites, {total_tests_ligne} lignes")
+        
+        return StreamingResponse(
+            output,
+            media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+        )
+        
+    except Exception as e:
+        logging.error(f"Error generating PPT: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Include the router in the main app
 async def export_bilan_partenaire_ppt(
     partenaire_id: str = Query(...),
     date_debut: str = Query(...),
