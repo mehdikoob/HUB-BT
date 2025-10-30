@@ -2453,12 +2453,14 @@ async def export_bilan_partenaire_ppt(
             no_data.text_frame.text = "Aucun test ligne disponible pour cette période"
             no_data.text_frame.paragraphs[0].font.size = Pt(18)
             no_data.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            
+            # Footer
+            footer3 = slide3.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
+            footer3.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page {slide_number}/{total_slides}"
+            footer3.text_frame.paragraphs[0].font.size = Pt(10)
+            footer3.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
         
-        # Footer
-        footer3 = slide3.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
-        footer3.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page 3/3"
-        footer3.text_frame.paragraphs[0].font.size = Pt(10)
-        footer3.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
+        # END OF LOOP - All programmes processed
         
         # === SAVE PPT ===
         output = io.BytesIO()
