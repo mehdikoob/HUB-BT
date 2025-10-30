@@ -2256,10 +2256,38 @@ async def export_bilan_partenaire_ppt(
         prs = Presentation()
         prs.slide_width = Inches(10)
         prs.slide_height = Inches(7.5)
-        
-        # === SLIDE 1: VUE D'ENSEMBLE ===
-        slide_layout = prs.slide_layouts[6]  # Blank layout
-        slide1 = prs.slides.add_slide(slide_layout)
+            
+            # === CALCULATE STATISTICS FOR THIS PROGRAMME ===
+            total_tests_site = len(tests_site)
+            tests_site_reussis = len([t for t in tests_site if t.get('application_remise', False)])
+            pct_site = round((tests_site_reussis / total_tests_site * 100), 1) if total_tests_site > 0 else 0
+            
+            total_tests_ligne = len(tests_ligne)
+            tests_ligne_reussis = len([t for t in tests_ligne if t.get('application_offre', False)])
+            pct_ligne = round((tests_ligne_reussis / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
+            
+            delais = []
+            for t in tests_ligne:
+                if t.get('delai_attente'):
+                    try:
+                        parts = t['delai_attente'].split(':')
+                        if len(parts) == 2:
+                            delais.append(int(parts[0]) * 60 + int(parts[1]))
+                    except:
+                        pass
+            avg_delai = sum(delais) / len(delais) if delais else 0
+            avg_delai_str = f"{int(avg_delai // 60):02d}:{int(avg_delai % 60):02d}"
+            
+            accueils = [t.get('evaluation_accueil', '') for t in tests_ligne if t.get('evaluation_accueil')]
+            accueil_counts = {}
+            for acc in accueils:
+                accueil_counts[acc] = accueil_counts.get(acc, 0) + 1
+            commentaire_accueil = max(accueil_counts, key=accueil_counts.get) if accueil_counts else "—"
+            
+            # === SLIDE 1: VUE D'ENSEMBLE (FOR THIS PROGRAMME) ===
+            slide_number += 1
+            slide_layout = prs.slide_layouts[6]
+            slide1 = prs.slides.add_slide(slide_layout)
         
         # Title
         title_box = slide1.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(1))
