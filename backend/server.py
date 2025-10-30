@@ -2427,7 +2427,7 @@ async def export_bilan_partenaire_ppt(
             slide_number += 1
             slide3 = prs.slides.add_slide(slide_layout)
             
-                # Title
+            # Title
             title3 = slide3.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(0.7))
             title3.text_frame.text = f"Tests Ligne – {partner_name} x {program_name}"
             title3.text_frame.paragraphs[0].font.size = Pt(24)
