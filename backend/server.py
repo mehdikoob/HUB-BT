@@ -2339,15 +2339,16 @@ async def export_bilan_partenaire_ppt(
         for para in tf4.paragraphs:
             para.font.size = Pt(16)
             para.alignment = PP_ALIGN.CENTER
-        
-        # Footer
-        footer = slide1.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
-        footer.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page 1/3"
-        footer.text_frame.paragraphs[0].font.size = Pt(10)
-        footer.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
-        
-        # === SLIDE 2: TESTS SITES ===
-        slide2 = prs.slides.add_slide(slide_layout)
+            
+            # Footer
+            footer = slide1.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
+            footer.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page {slide_number}/{total_slides}"
+            footer.text_frame.paragraphs[0].font.size = Pt(10)
+            footer.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
+            
+            # === SLIDE 2: TESTS SITES (FOR THIS PROGRAMME) ===
+            slide_number += 1
+            slide2 = prs.slides.add_slide(slide_layout)
         
         # Title
         title2 = slide2.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(0.7))
