@@ -2129,9 +2129,8 @@ async def debug_bilan_partenaire_analysis(
 @api_router.get("/export/bilan-partenaire-ppt")
 async def export_bilan_partenaire_ppt(
     partenaire_id: str = Query(...),
-    period_type: str = Query(...),
-    year: Optional[int] = Query(None),
-    month: Optional[int] = Query(None)
+    date_debut: str = Query(...),
+    date_fin: str = Query(...)
 ):
     """Generate PowerPoint report - STRICT MODE with full validation"""
     try:
@@ -2168,28 +2167,29 @@ async def export_bilan_partenaire_ppt(
         if not program_name:
             raise HTTPException(status_code=400, detail="ASSERTION FAIL: program.name is empty")
         
-        # === PERIOD CALCULATION WITH FALLBACK ===
-        today = datetime.now(timezone.utc)
+        # === PARSE DATES ===
+        try:
+            date_debut_obj = datetime.fromisoformat(date_debut).replace(tzinfo=timezone.utc)
+            date_fin_obj = datetime.fromisoformat(date_fin).replace(tzinfo=timezone.utc)
+            
+            # Add one day to date_fin to include the entire day
+            date_fin_obj = date_fin_obj.replace(hour=23, minute=59, second=59)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}")
         
-        if period_type == "month":
-            if not year or not month:
-                raise HTTPException(status_code=400, detail="Year and month required")
-            date_debut = datetime(year, month, 1, tzinfo=timezone.utc)
-            if month == 12:
-                date_fin = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
-            else:
-                date_fin = datetime(year, month + 1, 1, tzinfo=timezone.utc)
-            period_label = f"{format_french_month(date_debut)} {year}"
-        elif period_type == "year":
-            if not year:
-                raise HTTPException(status_code=400, detail="Year required")
-            date_debut = datetime(year, 1, 1, tzinfo=timezone.utc)
-            date_fin = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
-            period_label = f"Année {year}"
-        else:  # rolling
-            date_fin = today
-            date_debut = datetime(today.year - 1, today.month, 1, tzinfo=timezone.utc)
-            period_label = f"Année glissante"
+        if date_debut_obj > date_fin_obj:
+            raise HTTPException(status_code=400, detail="date_debut must be before date_fin")
+        
+        # Generate period label
+        if date_debut_obj.year == date_fin_obj.year and date_debut_obj.month == date_fin_obj.month:
+            # Same month
+            period_label = f"{format_french_month(date_debut_obj)} {date_debut_obj.year}"
+        elif date_debut_obj.year == date_fin_obj.year:
+            # Same year, different months
+            period_label = f"{format_french_month(date_debut_obj)} - {format_french_month(date_fin_obj)} {date_debut_obj.year}"
+        else:
+            # Different years
+            period_label = f"{format_french_month(date_debut_obj)} {date_debut_obj.year} - {format_french_month(date_fin_obj)} {date_fin_obj.year}"
         
         # Check if period is in future or has no data
         tests_site = await db.tests_site.find({
