@@ -2469,10 +2469,10 @@ async def export_bilan_partenaire_ppt(
                     except Exception as e:
                         logging.error(f"Error adding test ligne row: {str(e)}")
             else:
-            no_data = slide3.shapes.add_textbox(Inches(2), Inches(3), Inches(6), Inches(1))
-            no_data.text_frame.text = "Aucun test ligne disponible pour cette période"
-            no_data.text_frame.paragraphs[0].font.size = Pt(18)
-            no_data.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+                no_data = slide3.shapes.add_textbox(Inches(2), Inches(3), Inches(6), Inches(1))
+                no_data.text_frame.text = "Aucun test ligne disponible pour cette période"
+                no_data.text_frame.paragraphs[0].font.size = Pt(18)
+                no_data.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
             
             # Footer
             footer3 = slide3.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
