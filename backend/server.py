@@ -2434,7 +2434,7 @@ async def export_bilan_partenaire_ppt(
             title3.text_frame.paragraphs[0].font.bold = True
             
             # Table
-        if tests_ligne:
+            if tests_ligne:
             rows = min(len(tests_ligne) + 1, 15)
             cols = 7
             table = slide3.shapes.add_table(rows, cols, Inches(0.5), Inches(1.5), Inches(9), Inches(5)).table
