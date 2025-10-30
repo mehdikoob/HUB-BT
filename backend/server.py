@@ -2448,27 +2448,27 @@ async def export_bilan_partenaire_ppt(
                     cell.text_frame.paragraphs[0].font.size = Pt(11)
                     cell.fill.solid()
                     cell.fill.fore_color.rgb = RGBColor(200, 200, 200)
-            
-            # Data rows
-            for idx, test in enumerate(tests_ligne[:14]):
-                if idx + 1 >= rows:
-                    break
-                try:
-                    test_date = datetime.fromisoformat(test['date_test'])
-                    table.cell(idx + 1, 0).text = test_date.strftime('%d/%m/%Y')
-                    table.cell(idx + 1, 1).text = test.get('numero_telephone', 'N/A')[:15]
-                    table.cell(idx + 1, 2).text = test.get('delai_attente', 'N/A')
-                    table.cell(idx + 1, 3).text = '✓' if test.get('messagerie_vocale_dediee') else '✗'
-                    table.cell(idx + 1, 4).text = '✓' if test.get('decroche_dedie') else '✗'
-                    table.cell(idx + 1, 5).text = test.get('evaluation_accueil', 'N/A')[:15]
-                    table.cell(idx + 1, 6).text = '✓' if test.get('application_offre') else '✗'
-                    
-                    # Font size
-                    for col in range(cols):
-                        table.cell(idx + 1, col).text_frame.paragraphs[0].font.size = Pt(9)
-                except Exception as e:
-                    logging.error(f"Error adding test ligne row: {str(e)}")
-        else:
+                
+                # Data rows
+                for idx, test in enumerate(tests_ligne[:14]):
+                    if idx + 1 >= rows:
+                        break
+                    try:
+                        test_date = datetime.fromisoformat(test['date_test'])
+                        table.cell(idx + 1, 0).text = test_date.strftime('%d/%m/%Y')
+                        table.cell(idx + 1, 1).text = test.get('numero_telephone', 'N/A')[:15]
+                        table.cell(idx + 1, 2).text = test.get('delai_attente', 'N/A')
+                        table.cell(idx + 1, 3).text = '✓' if test.get('messagerie_vocale_dediee') else '✗'
+                        table.cell(idx + 1, 4).text = '✓' if test.get('decroche_dedie') else '✗'
+                        table.cell(idx + 1, 5).text = test.get('evaluation_accueil', 'N/A')[:15]
+                        table.cell(idx + 1, 6).text = '✓' if test.get('application_offre') else '✗'
+                        
+                        # Font size
+                        for col in range(cols):
+                            table.cell(idx + 1, col).text_frame.paragraphs[0].font.size = Pt(9)
+                    except Exception as e:
+                        logging.error(f"Error adding test ligne row: {str(e)}")
+            else:
             no_data = slide3.shapes.add_textbox(Inches(2), Inches(3), Inches(6), Inches(1))
             no_data.text_frame.text = "Aucun test ligne disponible pour cette période"
             no_data.text_frame.paragraphs[0].font.size = Pt(18)
