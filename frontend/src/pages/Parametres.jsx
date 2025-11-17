@@ -312,7 +312,7 @@ const Parametres = () => {
                   <Label htmlFor="role">Rôle</Label>
                   <Select
                     value={formData.role}
-                    onValueChange={(value) => setFormData({ ...formData, role: value })}
+                    onValueChange={(value) => setFormData({ ...formData, role: value, programme_id: '', partenaire_id: '' })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -320,9 +320,55 @@ const Parametres = () => {
                     <SelectContent>
                       <SelectItem value="agent">Agent</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="programme">Programme</SelectItem>
+                      <SelectItem value="partenaire">Partenaire</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+                
+                {/* Programme selection (visible only if role is "programme") */}
+                {formData.role === 'programme' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="programme_id">Programme</Label>
+                    <Select
+                      value={formData.programme_id}
+                      onValueChange={(value) => setFormData({ ...formData, programme_id: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un programme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {programmes.map((prog) => (
+                          <SelectItem key={prog.id} value={prog.id}>
+                            {prog.nom}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
+                {/* Partenaire selection (visible only if role is "partenaire") */}
+                {formData.role === 'partenaire' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="partenaire_id">Partenaire</Label>
+                    <Select
+                      value={formData.partenaire_id}
+                      onValueChange={(value) => setFormData({ ...formData, partenaire_id: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un partenaire" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {partenaires.map((part) => (
+                          <SelectItem key={part.id} value={part.id}>
+                            {part.nom}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 
                 <div className="flex items-center space-x-2">
                   <input
