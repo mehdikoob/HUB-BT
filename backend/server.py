@@ -858,6 +858,10 @@ async def upload_attachment(file: UploadFile = File(...)):
 # Routes - Tests Ligne
 @api_router.post("/tests-ligne", response_model=TestLigne)
 async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends(get_current_active_user)):
+    # Bloquer création pour les rôles programme et partenaire (lecture seule)
+    if current_user.role in [UserRole.programme, UserRole.partenaire]:
+        raise HTTPException(status_code=403, detail="Vous n'avez pas les permissions pour créer des tests")
+    
     test = TestLigne(**input.model_dump(), user_id=current_user.id)
     
     # Validations et création d'incidents
