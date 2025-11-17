@@ -260,6 +260,8 @@ class EmailHistory(EmailHistoryBase):
 class UserRole(str, Enum):
     admin = "admin"
     agent = "agent"
+    programme = "programme"
+    partenaire = "partenaire"
 
 class UserBase(BaseModel):
     email: str
@@ -267,6 +269,8 @@ class UserBase(BaseModel):
     prenom: str
     role: UserRole = UserRole.agent
     is_active: bool = True
+    programme_id: Optional[str] = None  # Pour les utilisateurs de type "programme"
+    partenaire_id: Optional[str] = None  # Pour les utilisateurs de type "partenaire"
 
 class UserCreate(UserBase):
     password: str
@@ -277,6 +281,8 @@ class UserUpdate(BaseModel):
     role: Optional[UserRole] = None
     is_active: Optional[bool] = None
     password: Optional[str] = None
+    programme_id: Optional[str] = None
+    partenaire_id: Optional[str] = None
 
 class User(UserBase):
     model_config = ConfigDict(extra="ignore")
