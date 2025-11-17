@@ -41,19 +41,24 @@ def log_warning(message):
 def log_info(message):
     print(f"{Colors.BLUE}ℹ️  {message}{Colors.ENDC}")
 
-def test_endpoint(method, endpoint, data=None, expected_status=200, description=""):
+def test_endpoint(method, endpoint, data=None, expected_status=200, description="", token=None):
     """Generic test function for API endpoints"""
     url = f"{BASE_URL}{endpoint}"
+    headers = HEADERS.copy()
+    
+    # Add authorization header if token provided
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     
     try:
         if method.upper() == "GET":
-            response = requests.get(url, headers=HEADERS)
+            response = requests.get(url, headers=headers)
         elif method.upper() == "POST":
-            response = requests.post(url, headers=HEADERS, json=data)
+            response = requests.post(url, headers=headers, json=data)
         elif method.upper() == "PUT":
-            response = requests.put(url, headers=HEADERS, json=data)
+            response = requests.put(url, headers=headers, json=data)
         elif method.upper() == "DELETE":
-            response = requests.delete(url, headers=HEADERS)
+            response = requests.delete(url, headers=headers)
         else:
             log_error(f"Unsupported method: {method}")
             return None
@@ -71,6 +76,55 @@ def test_endpoint(method, endpoint, data=None, expected_status=200, description=
                     log_error(f"Response: {response.text}")
             return None
             
+    except requests.exceptions.RequestException as e:
+        log_error(f"{method} {endpoint} - Connection error: {str(e)}")
+        return None
+    except Exception as e:
+        log_error(f"{method} {endpoint} - Unexpected error: {str(e)}")
+        return None
+
+def test_auth_endpoint(method, endpoint, data=None, expected_status=200, description="", token=None, expect_failure=False):
+    """Test authentication endpoints with detailed error reporting"""
+    url = f"{BASE_URL}{endpoint}"
+    headers = HEADERS.copy()
+    
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    
+    try:
+        if method.upper() == "GET":
+            response = requests.get(url, headers=headers)
+        elif method.upper() == "POST":
+            response = requests.post(url, headers=headers, json=data)
+        elif method.upper() == "PUT":
+            response = requests.put(url, headers=headers, json=data)
+        elif method.upper() == "DELETE":
+            response = requests.delete(url, headers=headers)
+        else:
+            log_error(f"Unsupported method: {method}")
+            return None
+        
+        if expect_failure:
+            if response.status_code != expected_status:
+                log_success(f"{method} {endpoint} - {description} (Expected failure: {response.status_code})")
+                return {"status_code": response.status_code, "response": response.json() if response.content else {}}
+            else:
+                log_error(f"{method} {endpoint} - Expected failure but got success")
+                return None
+        else:
+            if response.status_code == expected_status:
+                log_success(f"{method} {endpoint} - {description}")
+                return response.json() if response.content else {}
+            else:
+                log_error(f"{method} {endpoint} - Expected {expected_status}, got {response.status_code}")
+                if response.content:
+                    try:
+                        error_detail = response.json()
+                        log_error(f"Error details: {error_detail}")
+                    except:
+                        log_error(f"Response: {response.text}")
+                return None
+                
     except requests.exceptions.RequestException as e:
         log_error(f"{method} {endpoint} - Connection error: {str(e)}")
         return None
