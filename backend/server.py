@@ -38,6 +38,13 @@ TEMPLATE_DIR = ROOT_DIR / "templates"
 TEMPLATE_DIR.mkdir(exist_ok=True)
 load_dotenv(ROOT_DIR / '.env')
 
+# JWT and Password hashing configuration
+SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production-please')
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
