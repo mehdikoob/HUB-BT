@@ -16,13 +16,17 @@ const Parametres = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [programmes, setProgrammes] = useState([]);
+  const [partenaires, setPartenaires] = useState([]);
   const [formData, setFormData] = useState({
     email: '',
     nom: '',
     prenom: '',
     password: '',
     role: 'agent',
-    is_active: true
+    is_active: true,
+    programme_id: '',
+    partenaire_id: ''
   });
 
   const { getAuthHeader, user: currentUser } = useAuth();
