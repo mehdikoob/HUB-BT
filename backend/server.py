@@ -1907,6 +1907,112 @@ def format_french_month(date_obj):
     }
     return months_fr.get(date_obj.month, str(date_obj.month))
 
+# Routes - Authentication
+@api_router.post("/auth/login", response_model=Token)
+async def login(login_data: LoginRequest):
+    """Login endpoint"""
+    user = await db.users.find_one({"email": login_data.email})
+    if not user:
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    
+    if not verify_password(login_data.password, user['password_hash']):
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    
+    if not user.get('is_active', True):
+        raise HTTPException(status_code=400, detail="Compte désactivé")
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user['email']}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@api_router.get("/auth/me", response_model=User)
+async def get_me(current_user: User = Depends(get_current_active_user)):
+    """Get current user info"""
+    return current_user
+
+# Routes - Users Management
+@api_router.get("/users", response_model=List[User])
+async def get_users(current_user: User = Depends(get_current_active_user)):
+    """Get all users (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    users = await db.users.find().to_list(length=None)
+    return [User(**u) for u in users]
+
+@api_router.post("/users", response_model=User)
+async def create_user(user_data: UserCreate, current_user: User = Depends(get_current_active_user)):
+    """Create new user (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Check if email already exists
+    existing = await db.users.find_one({"email": user_data.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create user
+    user = User(
+        email=user_data.email,
+        nom=user_data.nom,
+        prenom=user_data.prenom,
+        role=user_data.role,
+        is_active=user_data.is_active
+    )
+    
+    user_dict = user.model_dump()
+    user_dict['password_hash'] = get_password_hash(user_data.password)
+    user_dict['created_at'] = user_dict['created_at'].isoformat()
+    
+    await db.users.insert_one(user_dict)
+    return user
+
+@api_router.put("/users/{user_id}", response_model=User)
+async def update_user(user_id: str, user_data: UserUpdate, current_user: User = Depends(get_current_active_user)):
+    """Update user (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    update_dict = {}
+    if user_data.nom is not None:
+        update_dict['nom'] = user_data.nom
+    if user_data.prenom is not None:
+        update_dict['prenom'] = user_data.prenom
+    if user_data.role is not None:
+        update_dict['role'] = user_data.role
+    if user_data.is_active is not None:
+        update_dict['is_active'] = user_data.is_active
+    if user_data.password is not None:
+        update_dict['password_hash'] = get_password_hash(user_data.password)
+    
+    if update_dict:
+        await db.users.update_one({"id": user_id}, {"$set": update_dict})
+    
+    updated_user = await db.users.find_one({"id": user_id})
+    return User(**updated_user)
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: User = Depends(get_current_active_user)):
+    """Delete user (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Prevent self-deletion
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User deleted successfully"}
+
 # Routes - DEBUG Bilan Partenaire
 @api_router.get("/debug/bilan-partenaire-analysis")
 async def debug_bilan_partenaire_analysis(
