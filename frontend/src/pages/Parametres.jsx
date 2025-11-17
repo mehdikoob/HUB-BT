@@ -58,6 +58,38 @@ const Parametres = () => {
     }
   };
 
+  const fetchProgrammes = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/programmes`, {
+        headers: getAuthHeader()
+      });
+      setProgrammes(response.data);
+    } catch (error) {
+      console.error('Error fetching programmes:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les programmes",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const fetchPartenaires = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/partenaires`, {
+        headers: getAuthHeader()
+      });
+      setPartenaires(response.data);
+    } catch (error) {
+      console.error('Error fetching partenaires:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les partenaires",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleOpenDialog = (user = null) => {
     if (user) {
       setEditingUser(user);
