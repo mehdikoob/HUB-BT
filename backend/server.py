@@ -726,13 +726,27 @@ async def get_tests_site(
     programme_id: Optional[str] = Query(None),
     partenaire_id: Optional[str] = Query(None),
     date_debut: Optional[str] = Query(None),
-    date_fin: Optional[str] = Query(None)
+    date_fin: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_active_user)
 ):
     query = {}
-    if programme_id:
-        query['programme_id'] = programme_id
-    if partenaire_id:
-        query['partenaire_id'] = partenaire_id
+    
+    # Filtrage automatique selon le rôle
+    if current_user.role == UserRole.programme:
+        if not current_user.programme_id:
+            raise HTTPException(status_code=403, detail="Aucun programme associé à cet utilisateur")
+        query['programme_id'] = current_user.programme_id
+    elif current_user.role == UserRole.partenaire:
+        if not current_user.partenaire_id:
+            raise HTTPException(status_code=403, detail="Aucun partenaire associé à cet utilisateur")
+        query['partenaire_id'] = current_user.partenaire_id
+    else:
+        # Admin et Agent peuvent filtrer manuellement
+        if programme_id:
+            query['programme_id'] = programme_id
+        if partenaire_id:
+            query['partenaire_id'] = partenaire_id
+    
     if date_debut or date_fin:
         query['date_test'] = {}
         if date_debut:
