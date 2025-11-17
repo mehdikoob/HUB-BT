@@ -662,12 +662,12 @@ async def verify_remise(partenaire_id: str, remise_calculee: float):
 
 # Routes - Tests Site
 @api_router.post("/tests-site", response_model=TestSite)
-async def create_test_site(input: TestSiteCreate):
+async def create_test_site(input: TestSiteCreate, current_user: User = Depends(get_current_active_user)):
     # Calculate remise percentage
     pct_remise = calculate_remise_percentage(input.prix_public, input.prix_remise)
     
     test_data = input.model_dump()
-    test = TestSite(**test_data, pct_remise_calcule=pct_remise)
+    test = TestSite(**test_data, pct_remise_calcule=pct_remise, user_id=current_user.id)
     
     # Récupérer le partenaire pour vérifier la remise minimum
     partenaire = await db.partenaires.find_one({"id": input.partenaire_id}, {"_id": 0})
