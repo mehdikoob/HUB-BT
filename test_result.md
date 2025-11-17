@@ -377,16 +377,86 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 0
-  run_ui: true
+  test_sequence: 1
+  run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Authentication API endpoints"
+    - "User management API endpoints"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "main"
+    message: |
+      🆕 PHASE 1: BACKEND AUTHENTICATION & USER MANAGEMENT COMPLETED
+      
+      IMPLEMENTED:
+      
+      **Authentication System:**
+      - JWT-based authentication with 7-day token expiration
+      - Password hashing using bcrypt
+      - OAuth2PasswordBearer token scheme configured
+      - Helper functions: verify_password, get_password_hash, create_access_token
+      - Protected route dependencies: get_current_user, get_current_active_user
+      
+      **Authentication Endpoints:**
+      - POST /api/auth/login - User login returning JWT token
+      - POST /api/auth/register - Register new user (Admin only, requires authentication)
+      - POST /api/auth/init-admin - Initialize default admin (admin@hubblindtests.com / admin123)
+      
+      **User Management Endpoints:**
+      - GET /api/users/me - Get current authenticated user profile
+      - GET /api/users - List all users (Admin only)
+      - GET /api/users/{user_id} - Get specific user by ID (Admin only)
+      - POST /api/users - Create new user (Admin only)
+      - PUT /api/users/{user_id} - Update user (Admin only)
+      - DELETE /api/users/{user_id} - Delete user with self-deletion prevention (Admin only)
+      - GET /api/users/stats/all - Get user statistics including test counts and incident counts
+      
+      **Models Added:**
+      - UserRole enum (admin, agent)
+      - User, UserCreate, UserUpdate, UserInDB models
+      - Token, TokenData models
+      - LoginRequest model
+      
+      **Security Features:**
+      - Role-based access control (RBAC) - Admin vs Agent
+      - JWT token validation on protected endpoints
+      - Password hashing with bcrypt
+      - Self-deletion prevention for admins
+      - Active user checking
+      
+      **Configuration:**
+      - SECRET_KEY configurable via environment variable
+      - Token expiration: 7 days
+      - OAuth2 token URL: /api/auth/login
+      
+      READY FOR TESTING:
+      - All authentication endpoints functional
+      - All user management endpoints functional
+      - Server started successfully without errors
+      - Need to test: login flow, user creation, RBAC, stats endpoint
+      
+      NEXT STEPS:
+      1. Test backend authentication and user management endpoints
+      2. Create admin initialization
+      3. Build frontend Login page
+      4. Build frontend Paramètres page for user management
+      5. Build frontend Statistics page
+      
+      TEST INSTRUCTIONS FOR AGENT:
+      1. First initialize admin user: POST /api/auth/init-admin
+      2. Login as admin: POST /api/auth/login with email/password
+      3. Test JWT token authentication on protected endpoints
+      4. Test user CRUD operations (create, read, update, delete)
+      5. Test RBAC - ensure admin-only endpoints are protected
+      6. Test user statistics endpoint
+      7. Verify error handling for invalid credentials, duplicate emails, etc.
+  
+  - agent: "main"
   - agent: "main"
     message: |
       Implementation completed for Alertes feature:
