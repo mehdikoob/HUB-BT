@@ -829,8 +829,8 @@ async def upload_attachment(file: UploadFile = File(...)):
 
 # Routes - Tests Ligne
 @api_router.post("/tests-ligne", response_model=TestLigne)
-async def create_test_ligne(input: TestLigneCreate):
-    test = TestLigne(**input.model_dump())
+async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends(get_current_active_user)):
+    test = TestLigne(**input.model_dump(), user_id=current_user.id)
     
     # Validations et création d'incidents
     if not input.application_offre:
