@@ -670,6 +670,10 @@ async def verify_remise(partenaire_id: str, remise_calculee: float):
 # Routes - Tests Site
 @api_router.post("/tests-site", response_model=TestSite)
 async def create_test_site(input: TestSiteCreate, current_user: User = Depends(get_current_active_user)):
+    # Bloquer création pour les rôles programme et partenaire (lecture seule)
+    if current_user.role in [UserRole.programme, UserRole.partenaire]:
+        raise HTTPException(status_code=403, detail="Vous n'avez pas les permissions pour créer des tests")
+    
     # Calculate remise percentage
     pct_remise = calculate_remise_percentage(input.prix_public, input.prix_remise)
     
