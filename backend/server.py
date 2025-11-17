@@ -976,8 +976,22 @@ async def delete_test_ligne(test_id: str):
 
 # Routes - Incidents
 @api_router.get("/incidents", response_model=List[Incident])
-async def get_incidents(statut: Optional[StatutIncident] = Query(None)):
+async def get_incidents(
+    statut: Optional[StatutIncident] = Query(None),
+    current_user: User = Depends(get_current_active_user)
+):
     query = {}
+    
+    # Filtrage automatique selon le rôle
+    if current_user.role == UserRole.programme:
+        if not current_user.programme_id:
+            raise HTTPException(status_code=403, detail="Aucun programme associé à cet utilisateur")
+        query['programme_id'] = current_user.programme_id
+    elif current_user.role == UserRole.partenaire:
+        if not current_user.partenaire_id:
+            raise HTTPException(status_code=403, detail="Aucun partenaire associé à cet utilisateur")
+        query['partenaire_id'] = current_user.partenaire_id
+    
     if statut:
         query['statut'] = statut
     
