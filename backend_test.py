@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import uuid
 
 # Configuration
-BASE_URL = "https://blind-test-hub.preview.emergentagent.com/api"
+BASE_URL = "https://qwertys-hub.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class Colors:
