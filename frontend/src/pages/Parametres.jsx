@@ -128,7 +128,9 @@ const Parametres = () => {
       prenom: '',
       password: '',
       role: 'agent',
-      is_active: true
+      is_active: true,
+      programme_id: '',
+      partenaire_id: ''
     });
   };
 
