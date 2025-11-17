@@ -251,6 +251,47 @@ class EmailHistory(EmailHistoryBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     sent_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# Models - User & Authentication
+class UserRole(str, Enum):
+    admin = "admin"
+    agent = "agent"
+
+class UserBase(BaseModel):
+    email: str
+    nom: str
+    prenom: str
+    role: UserRole = UserRole.agent
+    is_active: bool = True
+
+class UserCreate(UserBase):
+    password: str
+
+class UserUpdate(BaseModel):
+    nom: Optional[str] = None
+    prenom: Optional[str] = None
+    role: Optional[UserRole] = None
+    is_active: Optional[bool] = None
+    password: Optional[str] = None
+
+class User(UserBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserInDB(User):
+    password_hash: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
 # Helper functions
 def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float:
     if prix_public <= 0:
