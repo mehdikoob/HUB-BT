@@ -79,9 +79,9 @@ const Layout = () => {
           </div>
         </div>
         
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
-            {menuItems.map((item) => {
+            {visibleMenuItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
               return (
@@ -104,6 +104,33 @@ const Layout = () => {
             })}
           </ul>
         </nav>
+
+        {/* User Profile & Logout */}
+        <div className="p-4 border-t border-gray-200">
+          <div className="flex items-center gap-3 mb-3 px-2">
+            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+              <User size={16} className="text-red-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {user?.prenom} {user?.nom}
+              </p>
+              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full justify-start"
+            onClick={() => {
+              logout();
+              navigate('/login');
+              closeSidebar();
+            }}
+          >
+            <LogOut size={16} className="mr-2" />
+            Déconnexion
+          </Button>
+        </div>
       </aside>
 
       {/* Main Content */}
