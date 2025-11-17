@@ -1789,6 +1789,207 @@ async def get_email_history(incident_id: Optional[str] = None):
     history = await db.email_history.find(query).sort("sent_at", -1).to_list(length=None)
     return history
 
+# =====================
+# Authentication Routes
+# =====================
+
+@api_router.post("/auth/login", response_model=Token)
+async def login(login_request: LoginRequest):
+    """Authenticate user and return JWT token"""
+    user = await db.users.find_one({"email": login_request.email})
+    if not user:
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    
+    if not verify_password(login_request.password, user['password_hash']):
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    
+    if not user.get('is_active', True):
+        raise HTTPException(status_code=400, detail="Compte utilisateur désactivé")
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user['email']}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@api_router.post("/auth/register", response_model=User)
+async def register(user_create: UserCreate, current_user: User = Depends(get_current_active_user)):
+    """Register a new user (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent créer des utilisateurs")
+    
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": user_create.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Cet email est déjà utilisé")
+    
+    # Create new user
+    user = User(
+        email=user_create.email,
+        nom=user_create.nom,
+        prenom=user_create.prenom,
+        role=user_create.role,
+        is_active=user_create.is_active
+    )
+    
+    user_dict = user.model_dump()
+    user_dict['password_hash'] = get_password_hash(user_create.password)
+    user_dict['created_at'] = user_dict['created_at'].isoformat()
+    
+    await db.users.insert_one(user_dict)
+    return user
+
+@api_router.post("/auth/init-admin")
+async def init_admin():
+    """Initialize default admin user (only if no users exist)"""
+    count = await db.users.count_documents({})
+    if count > 0:
+        raise HTTPException(status_code=400, detail="Des utilisateurs existent déjà")
+    
+    admin = User(
+        email="admin@hubblindtests.com",
+        nom="Admin",
+        prenom="Super",
+        role=UserRole.admin,
+        is_active=True
+    )
+    
+    admin_dict = admin.model_dump()
+    admin_dict['password_hash'] = get_password_hash("admin123")
+    admin_dict['created_at'] = admin_dict['created_at'].isoformat()
+    
+    await db.users.insert_one(admin_dict)
+    return {"message": "Administrateur créé avec succès", "email": "admin@hubblindtests.com", "password": "admin123"}
+
+# =====================
+# User Management Routes
+# =====================
+
+@api_router.get("/users/me", response_model=User)
+async def get_my_profile(current_user: User = Depends(get_current_active_user)):
+    """Get current user profile"""
+    return current_user
+
+@api_router.get("/users", response_model=List[User])
+async def get_users(current_user: User = Depends(get_current_active_user)):
+    """Get all users (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+    
+    users = await db.users.find().to_list(length=None)
+    return [User(**user) for user in users]
+
+@api_router.get("/users/{user_id}", response_model=User)
+async def get_user(user_id: str, current_user: User = Depends(get_current_active_user)):
+    """Get user by ID (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+    
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+    return User(**user)
+
+@api_router.post("/users", response_model=User)
+async def create_user(user_create: UserCreate, current_user: User = Depends(get_current_active_user)):
+    """Create a new user (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent créer des utilisateurs")
+    
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": user_create.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Cet email est déjà utilisé")
+    
+    # Create new user
+    user = User(
+        email=user_create.email,
+        nom=user_create.nom,
+        prenom=user_create.prenom,
+        role=user_create.role,
+        is_active=user_create.is_active
+    )
+    
+    user_dict = user.model_dump()
+    user_dict['password_hash'] = get_password_hash(user_create.password)
+    user_dict['created_at'] = user_dict['created_at'].isoformat()
+    
+    await db.users.insert_one(user_dict)
+    return user
+
+@api_router.put("/users/{user_id}", response_model=User)
+async def update_user(user_id: str, user_update: UserUpdate, current_user: User = Depends(get_current_active_user)):
+    """Update user (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent modifier des utilisateurs")
+    
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+    
+    update_data = {}
+    if user_update.nom is not None:
+        update_data['nom'] = user_update.nom
+    if user_update.prenom is not None:
+        update_data['prenom'] = user_update.prenom
+    if user_update.role is not None:
+        update_data['role'] = user_update.role
+    if user_update.is_active is not None:
+        update_data['is_active'] = user_update.is_active
+    if user_update.password is not None:
+        update_data['password_hash'] = get_password_hash(user_update.password)
+    
+    if update_data:
+        await db.users.update_one({"id": user_id}, {"$set": update_data})
+    
+    updated_user = await db.users.find_one({"id": user_id})
+    return User(**updated_user)
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: User = Depends(get_current_active_user)):
+    """Delete user (Admin only)"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent supprimer des utilisateurs")
+    
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Vous ne pouvez pas supprimer votre propre compte")
+    
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+    
+    return {"message": "Utilisateur supprimé avec succès"}
+
+@api_router.get("/users/stats/all")
+async def get_users_stats(current_user: User = Depends(get_current_active_user)):
+    """Get statistics for all users"""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+    
+    users = await db.users.find().to_list(length=None)
+    stats = []
+    
+    for user in users:
+        user_id = user['id']
+        
+        # Count tests created by user
+        tests_site = await db.tests_site.count_documents({"user_id": user_id})
+        tests_ligne = await db.tests_ligne.count_documents({"user_id": user_id})
+        total_tests = tests_site + tests_ligne
+        
+        # Count incidents handled
+        incidents = await db.incidents.count_documents({"user_id": user_id})
+        
+        stats.append({
+            "user": User(**user),
+            "tests_site_count": tests_site,
+            "tests_ligne_count": tests_ligne,
+            "total_tests": total_tests,
+            "incidents_count": incidents
+        })
+    
+    return stats
+
 # Helper functions
 def verify_password(plain_password, hashed_password):
     """Verify a password against its hash"""
