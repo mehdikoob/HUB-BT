@@ -450,14 +450,15 @@ Bien cordialement,""",
     except Exception as e:
         logging.error(f"Error creating email draft: {str(e)}")
 
-async def check_and_create_incident(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None):
+async def check_and_create_incident(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None, user_id: str = None):
     incident = Incident(
         test_id=test_id,
         type_test=type_test,
         description=description,
         statut=StatutIncident.ouvert,
         programme_id=programme_id,
-        partenaire_id=partenaire_id
+        partenaire_id=partenaire_id,
+        user_id=user_id
     )
     doc = incident.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
