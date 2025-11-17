@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X, Mail, FileBarChart } from 'lucide-react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X, Mail, FileBarChart, Settings, BarChart3, LogOut, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from './ui/button';
 
 const Layout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, isAdmin, logout } = useAuth();
 
   const menuItems = [
-    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord' },
-    { path: '/programmes', icon: FileText, label: 'Programmes' },
-    { path: '/partenaires', icon: Users, label: 'Partenaires' },
-    { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site' },
-    { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne' },
-    { path: '/incidents', icon: AlertCircle, label: 'Incidents' },
-    { path: '/messagerie', icon: Mail, label: 'Messagerie' },
-    { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire' },
+    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord', allowedRoles: ['admin', 'agent'] },
+    { path: '/programmes', icon: FileText, label: 'Programmes', allowedRoles: ['admin', 'agent'] },
+    { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['admin', 'agent'] },
+    { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['admin', 'agent'] },
+    { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['admin', 'agent'] },
+    { path: '/incidents', icon: AlertCircle, label: 'Incidents', allowedRoles: ['admin'] },
+    { path: '/messagerie', icon: Mail, label: 'Messagerie', allowedRoles: ['admin'] },
+    { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire', allowedRoles: ['admin', 'agent'] },
+    { path: '/statistiques', icon: BarChart3, label: 'Statistiques', allowedRoles: ['admin'] },
+    { path: '/parametres', icon: Settings, label: 'Paramètres', allowedRoles: ['admin'] },
   ];
+
+  const visibleMenuItems = menuItems.filter(item => 
+    item.allowedRoles.includes(user?.role)
+  );
 
   const isActive = (path) => {
     if (path === '/') {
