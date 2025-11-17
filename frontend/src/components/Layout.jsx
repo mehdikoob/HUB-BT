@@ -11,11 +11,11 @@ const Layout = () => {
   const { user, isAdmin, logout } = useAuth();
 
   const menuItems = [
-    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord', allowedRoles: ['admin', 'agent'] },
-    { path: '/programmes', icon: FileText, label: 'Programmes', allowedRoles: ['admin', 'agent'] },
-    { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['admin', 'agent'] },
-    { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['admin', 'agent'] },
-    { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['admin', 'agent'] },
+    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord', allowedRoles: ['admin', 'agent', 'programme', 'partenaire'] },
+    { path: '/programmes', icon: FileText, label: 'Programmes', allowedRoles: ['admin', 'agent', 'programme'] },
+    { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['admin', 'agent', 'partenaire'] },
+    { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['admin', 'agent', 'programme', 'partenaire'] },
+    { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['admin', 'agent', 'programme', 'partenaire'] },
     { path: '/incidents', icon: AlertCircle, label: 'Incidents', allowedRoles: ['admin'] },
     { path: '/messagerie', icon: Mail, label: 'Messagerie', allowedRoles: ['admin'] },
     { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire', allowedRoles: ['admin', 'agent'] },
