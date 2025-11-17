@@ -99,7 +99,9 @@ const Parametres = () => {
         prenom: user.prenom,
         password: '',
         role: user.role,
-        is_active: user.is_active
+        is_active: user.is_active,
+        programme_id: user.programme_id || '',
+        partenaire_id: user.partenaire_id || ''
       });
     } else {
       setEditingUser(null);
@@ -109,7 +111,9 @@ const Parametres = () => {
         prenom: '',
         password: '',
         role: 'agent',
-        is_active: true
+        is_active: true,
+        programme_id: '',
+        partenaire_id: ''
       });
     }
     setDialogOpen(true);
