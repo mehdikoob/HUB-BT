@@ -130,6 +130,7 @@ class TestSite(TestSiteBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     pct_remise_calcule: float = 0.0
+    user_id: Optional[str] = None  # ID de l'utilisateur qui a créé le test
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # Models - Test Ligne
