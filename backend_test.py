@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for HUB BLIND TESTS - Messagerie System
-Tests all email-related endpoints including templates, signatures, drafts, and sending.
+Backend API Testing for HUB BLIND TESTS - Authentication & User Management System
+Tests authentication, user management, and role-based access control endpoints.
 """
 
 import requests
@@ -9,10 +9,17 @@ import json
 import sys
 from datetime import datetime, timezone
 import uuid
+import time
 
 # Configuration
 BASE_URL = "https://qwertys-hub.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
+
+# Global variables for authentication
+admin_token = None
+agent_token = None
+admin_user_id = None
+agent_user_id = None
 
 class Colors:
     GREEN = '\033[92m'
