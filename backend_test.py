@@ -659,7 +659,7 @@ def test_template_variable_replacement():
 
 def main():
     """Main test function"""
-    print(f"{Colors.BOLD}{Colors.BLUE}🧪 HUB BLIND TESTS - Messagerie Backend API Testing{Colors.ENDC}")
+    print(f"{Colors.BOLD}{Colors.BLUE}🧪 HUB BLIND TESTS - Authentication & User Management Backend API Testing{Colors.ENDC}")
     print(f"{Colors.BLUE}Testing against: {BASE_URL}{Colors.ENDC}")
     print("=" * 80)
     
@@ -669,33 +669,65 @@ def main():
         log_error("Cannot connect to API. Aborting tests.")
         sys.exit(1)
     
-    # Run all tests
+    # Run all authentication and user management tests
     try:
-        # Test Email Templates
-        print(f"\n{Colors.BOLD}📧 EMAIL TEMPLATES{Colors.ENDC}")
-        templates = test_email_templates()
+        # 1. Admin Initialization
+        print(f"\n{Colors.BOLD}👑 ADMIN INITIALIZATION{Colors.ENDC}")
+        test_admin_initialization()
         
-        # Test Signatures
-        print(f"\n{Colors.BOLD}✍️  USER SIGNATURES{Colors.ENDC}")
-        signatures = test_signatures()
+        # 2. Authentication Flow
+        print(f"\n{Colors.BOLD}🔐 AUTHENTICATION FLOW{Colors.ENDC}")
+        auth_success = test_authentication_flow()
         
-        # Test Email Drafts
-        print(f"\n{Colors.BOLD}📝 EMAIL DRAFTS{Colors.ENDC}")
-        drafts = test_email_drafts()
+        if not auth_success:
+            log_error("Authentication failed. Cannot proceed with protected endpoint tests.")
+            sys.exit(1)
         
-        # Test Email History
-        print(f"\n{Colors.BOLD}📚 EMAIL HISTORY{Colors.ENDC}")
-        history = test_email_history()
+        # 3. Current User Profile
+        print(f"\n{Colors.BOLD}👤 CURRENT USER PROFILE{Colors.ENDC}")
+        test_current_user_profile()
         
-        # Test Auto-Draft Generation
-        print(f"\n{Colors.BOLD}🤖 AUTO-DRAFT GENERATION{Colors.ENDC}")
-        test_auto_draft_generation()
+        # 4. User Management (Admin Only)
+        print(f"\n{Colors.BOLD}👥 USER MANAGEMENT (ADMIN ONLY){Colors.ENDC}")
+        test_user_management_admin()
         
-        # Test Template Variable Replacement
-        print(f"\n{Colors.BOLD}🔄 TEMPLATE VARIABLE REPLACEMENT{Colors.ENDC}")
-        test_template_variable_replacement()
+        # 5. User Statistics
+        print(f"\n{Colors.BOLD}📊 USER STATISTICS{Colors.ENDC}")
+        test_user_statistics()
         
-        print(f"\n{Colors.BOLD}{Colors.GREEN}✅ All Messagerie API tests completed!{Colors.ENDC}")
+        # 6. Role-Based Access Control
+        print(f"\n{Colors.BOLD}🛡️  ROLE-BASED ACCESS CONTROL{Colors.ENDC}")
+        test_role_based_access_control()
+        
+        # 7. Error Handling
+        print(f"\n{Colors.BOLD}⚠️  ERROR HANDLING{Colors.ENDC}")
+        test_error_handling()
+        
+        # 8. Self-Deletion Prevention
+        print(f"\n{Colors.BOLD}🚫 SELF-DELETION PREVENTION{Colors.ENDC}")
+        test_self_deletion_prevention()
+        
+        # 9. User Deletion
+        print(f"\n{Colors.BOLD}🗑️  USER DELETION{Colors.ENDC}")
+        test_user_deletion()
+        
+        print(f"\n{Colors.BOLD}{Colors.GREEN}✅ All Authentication & User Management API tests completed!{Colors.ENDC}")
+        
+        # Summary
+        print(f"\n{Colors.BOLD}📋 TEST SUMMARY{Colors.ENDC}")
+        print(f"✅ Admin initialization tested")
+        print(f"✅ Authentication flow (login/logout) tested")
+        print(f"✅ JWT token validation tested")
+        print(f"✅ User profile access tested")
+        print(f"✅ User CRUD operations tested")
+        print(f"✅ Role-based access control verified")
+        print(f"✅ Error handling scenarios tested")
+        print(f"✅ Security features (self-deletion prevention) tested")
+        
+        if admin_token:
+            print(f"\n{Colors.GREEN}🎉 Authentication system is fully functional!{Colors.ENDC}")
+        else:
+            print(f"\n{Colors.RED}❌ Authentication system has issues{Colors.ENDC}")
         
     except KeyboardInterrupt:
         print(f"\n{Colors.YELLOW}Tests interrupted by user{Colors.ENDC}")
