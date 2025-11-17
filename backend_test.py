@@ -132,6 +132,268 @@ def test_auth_endpoint(method, endpoint, data=None, expected_status=200, descrip
         log_error(f"{method} {endpoint} - Unexpected error: {str(e)}")
         return None
 
+def test_admin_initialization():
+    """Test admin initialization endpoint"""
+    log_info("Testing Admin Initialization...")
+    
+    # Test POST /auth/init-admin
+    result = test_auth_endpoint("POST", "/auth/init-admin", None, 200, "Initialize default admin user")
+    
+    if result:
+        log_info("Admin initialization successful")
+        return True
+    else:
+        # Try again - might fail if admin already exists
+        log_warning("Admin initialization failed - admin might already exist")
+        return False
+
+def test_authentication_flow():
+    """Test authentication login flow"""
+    global admin_token, agent_token
+    log_info("Testing Authentication Flow...")
+    
+    # Test valid admin login
+    admin_login_data = {
+        "email": "admin@hubblindtests.com",
+        "password": "admin123"
+    }
+    
+    admin_result = test_auth_endpoint("POST", "/auth/login", admin_login_data, 200, "Login with admin credentials")
+    
+    if admin_result and "access_token" in admin_result:
+        admin_token = admin_result["access_token"]
+        log_success(f"Admin login successful - Token type: {admin_result.get('token_type', 'N/A')}")
+    else:
+        log_error("Admin login failed")
+        return False
+    
+    # Test invalid credentials
+    invalid_login_data = {
+        "email": "admin@hubblindtests.com",
+        "password": "wrongpassword"
+    }
+    
+    test_auth_endpoint("POST", "/auth/login", invalid_login_data, 401, "Login with invalid credentials", expect_failure=True)
+    
+    # Test non-existent user
+    nonexistent_login_data = {
+        "email": "nonexistent@example.com",
+        "password": "password"
+    }
+    
+    test_auth_endpoint("POST", "/auth/login", nonexistent_login_data, 401, "Login with non-existent user", expect_failure=True)
+    
+    return True
+
+def test_current_user_profile():
+    """Test current user profile endpoint"""
+    global admin_token
+    log_info("Testing Current User Profile...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # Test GET /users/me with valid token
+    user_profile = test_auth_endpoint("GET", "/users/me", None, 200, "Get current user profile with valid token", token=admin_token)
+    
+    if user_profile:
+        log_info(f"User profile: {user_profile.get('email', 'N/A')} - Role: {user_profile.get('role', 'N/A')}")
+    
+    # Test GET /users/me without token
+    test_auth_endpoint("GET", "/users/me", None, 401, "Get current user profile without token", expect_failure=True)
+    
+    return user_profile is not None
+
+def test_user_management_admin():
+    """Test user management endpoints (Admin only)"""
+    global admin_token, agent_user_id
+    log_info("Testing User Management (Admin Only)...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # Test GET /users - List all users
+    users_list = test_auth_endpoint("GET", "/users", None, 200, "List all users (admin)", token=admin_token)
+    
+    if users_list:
+        log_info(f"Found {len(users_list)} users")
+    
+    # Test POST /users - Create new agent user
+    new_agent_data = {
+        "email": "agent.test@hubblindtests.com",
+        "nom": "Agent",
+        "prenom": "Test",
+        "password": "agent123",
+        "role": "agent",
+        "is_active": True
+    }
+    
+    created_agent = test_auth_endpoint("POST", "/users", new_agent_data, 200, "Create new agent user", token=admin_token)
+    
+    if created_agent:
+        agent_user_id = created_agent["id"]
+        log_info(f"Created agent user with ID: {agent_user_id}")
+        
+        # Test creating duplicate email (should fail)
+        test_auth_endpoint("POST", "/users", new_agent_data, 400, "Create duplicate email user (should fail)", token=admin_token, expect_failure=True)
+        
+        # Test GET /users/{user_id} - Get specific user
+        specific_user = test_auth_endpoint("GET", f"/users/{agent_user_id}", None, 200, "Get specific user by ID", token=admin_token)
+        
+        if specific_user:
+            log_info(f"Retrieved user: {specific_user.get('email', 'N/A')}")
+        
+        # Test PUT /users/{user_id} - Update user
+        update_data = {
+            "nom": "Agent Updated",
+            "prenom": "Test Updated",
+            "role": "agent",
+            "is_active": True
+        }
+        
+        updated_user = test_auth_endpoint("PUT", f"/users/{agent_user_id}", update_data, 200, "Update user", token=admin_token)
+        
+        if updated_user:
+            log_info(f"Updated user name: {updated_user.get('nom', 'N/A')} {updated_user.get('prenom', 'N/A')}")
+    
+    # Test GET /users/{user_id} with non-existent ID
+    test_auth_endpoint("GET", "/users/nonexistent-id", None, 404, "Get non-existent user (should fail)", token=admin_token, expect_failure=True)
+    
+    # Test PUT /users/{user_id} with non-existent ID
+    test_auth_endpoint("PUT", "/users/nonexistent-id", {"nom": "Test"}, 404, "Update non-existent user (should fail)", token=admin_token, expect_failure=True)
+    
+    return True
+
+def test_user_statistics():
+    """Test user statistics endpoint"""
+    global admin_token
+    log_info("Testing User Statistics...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # Test GET /users/stats/all
+    stats = test_auth_endpoint("GET", "/users/stats/all", None, 200, "Get user statistics (admin)", token=admin_token)
+    
+    if stats:
+        log_info(f"Retrieved statistics for {len(stats)} users")
+        for stat in stats[:3]:  # Show first 3 stats
+            log_info(f"User: {stat.get('email', 'N/A')} - Tests: {stat.get('test_count', 0)} - Incidents: {stat.get('incident_count', 0)}")
+    
+    return stats is not None
+
+def test_role_based_access_control():
+    """Test role-based access control"""
+    global admin_token, agent_token, agent_user_id
+    log_info("Testing Role-Based Access Control...")
+    
+    if not agent_user_id:
+        log_warning("No agent user created, skipping RBAC tests")
+        return False
+    
+    # First, login as agent
+    agent_login_data = {
+        "email": "agent.test@hubblindtests.com",
+        "password": "agent123"
+    }
+    
+    agent_result = test_auth_endpoint("POST", "/auth/login", agent_login_data, 200, "Login as agent user")
+    
+    if agent_result and "access_token" in agent_result:
+        agent_token = agent_result["access_token"]
+        log_success("Agent login successful")
+        
+        # Test agent accessing admin-only endpoints (should fail)
+        test_auth_endpoint("GET", "/users", None, 403, "Agent trying to list users (should fail)", token=agent_token, expect_failure=True)
+        test_auth_endpoint("POST", "/users", {"email": "test@test.com", "password": "test"}, 403, "Agent trying to create user (should fail)", token=agent_token, expect_failure=True)
+        test_auth_endpoint("GET", "/users/stats/all", None, 403, "Agent trying to get stats (should fail)", token=agent_token, expect_failure=True)
+        
+        # Test agent accessing their own profile (should work)
+        agent_profile = test_auth_endpoint("GET", "/users/me", None, 200, "Agent accessing own profile", token=agent_token)
+        
+        if agent_profile:
+            log_info(f"Agent profile: {agent_profile.get('email', 'N/A')} - Role: {agent_profile.get('role', 'N/A')}")
+    
+    return True
+
+def test_error_handling():
+    """Test various error handling scenarios"""
+    global admin_token, agent_user_id
+    log_info("Testing Error Handling...")
+    
+    # Test invalid JWT token
+    test_auth_endpoint("GET", "/users/me", None, 401, "Invalid JWT token", token="invalid-token", expect_failure=True)
+    
+    # Test malformed JWT token
+    test_auth_endpoint("GET", "/users/me", None, 401, "Malformed JWT token", token="Bearer malformed.token.here", expect_failure=True)
+    
+    # Test missing required fields in user creation
+    incomplete_user_data = {
+        "email": "incomplete@test.com"
+        # Missing required fields: nom, prenom, password
+    }
+    
+    if admin_token:
+        test_auth_endpoint("POST", "/users", incomplete_user_data, 422, "Create user with missing fields (should fail)", token=admin_token, expect_failure=True)
+    
+    # Test invalid user role
+    invalid_role_data = {
+        "email": "invalid.role@test.com",
+        "nom": "Invalid",
+        "prenom": "Role",
+        "password": "password123",
+        "role": "invalid_role",
+        "is_active": True
+    }
+    
+    if admin_token:
+        test_auth_endpoint("POST", "/users", invalid_role_data, 422, "Create user with invalid role (should fail)", token=admin_token, expect_failure=True)
+    
+    return True
+
+def test_self_deletion_prevention():
+    """Test admin self-deletion prevention"""
+    global admin_token, admin_user_id
+    log_info("Testing Self-Deletion Prevention...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # First get admin user ID
+    admin_profile = test_auth_endpoint("GET", "/users/me", None, 200, "Get admin profile for self-deletion test", token=admin_token)
+    
+    if admin_profile:
+        admin_user_id = admin_profile["id"]
+        
+        # Try to delete self (should fail)
+        test_auth_endpoint("DELETE", f"/users/{admin_user_id}", None, 400, "Admin trying to delete themselves (should fail)", token=admin_token, expect_failure=True)
+    
+    return True
+
+def test_user_deletion():
+    """Test user deletion"""
+    global admin_token, agent_user_id
+    log_info("Testing User Deletion...")
+    
+    if not admin_token or not agent_user_id:
+        log_warning("Missing admin token or agent user ID for deletion test")
+        return False
+    
+    # Test DELETE /users/{user_id} - Delete agent user
+    deleted_user = test_auth_endpoint("DELETE", f"/users/{agent_user_id}", None, 200, "Delete agent user", token=admin_token)
+    
+    if deleted_user:
+        log_success("Agent user deleted successfully")
+        
+        # Try to delete the same user again (should fail)
+        test_auth_endpoint("DELETE", f"/users/{agent_user_id}", None, 404, "Delete non-existent user (should fail)", token=admin_token, expect_failure=True)
+    
+    return True
+
 def create_test_data():
     """Create test programmes, partenaires, and incidents for email testing"""
     log_info("Creating test data for email testing...")
