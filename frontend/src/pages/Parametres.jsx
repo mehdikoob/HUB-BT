@@ -35,6 +35,8 @@ const Parametres = () => {
 
   useEffect(() => {
     fetchUsers();
+    fetchProgrammes();
+    fetchPartenaires();
   }, []);
 
   const fetchUsers = async () => {
