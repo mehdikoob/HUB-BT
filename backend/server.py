@@ -680,7 +680,8 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
             TypeTest.TS,
             f"Prix remisé ({input.prix_remise}€) supérieur au prix public ({input.prix_public}€)",
             input.programme_id,
-            input.partenaire_id
+            input.partenaire_id,
+            current_user.id
         )
     
     if not input.application_remise:
@@ -689,7 +690,8 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
             TypeTest.TS,
             "Remise non appliquée",
             input.programme_id,
-            input.partenaire_id
+            input.partenaire_id,
+            current_user.id
         )
     
     # Vérifier la remise minimum si définie
@@ -701,7 +703,8 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
                 TypeTest.TS,
                 f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {remise_minimum - pct_remise}%)",
                 input.programme_id,
-                input.partenaire_id
+                input.partenaire_id,
+                current_user.id
             )
     
     # Save test
