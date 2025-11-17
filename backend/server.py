@@ -1104,6 +1104,7 @@ async def get_dashboard_stats():
     partenaires_manquants = len(set([t['partenaire_id'] for t in tests_manquants]))
     
     # Si on est à J-5, compter les partenaires avec tests manquants comme critiques
+    tests_manquants_j5 = 0
     if is_j5_alert:
         tests_manquants_j5 = partenaires_manquants
     
