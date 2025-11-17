@@ -843,7 +843,8 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
             TypeTest.TL,
             "Offre non appliquée",
             input.programme_id,
-            input.partenaire_id
+            input.partenaire_id,
+            current_user.id
         )
     
     if not input.messagerie_vocale_dediee and not input.decroche_dedie:
@@ -852,7 +853,8 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
             TypeTest.TL,
             "Ni messagerie dédiée ni décroche dédié détecté",
             input.programme_id,
-            input.partenaire_id
+            input.partenaire_id,
+            current_user.id
         )
     
     # Save test
