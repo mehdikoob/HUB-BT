@@ -74,12 +74,18 @@ const Dashboard = () => {
       bg: 'bg-blue-50',
     },
     {
-      title: stats?.is_j5_alert ? 'Tests manquants J-5' : 'Tests manquants ce mois',
-      value: stats?.is_j5_alert ? stats?.tests_manquants_j5 || 0 : stats?.tests_manquants_count || 0,
-      icon: stats?.is_j5_alert ? AlertTriangle : Clock,
-      color: stats?.is_j5_alert ? 'text-red-600' : 'text-orange-600',
-      bg: stats?.is_j5_alert ? 'bg-red-50' : 'bg-orange-50',
-      alert: stats?.is_j5_alert,
+      title: 'Tests manquants ce mois',
+      value: stats?.tests_manquants_reel || 0,
+      icon: Clock,
+      // Couleur dynamique basée sur l'indicateur backend
+      color: stats?.indicateur_couleur === 'green' ? 'text-green-600' : 
+             stats?.indicateur_couleur === 'yellow' ? 'text-yellow-600' : 
+             'text-red-600',
+      bg: stats?.indicateur_couleur === 'green' ? 'bg-green-50' : 
+          stats?.indicateur_couleur === 'yellow' ? 'bg-yellow-50' : 
+          'bg-red-50',
+      badge: stats?.indicateur_statut,
+      alert: stats?.indicateur_couleur === 'red',
     },
     {
       title: 'Incidents Ouverts',
