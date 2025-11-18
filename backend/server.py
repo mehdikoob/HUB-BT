@@ -942,11 +942,26 @@ async def get_tests_ligne(
             query['date_test']['$lte'] = date_fin
     
     tests = await db.tests_ligne.find(query, {"_id": 0}).to_list(1000)
+    
+    # Enrichir avec les informations de l'utilisateur créateur
     for t in tests:
         if isinstance(t.get('date_test'), str):
             t['date_test'] = datetime.fromisoformat(t['date_test'])
         if isinstance(t.get('created_at'), str):
             t['created_at'] = datetime.fromisoformat(t['created_at'])
+        
+        # Ajouter les infos de l'utilisateur qui a créé le test
+        if t.get('user_id'):
+            user = await db.users.find_one({"id": t['user_id']}, {"_id": 0, "password_hash": 0})
+            if user:
+                t['created_by'] = {
+                    "id": user.get('id'),
+                    "nom": user.get('nom'),
+                    "prenom": user.get('prenom'),
+                    "email": user.get('email'),
+                    "role": user.get('role')
+                }
+    
     return tests
 
 @api_router.get("/tests-ligne/{test_id}", response_model=TestLigne)
