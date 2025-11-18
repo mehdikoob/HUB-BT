@@ -150,7 +150,10 @@ const TestsLigne = () => {
       if (filters.date_debut) params.date_debut = filters.date_debut;
       if (filters.date_fin) params.date_fin = filters.date_fin;
       
-      const response = await axios.get(`${API}/tests-ligne`, { params });
+      const response = await axios.get(`${API}/tests-ligne`, { 
+        params,
+        headers: getAuthHeader()
+      });
       setTests(response.data);
     } catch (error) {
       console.error('Erreur:', error);
