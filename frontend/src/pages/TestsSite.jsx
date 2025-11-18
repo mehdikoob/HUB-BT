@@ -315,7 +315,7 @@ const TestsSite = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce test ?')) return;
     try {
-      await axios.delete(`${API}/tests-site/${id}`);
+      await axios.delete(`${API}/tests-site/${id}`, { headers: getAuthHeader() });
       toast.success('Test supprimé');
       fetchTests();
     } catch (error) {
