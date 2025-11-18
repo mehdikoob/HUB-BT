@@ -262,10 +262,10 @@ const TestsSite = () => {
       };
       
       if (editingTest) {
-        await axios.put(`${API}/tests-site/${editingTest.id}`, submitData);
+        await axios.put(`${API}/tests-site/${editingTest.id}`, submitData, { headers: getAuthHeader() });
         toast.success('Test site modifié avec succès');
       } else {
-        await axios.post(`${API}/tests-site`, submitData);
+        await axios.post(`${API}/tests-site`, submitData, { headers: getAuthHeader() });
         toast.success('Test site enregistré avec succès');
       }
       
