@@ -1214,6 +1214,31 @@ async def get_dashboard_stats():
     })
     taux_reussite_tl = (tests_ligne_reussis / total_tests_ligne_mois * 100) if total_tests_ligne_mois > 0 else 0
     
+    # Calcul du nombre réel de tests manquants
+    tests_manquants_reel = tests_attendus - tests_effectues
+    
+    # Calcul de l'indicateur de retard basé sur le prorata du mois
+    jour_actuel = now.day
+    pourcentage_mois_ecoule = (jour_actuel / last_day_num) * 100
+    pourcentage_tests_effectues = (tests_effectues / tests_attendus * 100) if tests_attendus > 0 else 0
+    
+    # Calculer le retard : différence entre ce qui devrait être fait et ce qui est fait
+    retard = pourcentage_mois_ecoule - pourcentage_tests_effectues
+    
+    # Déterminer la couleur de l'indicateur
+    # Vert : en avance ou léger retard (< 15% de retard)
+    # Jaune : retard modéré (15-35% de retard)
+    # Rouge : gros retard (> 35% de retard)
+    if retard < 15:
+        indicateur_couleur = "green"
+        indicateur_statut = "Dans les temps"
+    elif retard < 35:
+        indicateur_couleur = "yellow"
+        indicateur_statut = "Retard modéré"
+    else:
+        indicateur_couleur = "red"
+        indicateur_statut = "Retard important"
+    
     return {
         "total_programmes": total_programmes,
         "total_partenaires": total_partenaires,
@@ -1221,7 +1246,8 @@ async def get_dashboard_stats():
         "taux_reussite_ts": round(taux_reussite_ts, 2),
         "taux_reussite_tl": round(taux_reussite_tl, 2),
         "tests_manquants": tests_manquants,
-        "tests_manquants_count": len(tests_manquants),
+        "tests_manquants_count": len(tests_manquants),  # Nombre de combinaisons avec tests manquants
+        "tests_manquants_reel": tests_manquants_reel,  # Vrai nombre de tests manquants
         "partenaires_manquants": partenaires_manquants,
         "tests_manquants_j5": tests_manquants_j5,
         "is_j5_alert": is_j5_alert,
@@ -1229,7 +1255,12 @@ async def get_dashboard_stats():
         "current_month": month,
         "current_year": year,
         "tests_attendus": tests_attendus,
-        "tests_effectues": tests_effectues
+        "tests_effectues": tests_effectues,
+        "pourcentage_mois_ecoule": round(pourcentage_mois_ecoule, 2),
+        "pourcentage_tests_effectues": round(pourcentage_tests_effectues, 2),
+        "retard": round(retard, 2),
+        "indicateur_couleur": indicateur_couleur,
+        "indicateur_statut": indicateur_statut
     }
 
 # Routes - Export Bilan Partenaire
