@@ -186,8 +186,8 @@ const TestsSite = () => {
   const fetchData = async () => {
     try {
       const [progResponse, partResponse] = await Promise.all([
-        axios.get(`${API}/programmes`),
-        axios.get(`${API}/partenaires`),
+        axios.get(`${API}/programmes`, { headers: getAuthHeader() }),
+        axios.get(`${API}/partenaires`, { headers: getAuthHeader() }),
       ]);
       setProgrammes(progResponse.data);
       setPartenaires(partResponse.data);
