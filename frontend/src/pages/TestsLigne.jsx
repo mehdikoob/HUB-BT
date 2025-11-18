@@ -10,10 +10,12 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { useAuth } from '../contexts/AuthContext';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const TestsLigne = () => {
+  const { getAuthHeader } = useAuth();
   const [tests, setTests] = useState([]);
   const [programmes, setProgrammes] = useState([]);
   const [partenaires, setPartenaires] = useState([]);
