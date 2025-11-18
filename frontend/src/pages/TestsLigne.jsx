@@ -207,10 +207,10 @@ const TestsLigne = () => {
       };
       
       if (editingTest) {
-        await axios.put(`${API}/tests-ligne/${editingTest.id}`, submitData);
+        await axios.put(`${API}/tests-ligne/${editingTest.id}`, submitData, { headers: getAuthHeader() });
         toast.success('Test ligne modifié avec succès');
       } else {
-        await axios.post(`${API}/tests-ligne`, submitData);
+        await axios.post(`${API}/tests-ligne`, submitData, { headers: getAuthHeader() });
         toast.success('Test ligne enregistré avec succès');
       }
       
