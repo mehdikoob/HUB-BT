@@ -1118,7 +1118,6 @@ async def delete_incident(incident_id: str):
 @api_router.get("/stats/dashboard")
 async def get_dashboard_stats():
     from datetime import datetime, timezone
-    import calendar
     
     total_programmes = await db.programmes.count_documents({})
     total_partenaires = await db.partenaires.count_documents({})
