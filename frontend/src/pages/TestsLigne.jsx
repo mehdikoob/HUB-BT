@@ -271,6 +271,32 @@ const TestsLigne = () => {
     }
   };
 
+  const handleDownloadIncidentReport = async (testId) => {
+    try {
+      const response = await axios.get(
+        `${API}/export-incident-report/${testId}?test_type=ligne`,
+        {
+          headers: getAuthHeader(),
+          responseType: 'blob'
+        }
+      );
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `rapport_incident_ligne_${testId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Rapport téléchargé avec succès');
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error(error.response?.data?.detail || 'Erreur lors du téléchargement du rapport');
+    }
+  };
+
   // Sorting functions
   const handleSort = (key) => {
     let direction = 'asc';
