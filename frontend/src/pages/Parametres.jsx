@@ -214,6 +214,61 @@ const Parametres = () => {
     }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    
+    // Vérification que les mots de passe correspondent
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Les mots de passe ne correspondent pas",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Vérification longueur minimum
+    if (passwordData.newPassword.length < 6) {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 6 caractères",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      // Modifier le mot de passe de l'utilisateur actuel
+      await axios.put(
+        `${API_URL}/api/users/${currentUser.id}`,
+        { password: passwordData.newPassword },
+        { headers: getAuthHeader() }
+      );
+      
+      toast({
+        title: "Succès",
+        description: "Mot de passe modifié avec succès"
+      });
+      
+      setPasswordDialogOpen(false);
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+      
+      // Rafraîchir les données utilisateur
+      fetchCurrentUser();
+    } catch (error) {
+      console.error('Error changing password:', error);
+      toast({
+        title: "Erreur",
+        description: error.response?.data?.detail || "Erreur lors du changement de mot de passe",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getRoleBadge = (role) => {
     return role === 'admin' ? (
       <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
