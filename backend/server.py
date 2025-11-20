@@ -1114,6 +1114,184 @@ async def delete_incident(incident_id: str):
     
     return {"message": "Incident supprimé avec succès"}
 
+# Routes - Export Incident Report
+@api_router.get("/export-incident-report/{test_id}")
+async def export_incident_report(
+    test_id: str,
+    test_type: str = Query(..., description="Type de test: 'site' ou 'ligne'"),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Generate a PDF incident report for a test"""
+    
+    # Récupérer le test selon son type
+    if test_type == "site":
+        test = await db.tests_site.find_one({"id": test_id})
+        test_label = "Test Site"
+    elif test_type == "ligne":
+        test = await db.tests_ligne.find_one({"id": test_id})
+        test_label = "Test Ligne"
+    else:
+        raise HTTPException(status_code=400, detail="Type de test invalide")
+    
+    if not test:
+        raise HTTPException(status_code=404, detail="Test non trouvé")
+    
+    # Récupérer les incidents liés à ce test
+    incidents = await db.incidents.find({"test_id": test_id}).to_list(length=None)
+    
+    if not incidents:
+        raise HTTPException(status_code=404, detail="Aucun incident trouvé pour ce test")
+    
+    # Récupérer les informations du programme et partenaire
+    programme = await db.programmes.find_one({"id": test.get("programme_id")})
+    partenaire = await db.partenaires.find_one({"id": test.get("partenaire_id")})
+    
+    # Créer le PDF en mémoire
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.5*inch, bottomMargin=0.5*inch)
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        textColor=colors.HexColor('#1e3a8a'),
+        spaceAfter=12,
+        alignment=TA_CENTER
+    )
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor=colors.HexColor('#1e3a8a'),
+        spaceAfter=6,
+        spaceBefore=12
+    )
+    normal_style = styles['Normal']
+    
+    # Contenu du PDF
+    story = []
+    
+    # Logo
+    logo_path = ROOT_DIR / "logo-qwertys.png"
+    if logo_path.exists():
+        logo = Image(str(logo_path), width=1.5*inch, height=0.6*inch)
+        logo.hAlign = 'CENTER'
+        story.append(logo)
+        story.append(Spacer(1, 0.3*inch))
+    
+    # Titre
+    story.append(Paragraph(f"RAPPORT D'INCIDENT - {test_label.upper()}", title_style))
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Date de génération
+    date_generation = datetime.now(timezone.utc).strftime("%d/%m/%Y à %H:%M")
+    story.append(Paragraph(f"<b>Date de génération :</b> {date_generation}", normal_style))
+    story.append(Spacer(1, 0.3*inch))
+    
+    # Informations du test
+    story.append(Paragraph("INFORMATIONS DU TEST", heading_style))
+    
+    test_data = [
+        ["Programme", programme.get('nom', 'N/A') if programme else 'N/A'],
+        ["Partenaire", partenaire.get('nom', 'N/A') if partenaire else 'N/A'],
+        ["Date du test", test.get('date_test', 'N/A')],
+    ]
+    
+    if test_type == "site":
+        test_data.extend([
+            ["Site", test.get('site', 'N/A')],
+            ["Prix public", f"{test.get('prix_public', 0)}€"],
+            ["Prix remisé", f"{test.get('prix_remise', 0)}€"],
+            ["% Remise calculé", f"{test.get('pct_remise_calcule', 0)}%"],
+            ["Remise appliquée", "Oui" if test.get('application_remise') else "Non"],
+        ])
+    else:  # ligne
+        test_data.extend([
+            ["Offre appliquée", "Oui" if test.get('application_offre') else "Non"],
+            ["Messagerie dédiée", "Oui" if test.get('messagerie_vocale_dediee') else "Non"],
+            ["Décroché dédié", "Oui" if test.get('decroche_dedie') else "Non"],
+        ])
+    
+    test_table = Table(test_data, colWidths=[2.5*inch, 4*inch])
+    test_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e5e7eb')),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    
+    story.append(test_table)
+    story.append(Spacer(1, 0.3*inch))
+    
+    # Liste des incidents
+    story.append(Paragraph(f"INCIDENTS DÉTECTÉS ({len(incidents)})", heading_style))
+    story.append(Spacer(1, 0.1*inch))
+    
+    for idx, incident in enumerate(incidents, 1):
+        incident_data = [
+            [f"Incident #{idx}"],
+            ["Description", incident.get('description', 'N/A')],
+            ["Statut", incident.get('statut', 'N/A').upper()],
+            ["Date de création", incident.get('created_at', 'N/A')[:10] if incident.get('created_at') else 'N/A'],
+        ]
+        
+        incident_table = Table(incident_data, colWidths=[2.5*inch, 4*inch])
+        incident_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#fee2e2')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#991b1b')),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('SPAN', (0, 0), (-1, 0)),
+            ('BACKGROUND', (0, 1), (0, -1), colors.HexColor('#f3f4f6')),
+            ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 1), (1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        
+        story.append(incident_table)
+        story.append(Spacer(1, 0.15*inch))
+    
+    # Footer
+    story.append(Spacer(1, 0.3*inch))
+    footer_text = f"""
+    <para alignment="center">
+    <font size="8" color="#6b7280">
+    Ce rapport a été généré automatiquement par le système HUB BLIND TESTS QWERTYS<br/>
+    Pour toute question, veuillez contacter l'équipe responsable.
+    </font>
+    </para>
+    """
+    story.append(Paragraph(footer_text, normal_style))
+    
+    # Build PDF
+    doc.build(story)
+    buffer.seek(0)
+    
+    # Return as downloadable file
+    filename = f"rapport_incident_{test_type}_{test_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 # Routes - Stats & Dashboard
 @api_router.get("/stats/dashboard")
 async def get_dashboard_stats():
