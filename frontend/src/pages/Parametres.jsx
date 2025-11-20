@@ -464,6 +464,95 @@ const Parametres = () => {
         </Dialog>
       </div>
 
+      {/* Mon Compte - Changement de mot de passe */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <UserCog className="h-5 w-5 mr-2" />
+            Mon Compte
+          </CardTitle>
+          <CardDescription>
+            Gérez vos informations personnelles
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <p className="font-medium text-gray-900">
+                  {currentUser?.prenom} {currentUser?.nom}
+                </p>
+                <p className="text-sm text-gray-600">{currentUser?.email}</p>
+                <div className="mt-2">
+                  {getRoleBadge(currentUser?.role)}
+                </div>
+              </div>
+              <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    Changer le mot de passe
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Changer mon mot de passe</DialogTitle>
+                    <DialogDescription>
+                      Choisissez un nouveau mot de passe sécurisé
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleChangePassword}>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                        <Input
+                          id="newPassword"
+                          type="password"
+                          value={passwordData.newPassword}
+                          onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                          required
+                          minLength={6}
+                          placeholder="Au moins 6 caractères"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+                        <Input
+                          id="confirmPassword"
+                          type="password"
+                          value={passwordData.confirmPassword}
+                          onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                          required
+                          minLength={6}
+                          placeholder="Répétez le mot de passe"
+                        />
+                      </div>
+                    </div>
+                    
+                    <DialogFooter>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => {
+                          setPasswordDialogOpen(false);
+                          setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                        }}
+                      >
+                        Annuler
+                      </Button>
+                      <Button type="submit">
+                        Modifier le mot de passe
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Gestion des utilisateurs (Admin uniquement) */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
