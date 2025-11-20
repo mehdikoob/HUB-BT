@@ -18,6 +18,12 @@ const Parametres = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [programmes, setProgrammes] = useState([]);
   const [partenaires, setPartenaires] = useState([]);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
   const [formData, setFormData] = useState({
     email: '',
     nom: '',
@@ -29,7 +35,7 @@ const Parametres = () => {
     partenaire_id: ''
   });
 
-  const { getAuthHeader, user: currentUser } = useAuth();
+  const { getAuthHeader, user: currentUser, fetchCurrentUser } = useAuth();
   const { toast } = useToast();
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
