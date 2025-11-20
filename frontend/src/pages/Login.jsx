@@ -38,7 +38,11 @@ const Login = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <LogIn className="h-12 w-12 text-blue-600" />
+            <img 
+              src="/logo-qwertys.png" 
+              alt="QWERTYS Logo" 
+              className="h-20 w-auto"
+            />
           </div>
           <CardTitle className="text-2xl text-center">Connexion</CardTitle>
           <CardDescription className="text-center">
@@ -88,13 +92,6 @@ const Login = () => {
               {loading ? 'Connexion...' : 'Se connecter'}
             </Button>
           </form>
-          
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Compte par défaut :</p>
-            <p className="font-mono text-xs mt-1">
-              admin@hubblindtests.com / admin123
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
