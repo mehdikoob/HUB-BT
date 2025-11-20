@@ -1099,6 +1099,16 @@ const TestsSite = () => {
                       >
                         <Trash2 size={16} className="text-red-600" />
                       </Button>
+                      {alerts.length > 0 && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDownloadIncidentReport(test.id)}
+                          title="Télécharger le rapport d'incident"
+                        >
+                          <FileDown size={16} className="text-orange-600" />
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
