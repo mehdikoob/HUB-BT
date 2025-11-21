@@ -1423,6 +1423,10 @@ async def get_dashboard_stats():
         indicateur_couleur = "red"
         indicateur_statut = "Retard important"
     
+    # Calculer la moyenne de tests réalisés par jour
+    jour_actuel = now.day
+    moyenne_tests_par_jour = tests_effectues / jour_actuel if jour_actuel > 0 else 0
+    
     return {
         "total_programmes": total_programmes,
         "total_partenaires": total_partenaires,
@@ -1444,7 +1448,8 @@ async def get_dashboard_stats():
         "pourcentage_tests_effectues": round(pourcentage_tests_effectues, 2),
         "retard": round(retard, 2),
         "indicateur_couleur": indicateur_couleur,
-        "indicateur_statut": indicateur_statut
+        "indicateur_statut": indicateur_statut,
+        "moyenne_tests_par_jour": round(moyenne_tests_par_jour, 2)
     }
 
 # Routes - Export Bilan Partenaire
