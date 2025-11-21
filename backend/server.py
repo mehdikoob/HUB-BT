@@ -98,6 +98,7 @@ class Programme(ProgrammeBase):
 class ProgrammeContact(BaseModel):
     programme_id: str
     url_site: Optional[str] = None
+    code_promo: Optional[str] = None
     numero_telephone: Optional[str] = None
 
 class PartenaireBase(BaseModel):
