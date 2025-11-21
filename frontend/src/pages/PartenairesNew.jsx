@@ -137,7 +137,7 @@ const PartenairesNew = () => {
         programmes_ids: [...formData.programmes_ids, programmeId],
         contacts_programmes: [
           ...formData.contacts_programmes,
-          { programme_id: programmeId, url_site: '', numero_telephone: '' }
+          { programme_id: programmeId, url_site: '', code_promo: '', numero_telephone: '' }
         ],
       });
     }
