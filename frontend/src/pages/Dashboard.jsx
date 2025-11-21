@@ -94,6 +94,14 @@ const Dashboard = () => {
       color: 'text-purple-600',
       bg: 'bg-purple-50',
     },
+    {
+      title: 'Moyenne tests / jour',
+      value: stats?.moyenne_tests_par_jour || 0,
+      icon: BarChart3,
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
+      suffix: ' tests/j',
+    },
   ];
 
   return (
