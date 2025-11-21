@@ -87,10 +87,19 @@ const PartenairesNew = () => {
 
   const handleEdit = (partenaire) => {
     setEditingPartenaire(partenaire);
+    
+    // S'assurer que chaque programme sélectionné a un contact
+    const programmeIds = partenaire.programmes_ids || [];
+    const existingContacts = partenaire.contacts_programmes || [];
+    const contacts = programmeIds.map(progId => {
+      const existingContact = existingContacts.find(c => c.programme_id === progId);
+      return existingContact || { programme_id: progId, url_site: '', numero_telephone: '' };
+    });
+    
     setFormData({
       nom: partenaire.nom,
-      programmes_ids: partenaire.programmes_ids || [],
-      contacts_programmes: partenaire.contacts_programmes || [],
+      programmes_ids: programmeIds,
+      contacts_programmes: contacts,
       naming_attendu: partenaire.naming_attendu || '',
       remise_minimum: partenaire.remise_minimum || '',
       logo_url: partenaire.logo_url || '',
