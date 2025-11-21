@@ -190,7 +190,11 @@ const TestsSite = () => {
         axios.get(`${API}/partenaires`, { headers: getAuthHeader() }),
       ]);
       setProgrammes(progResponse.data);
-      setPartenaires(partResponse.data);
+      // Trier les partenaires par ordre alphabétique
+      const sortedPartenaires = partResponse.data.sort((a, b) => 
+        a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' })
+      );
+      setPartenaires(sortedPartenaires);
     } catch (error) {
       console.error('Erreur:', error);
     } finally {
