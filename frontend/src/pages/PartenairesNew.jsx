@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Plus, Pencil, Trash2, ExternalLink, Phone, Globe } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Phone, Globe, FileText } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
