@@ -93,7 +93,7 @@ const PartenairesNew = () => {
     const existingContacts = partenaire.contacts_programmes || [];
     const contacts = programmeIds.map(progId => {
       const existingContact = existingContacts.find(c => c.programme_id === progId);
-      return existingContact || { programme_id: progId, url_site: '', numero_telephone: '' };
+      return existingContact || { programme_id: progId, url_site: '', code_promo: '', numero_telephone: '' };
     });
     
     setFormData({
