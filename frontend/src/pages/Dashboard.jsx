@@ -138,8 +138,17 @@ const Dashboard = () => {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
                   <p className={`text-3xl font-bold ${stat.alert ? 'text-red-600' : 'text-gray-900'}`}>
-                    {stat.value}
+                    {stat.value}{stat.suffix || ''}
                   </p>
+                  {stat.badge && (
+                    <span className={`inline-block mt-2 px-2 py-1 text-xs font-semibold rounded ${
+                      stat.color === 'text-green-600' ? 'bg-green-100 text-green-700' :
+                      stat.color === 'text-yellow-600' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {stat.badge}
+                    </span>
+                  )}
                 </div>
               </CardContent>
             </Card>
