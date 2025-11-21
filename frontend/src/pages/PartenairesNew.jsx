@@ -337,6 +337,22 @@ const PartenairesNew = () => {
                               </div>
                               <div>
                                 <Label className="text-sm text-gray-600 flex items-center gap-2">
+                                  <FileText size={16} />
+                                  Code promo spécifique
+                                </Label>
+                                <Input
+                                  data-testid={`code-${prog.id}`}
+                                  value={contact?.code_promo || ''}
+                                  onChange={(e) => updateContactProgramme(prog.id, 'code_promo', e.target.value)}
+                                  placeholder="Ex: INTERSPORT"
+                                  className="mt-1"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Code promotionnel du partenaire pour ce programme
+                                </p>
+                              </div>
+                              <div>
+                                <Label className="text-sm text-gray-600 flex items-center gap-2">
                                   <Phone size={16} />
                                   Numéro de téléphone dédié
                                 </Label>
