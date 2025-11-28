@@ -258,6 +258,8 @@ const Parametres = () => {
         newPassword: '',
         confirmPassword: ''
       });
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
       
       // Rafraîchir les données utilisateur
       fetchCurrentUser();
