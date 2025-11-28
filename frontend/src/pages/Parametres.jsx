@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '../components/ui/dialog';
 import { Badge } from '../components/ui/badge';
 import { useToast } from '../hooks/use-toast';
-import { Users, UserPlus, Edit, Trash2, Shield, UserCog } from 'lucide-react';
+import { Users, UserPlus, Edit, Trash2, Shield, UserCog, Eye, EyeOff } from 'lucide-react';
 
 const Parametres = () => {
   const [users, setUsers] = useState([]);
