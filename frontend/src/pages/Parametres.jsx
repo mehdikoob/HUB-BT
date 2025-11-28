@@ -19,6 +19,8 @@ const Parametres = () => {
   const [programmes, setProgrammes] = useState([]);
   const [partenaires, setPartenaires] = useState([]);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
