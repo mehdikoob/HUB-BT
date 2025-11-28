@@ -566,6 +566,8 @@ const Parametres = () => {
                         onClick={() => {
                           setPasswordDialogOpen(false);
                           setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                          setShowNewPassword(false);
+                          setShowConfirmPassword(false);
                         }}
                       >
                         Annuler
