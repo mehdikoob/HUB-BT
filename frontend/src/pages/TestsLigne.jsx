@@ -849,16 +849,17 @@ const TestsLigne = () => {
                 </Select>
               </div>
             </div>
-            {(filters.date_debut || filters.date_fin) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setFilters({ ...filters, date_debut: '', date_fin: '' })}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                Effacer dates
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const current = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+                setFilters({ ...filters, date_debut: current, date_fin: current });
+              }}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              Réinitialiser dates
+            </Button>
           </div>
         </div>
       </Card>
