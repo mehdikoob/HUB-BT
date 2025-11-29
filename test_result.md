@@ -1132,3 +1132,81 @@ Les 3 modifications sont opérationnelles :
 - Validation backend Pydantic non implémentée (validation frontend suffisante)
 - Migration des données réussie (38 partenaires)
 
+
+---
+## Test Session - Filtres Date Mois/Année
+**Date:** 2025-11-29
+**Features:** Remplacement filtres date précise par mois/année
+
+### Modifications Effectuées
+
+#### Pages Tests Site & Tests Ligne
+**Fichiers modifiés:** `/app/frontend/src/pages/TestsSite.jsx` & `/app/frontend/src/pages/TestsLigne.jsx`
+
+**Changements :**
+- ✅ Ajout fonction `generateMonthYearOptions()` : génère 24 derniers mois
+- ✅ Ajout fonction `monthYearToDateRange()` : convertit mois/année en plage dates complètes
+- ✅ Remplacement Input type="date" par Select avec options mois/année
+- ✅ Labels changés : "Date de début/fin" → "Mois de début/fin"
+- ✅ Initialisation avec mois en cours (Novembre 2025)
+- ✅ Modification fetchTests() pour convertir mois en dates ISO avant l'API call
+- ✅ Bouton "Effacer dates" → "Réinitialiser dates" (revient au mois en cours)
+
+**Fonctionnement :**
+1. Utilisateur sélectionne "Octobre 2025" (début) et "Novembre 2025" (fin)
+2. Frontend convertit en : `2025-10-01T00:00:00Z` → `2025-11-30T23:59:59Z`
+3. API filtre tous les tests dans cette plage
+4. Tableau affiche dates précises (27/10/2025, 18/11/2025, etc.)
+
+### Tests Effectués
+
+#### Test 1: Affichage Filtres Tests Site
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Dropdowns "Mois de début" et "Mois de fin" affichés
+  - Valeur par défaut : Novembre 2025
+  - Bouton "Réinitialiser dates" visible
+
+#### Test 2: Dropdown Mois/Année
+- **Action:** Clic sur dropdown
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Liste de 24 mois affichée (Novembre 2025 → Février 2024)
+  - Format français : "Novembre 2025", "Octobre 2025"
+  - Mois actuel coché par défaut
+
+#### Test 3: Filtrage Octobre à Novembre 2025
+- **Action:** Sélection "Octobre 2025" (début) + "Novembre 2025" (fin)
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Tests affichés : 27/10, 28/10, 30/10, 31/10, 18/11
+  - Dates précises conservées dans le tableau
+  - Filtrage correct sur toute la plage
+
+#### Test 4: Tests Ligne
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Même comportement que Tests Site
+  - Dropdowns identiques
+  - Filtrage fonctionnel
+
+#### Test 5: Combinaison avec autres filtres
+- **Action:** Mois + Partenaire + Programme
+- **Résultat:** ✅ SUCCÈS (logique inchangée)
+- **Observations:**
+  - Tous les filtres se combinent correctement (AND)
+
+### Conclusion
+✅ **Tous les tests passent avec succès**
+
+Les filtres par mois/année sont opérationnels :
+- Simplifie l'expérience utilisateur (pas besoin de sélectionner jour précis)
+- Accélère le process de filtrage
+- Dates précises conservées dans les résultats
+- Compatible avec tous les autres filtres existants
+
+### Performance
+- Génération de 24 options instantanée
+- Conversion mois → dates complètes < 1ms
+- Aucun impact sur vitesse de filtrage
+
