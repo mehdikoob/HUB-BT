@@ -1327,44 +1327,49 @@ async def get_agent_dashboard_stats(user: User):
         part_id = partenaire['id']
         part_nom = partenaire['nom']
         programmes_ids = partenaire.get('programmes_ids', [])
+        test_site_requis = partenaire.get('test_site_requis', True)
+        test_ligne_requis = partenaire.get('test_ligne_requis', True)
         
         for prog_id in programmes_ids:
             prog_nom = programmes_dict.get(prog_id, 'Programme inconnu')
             
-            # Vérifier test site ce mois
-            test_site_count = await db.tests_site.count_documents({
-                "partenaire_id": part_id,
-                "programme_id": prog_id,
-                "date_test": {"$gte": first_day, "$lte": last_day}
-            })
-            
-            # Vérifier test ligne ce mois
-            test_ligne_count = await db.tests_ligne.count_documents({
-                "partenaire_id": part_id,
-                "programme_id": prog_id,
-                "date_test": {"$gte": first_day, "$lte": last_day}
-            })
-            
-            # Collecter les tests manquants comme "tâches à faire"
-            if test_site_count == 0:
-                taches_tests.append({
+            # Vérifier test site ce mois (uniquement si requis)
+            if test_site_requis:
+                test_site_count = await db.tests_site.count_documents({
                     "partenaire_id": part_id,
-                    "partenaire_nom": part_nom,
                     "programme_id": prog_id,
-                    "programme_nom": prog_nom,
-                    "type_test": "Site",
-                    "priorite": "normale"
+                    "date_test": {"$gte": first_day, "$lte": last_day}
                 })
+                
+                # Collecter les tests site manquants comme "tâches à faire"
+                if test_site_count == 0:
+                    taches_tests.append({
+                        "partenaire_id": part_id,
+                        "partenaire_nom": part_nom,
+                        "programme_id": prog_id,
+                        "programme_nom": prog_nom,
+                        "type_test": "Site",
+                        "priorite": "normale"
+                    })
             
-            if test_ligne_count == 0:
-                taches_tests.append({
+            # Vérifier test ligne ce mois (uniquement si requis)
+            if test_ligne_requis:
+                test_ligne_count = await db.tests_ligne.count_documents({
                     "partenaire_id": part_id,
-                    "partenaire_nom": part_nom,
                     "programme_id": prog_id,
-                    "programme_nom": prog_nom,
-                    "type_test": "Ligne",
-                    "priorite": "normale"
+                    "date_test": {"$gte": first_day, "$lte": last_day}
                 })
+                
+                # Collecter les tests ligne manquants comme "tâches à faire"
+                if test_ligne_count == 0:
+                    taches_tests.append({
+                        "partenaire_id": part_id,
+                        "partenaire_nom": part_nom,
+                        "programme_id": prog_id,
+                        "programme_nom": prog_nom,
+                        "type_test": "Ligne",
+                        "priorite": "normale"
+                    })
     
     # Incidents en cours (ouverts uniquement)
     incidents_en_cours = await db.incidents.find(
