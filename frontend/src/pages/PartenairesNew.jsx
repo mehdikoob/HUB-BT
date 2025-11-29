@@ -109,6 +109,8 @@ const PartenairesNew = () => {
       remise_minimum: partenaire.remise_minimum || '',
       logo_url: partenaire.logo_url || '',
       contact_email: partenaire.contact_email || '',
+      test_site_requis: partenaire.test_site_requis !== undefined ? partenaire.test_site_requis : true,
+      test_ligne_requis: partenaire.test_ligne_requis !== undefined ? partenaire.test_ligne_requis : true,
     });
     setDialogOpen(true);
   };
