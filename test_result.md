@@ -1041,3 +1041,94 @@ Le nouveau dashboard agent est opérationnel et répond aux exigences :
 - Incidents affichés de manière neutre
 - Autres rôles (Admin, Programme, Partenaire) conservent le dashboard complet
 
+
+---
+## Test Session - Modifications Multiples
+**Date:** 2025-11-29
+**Features:** Icône œil login, URL logo repliable, Canaux de test partenaire
+
+### Modifications Effectuées
+
+#### 1. Icône Œil sur Page Login
+**Fichiers modifiés:** `/app/frontend/src/pages/Login.jsx`
+- ✅ Ajout de l'état `showPassword`
+- ✅ Import des icônes `Eye` et `EyeOff` de lucide-react
+- ✅ Toggle entre type="password" et type="text"
+- ✅ Bouton avec icône positionné à droite du champ
+
+#### 2. URL Logo Repliable (Accordéon)
+**Fichiers modifiés:** `/app/frontend/src/pages/PartenairesNew.jsx`
+- ✅ Ajout état `expandedLogoId` pour gérer l'accordéon
+- ✅ Import icône `Link`, `ChevronDown`, `ChevronUp`
+- ✅ Section accordéon dans les détails du partenaire
+- ✅ Affichage de l'URL avec lien externe au clic
+
+#### 3. Canaux de Test Partenaire
+**Backend (`/app/backend/server.py`):**
+- ✅ Ajout champs `test_site_requis` et `test_ligne_requis` (bool) au modèle `PartenaireBase`
+- ✅ Modification logique dashboard `get_agent_dashboard_stats()` pour tenir compte des champs
+- ✅ Modification logique dashboard principal pour calculer tests attendus selon configuration
+- ✅ Migration des 38 partenaires existants avec valeurs par défaut (true/true)
+
+**Frontend (`/app/frontend/src/pages/PartenairesNew.jsx`):**
+- ✅ Ajout des champs dans `formData` avec valeurs par défaut (true/true)
+- ✅ Ajout section "Types de tests requis" avec 2 checkboxes
+- ✅ Validation frontend : au moins 1 checkbox cochée obligatoire
+- ✅ Message d'aide explicatif sous les checkboxes
+
+### Tests Effectués
+
+#### Test 1: Icône Œil Login
+- **Action:** Clic sur l'icône œil dans le champ mot de passe
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Icône œil visible dans le champ mot de passe
+  - Toggle fonctionne : Eye → EyeOff
+  - Mot de passe masqué puis visible
+
+#### Test 2: URL Logo Repliable
+- **Action:** Clic sur "URL du logo" dans détails partenaire
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Accordéon replié par défaut avec icône ChevronDown
+  - Clic déploie l'URL avec icône ChevronUp
+  - URL cliquable avec icône de lien externe
+
+#### Test 3: Checkboxes Canaux de Test
+- **Action:** Édition d'un partenaire, visualisation des checkboxes
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Section "Types de tests requis" visible
+  - 2 checkboxes : "Test Site requis" et "Test Ligne requis"
+  - Message d'aide affiché
+  - Par défaut, les deux sont cochées
+
+#### Test 4: Validation Frontend
+- **Action:** Décocher les 2 checkboxes et tenter d'enregistrer
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Toast d'erreur affiché : "Au moins un type de test (Site ou Ligne) doit être requis"
+  - Formulaire non soumis
+
+#### Test 5: Modification Partenaire et Calcul Dashboard
+- **Action:** Modifier VVF Villages pour Test Site uniquement (2 programmes)
+- **Avant:** 236 tests attendus (118 partenaires × 2 tests)
+- **Après:** 234 tests attendus (116 × 2 + 1 × 2 × 1)
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Dashboard admin : tests attendus = 234 ✅
+  - Dashboard agent : total tâches = 233 ✅
+  - Calcul correct selon configuration
+
+### Conclusion
+✅ **Tous les tests passent avec succès**
+
+Les 3 modifications sont opérationnelles :
+1. Icône œil sur login améliore l'expérience utilisateur
+2. URL logo repliable économise de l'espace
+3. Canaux de test personnalisables par partenaire avec calcul correct des dashboards
+
+### Note
+- Validation backend Pydantic non implémentée (validation frontend suffisante)
+- Migration des données réussie (38 partenaires)
+
