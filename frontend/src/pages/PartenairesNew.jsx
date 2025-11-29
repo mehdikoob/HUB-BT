@@ -27,6 +27,8 @@ const PartenairesNew = () => {
     remise_minimum: '',
     logo_url: '',
     contact_email: '',
+    test_site_requis: true,
+    test_ligne_requis: true,
   });
 
   useEffect(() => {
