@@ -1294,6 +1294,124 @@ async def export_incident_report(
     )
 
 # Routes - Stats & Dashboard
+
+async def get_agent_dashboard_stats(user: User):
+    """Dashboard simplifié pour les agents - focus sur les tâches à faire"""
+    from datetime import datetime, timezone
+    
+    now = datetime.now(timezone.utc)
+    year = now.year
+    month = now.month
+    first_day = datetime(year, month, 1, tzinfo=timezone.utc).isoformat()
+    last_day_num = calendar.monthrange(year, month)[1]
+    last_day = datetime(year, month, last_day_num, 23, 59, 59, tzinfo=timezone.utc).isoformat()
+    
+    # Récupérer tous les partenaires et programmes
+    partenaires = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+    programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
+    programmes_dict = {p['id']: p['nom'] for p in programmes}
+    
+    # Tâches à effectuer : tests manquants ce mois
+    taches_tests = []
+    
+    for partenaire in partenaires:
+        part_id = partenaire['id']
+        part_nom = partenaire['nom']
+        programmes_ids = partenaire.get('programmes_ids', [])
+        
+        for prog_id in programmes_ids:
+            prog_nom = programmes_dict.get(prog_id, 'Programme inconnu')
+            
+            # Vérifier test site ce mois
+            test_site_count = await db.tests_site.count_documents({
+                "partenaire_id": part_id,
+                "programme_id": prog_id,
+                "date_test": {"$gte": first_day, "$lte": last_day}
+            })
+            
+            # Vérifier test ligne ce mois
+            test_ligne_count = await db.tests_ligne.count_documents({
+                "partenaire_id": part_id,
+                "programme_id": prog_id,
+                "date_test": {"$gte": first_day, "$lte": last_day}
+            })
+            
+            # Collecter les tests manquants comme "tâches à faire"
+            if test_site_count == 0:
+                taches_tests.append({
+                    "partenaire_id": part_id,
+                    "partenaire_nom": part_nom,
+                    "programme_id": prog_id,
+                    "programme_nom": prog_nom,
+                    "type_test": "Site",
+                    "priorite": "normale"
+                })
+            
+            if test_ligne_count == 0:
+                taches_tests.append({
+                    "partenaire_id": part_id,
+                    "partenaire_nom": part_nom,
+                    "programme_id": prog_id,
+                    "programme_nom": prog_nom,
+                    "type_test": "Ligne",
+                    "priorite": "normale"
+                })
+    
+    # Incidents en cours (ouverts uniquement)
+    incidents_en_cours = await db.incidents.find(
+        {"statut": "ouvert"},
+        {"_id": 0}
+    ).to_list(1000)
+    
+    # Enrichir les incidents avec les noms de partenaires et programmes
+    for incident in incidents_en_cours:
+        # Récupérer le partenaire
+        partenaire = await db.partenaires.find_one(
+            {"id": incident.get("partenaire_id")},
+            {"_id": 0, "nom": 1}
+        )
+        incident["partenaire_nom"] = partenaire.get("nom") if partenaire else "Inconnu"
+        
+        # Récupérer le programme
+        programme = await db.programmes.find_one(
+            {"id": incident.get("programme_id")},
+            {"_id": 0, "nom": 1}
+        )
+        incident["programme_nom"] = programme.get("nom") if programme else "Inconnu"
+    
+    # Compter les tests effectués ce mois (pour message encourageant)
+    tests_effectues_mois = await db.tests_site.count_documents({
+        "date_test": {"$gte": first_day, "$lte": last_day}
+    }) + await db.tests_ligne.count_documents({
+        "date_test": {"$gte": first_day, "$lte": last_day}
+    })
+    
+    return {
+        "role": "agent",
+        "taches_tests": taches_tests,
+        "total_taches": len(taches_tests),
+        "incidents_en_cours": incidents_en_cours,
+        "total_incidents": len(incidents_en_cours),
+        "tests_effectues_mois": tests_effectues_mois,
+        "current_month": month,
+        "current_year": year,
+        "message_encourageant": get_encouragement_message(tests_effectues_mois)
+    }
+
+def get_encouragement_message(tests_count):
+    """Génère un message encourageant basé sur le nombre de tests effectués"""
+    if tests_count == 0:
+        return "C'est parti pour un nouveau mois ! 💪"
+    elif tests_count < 10:
+        return f"Bon début ! {tests_count} test{'s' if tests_count > 1 else ''} effectué{'s' if tests_count > 1 else ''} ce mois-ci 🎯"
+    elif tests_count < 30:
+        return f"Beau travail ! {tests_count} tests effectués ce mois-ci 🌟"
+    elif tests_count < 60:
+        return f"Excellent rythme ! {tests_count} tests effectués ce mois-ci 🚀"
+    else:
+        return f"Performance exceptionnelle ! {tests_count} tests effectués ce mois-ci 🏆"
+
+
 @api_router.get("/stats/dashboard")
 async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     from datetime import datetime, timezone
