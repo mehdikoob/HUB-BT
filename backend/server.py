@@ -109,6 +109,8 @@ class PartenaireBase(BaseModel):
     remise_minimum: Optional[float] = None  # Remise minimum attendue en %
     logo_url: Optional[str] = None
     contact_email: Optional[str] = None  # Email du contact principal
+    test_site_requis: bool = True  # Test site requis pour ce partenaire
+    test_ligne_requis: bool = True  # Test ligne requis pour ce partenaire
 
 class PartenaireCreate(PartenaireBase):
     pass
