@@ -36,6 +36,11 @@ const Dashboard = () => {
     );
   }
 
+  // Si l'utilisateur est un agent, afficher le dashboard simplifié
+  if (stats?.role === 'agent') {
+    return <AgentDashboard stats={stats} />;
+  }
+
   // Group tests by programme
   const groupTestsByProgramme = (tests) => {
     if (!tests || tests.length === 0) return [];
