@@ -1,77 +1,165 @@
-<analysis>
-The trajectory details the evolution of the HUB BLIND TESTS application, starting with the completion of a UI feature (Alertes column) and progressing through several major feature implementations. The AI engineer first successfully built a complex Messagerie (Messaging) section, including backend models (Pydantic), API endpoints (FastAPI), frontend UI (React), and full-stack testing.
+<analysis>**original_problem_statement:**
+The user initially requested the completion of the Paramètres (Settings) section, which involved implementing a full JWT-based authentication system with user roles.
+Over the session, the user added several new feature requests and bug fixes:
+1.  **Granular Permissions:** Introduce new Programme and Partenaire user roles with read-only, filtered access to data.
+2.  **Created By Column:** Display the name of the user who created a test, visible only to admins.
+3.  **Dashboard Enhancements:**
+    *   Fix an incorrect calculation for missing tests.
+    *   Add a color-coded status indicator for the missing tests metric.
+    *   Add a new metric for average tests per day.
+4.  **UI/UX Improvements:**
+    *   Add the company logo to the login page and hide default credentials.
+    *   Implement a change password feature for users in their settings.
+    *   Add a show/hide password (eye icon) toggle to password fields.
+5.  **Reporting:** Generate a downloadable PDF incident report for tests that have alerts.
+6.  **Partner Management:** Add a Promo Code field for each program associated with a partner.
+7.  **Bug Fixes:**
+    *   Sort the partner list alphabetically in test creation forms.
+    *   Fix an issue preventing phone number input for all programs when editing a partner.
+    *   Fix a JavaScript runtime error () on the partner page.
+8.  **Bilan Partenaire Rework:** A complete overhaul of the partner report generation feature, switching from a programmatic approach to using a specific user-provided PowerPoint template.
 
-Next, a challenging Bilan Partenaire (Partner Report) feature was tackled. This involved generating PowerPoint files. The initial approach, using a user-provided template, failed repeatedly due to technical limitations of the  library and led to several backend crashes and debugging cycles. A key incident involved a syntax error that made the database appear empty, which was correctly diagnosed as a code issue, not data loss. Ultimately, the template was abandoned in favor of generating the PPT programmatically from scratch, which proved successful after fixing multi-program logic and indentation errors.
+**User's preferred language**:
+French. The next agent MUST respond in French.
 
-The most recent task initiated is the Paramètres (Settings) section, which introduces user authentication (JWT), roles (Admin/Agent), and permissions. The work began on the backend, with the installation of dependencies and the addition of Pydantic models and core authentication helper functions to . The work is currently paused at this early stage of backend development for the authentication feature.
+**what currently exists?**
+The application is a full-stack platform for managing blind tests. It features:
+-   **Full Authentication System:** JWT-based login with four user roles (Admin, Agent, Programme, Partenaire).
+-   **Granular Access Control:** The UI and API endpoints are filtered based on the user's role and their associated Programme/Partner ID.
+-   **Core CRUD:** Management of Programmes, Partenaires, Tests Site, and Tests Ligne.
+-   **User Management:** A Paramètres page for admins to create, edit, and manage users, including role and programme/partenaire assignment. Users can also change their own passwords.
+-   **Advanced Dashboard:** Displays KPIs like test completion rate, success rate, open incidents, and average tests per day. Includes a color-coded indicator for missing tests.
+-   **Reporting:**
+    *   Generates downloadable PDF reports for individual incidents.
+    *   Has a Bilan Partenaire feature (pending a complete rework).
+-   **Data Integrity:** Tracks which user creates each test and incident.
 
-The user's primary language is French. The next agent must respond in French.
-</analysis>
-<product_requirements>
-The application, HUB BLIND TESTS, is a web-based platform designed to centralize and automate the management of blind testing operations for the company QWERTYS. It replaces manual processes with a streamlined digital workflow.
+**Last working item**:
+-   **Last item agent was working:** Implementing a show/hide password visibility toggle (eye icon) for the change password and create user forms within the Paramètres page.
+-   **Status:** USER VERIFICATION PENDING
+-   **Agent Testing Done:** Y (via screenshots)
+-   **Which testing method agent to use?** manual testing by screenshot tool
+-   **User Testing Done:** N
 
-**Implemented Features:**
-*   **Core Data Management:** CRUD interfaces for Programmes, Partenaires (Partners), and Tests (Site/Ligne).
-*   **Automated Incident Tracking:** The system automatically creates incidents based on predefined rules during test data entry (e.g., discount anomalies).
-*   **KPI Dashboard:** A central dashboard displays key metrics like test completion rates (tests effectués / tests attendus), success rates, and alerts for overdue tests.
-*   **Messaging Center:** A dedicated Messagerie section allows admins to manage and send emails to partners regarding incidents. It includes features for auto-generating drafts from templates, managing signatures, and viewing send history.
-*   **Partner Reporting:** A Bilan Partenaire feature generates detailed PowerPoint reports for a selected partner over a custom date range, covering all their associated programs.
+**All Pending/In progress Issue list**:
+-   **Issue 1:** Minor UI dropdown interaction issue in . (Priority: P2)
 
-**Feature in Progress:**
-*   **Settings & User Management (Paramètres):** A new section for managing user accounts, roles (Admin, Agent), and permissions. This includes a secure JWT-based login system and role-based access control to limit agent access to sensitive sections like Incidents and Messagerie.
-</product_requirements>
-<key_technical_concepts>
-- **Backend:** FastAPI, Pydantic, MongoDB (motor).
-- **Frontend:** React, Vite, Shadcn UI, Tailwind CSS, axios.
-- **Authentication:** JWT (JSON Web Tokens) using  and .
-- **File Generation:**  for programmatic PowerPoint creation.
-- **Email:** Python's built-in  for SMTP email sending.
-</key_technical_concepts>
-<code_architecture>
-The application is a standard full-stack monorepo with a React frontend and a FastAPI backend.
+**Issues Detail:**
+-   **Issue 1:**
+    -   **Description:** When creating a new user inside the dialog on the  page, the role selection dropdown has a  issue, causing it to render behind the dialog overlay. This was identified by the testing agent but deferred by the main agent as a minor issue.
+    -   **Attempted fixes:** None. The agent diagnosed it as a likely z-index issue with shadcn UI's  and  components but chose to proceed with more critical tasks.
+    -   **Next debug checklist:**
+        1.  Inspect the CSS properties of the  and the  components in .
+        2.  Try adding a higher  to the  component.
+        3.  If that fails, consider porting the  into a  to ensure it renders on top.
+    -   **Why fix this issue and what will be achieved with the fix?** To improve user experience and remove a minor UI glitch.
+    -   **Status:** NOT STARTED
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Frontend
+    -   **Blocked on other issue:** None
 
-**Directory Structure:**
+**In progress Task List**:
+None.
+
+**Upcoming and Future Tasks**
+-   **Upcoming Tasks:**
+    -   **Task 1: Rework Bilan Partenaire Generation (P0)**
+        -   **Description:** The user has requested a complete overhaul of the partner report generation. The current programmatic  implementation must be replaced with a new one that uses a specific template file () provided by the user. The agent needs to load this template, duplicate specific slides for each program associated with a partner, and populate them with data according to a strict structure.
+        -   **Where to resume:** The agent has already analyzed the user's new prompt and is waiting for the user to provide the template file. The work will involve significantly rewriting the  endpoint in .
+        -   **Status:** BLOCKED (waiting for user to provide the template file).
+
+**Completed work in this session**
+-   **Recently completed:**
+    -   Full backend & frontend authentication system implemented.
+    -   User management UI (, ) created.
+    -   Data migration to associate tests and incidents with users.
+    -   Granular role-based access control (Admin, Agent, Programme, Partenaire) implemented on frontend and backend.
+    -   Dashboard stats logic corrected and enhanced with a color-coded indicator and a new average tests/day metric.
+    -   Login page UI was updated with a logo, and default credentials were removed.
+    -   Password change functionality was added for users.
+    -   PDF incident report generation and download feature was added.
+    -   A Code Promo field was added to partner-program associations.
+    -   Bugs fixed: partner list sorting, partner phone number input, and a runtime JS error.
+    -   Password visibility toggle (eye icon) was added to password forms.
+
+**Earlier issues found/mentioned but not fixed**
+-   **Issue 1:** UI dropdown  issue in  (as detailed in All Pending/In progress Issue list).
+
+**Known issue recurrence from previous fork**
+None.
+
+**Code Architecture**
 
 
--   :
-    -   **Importance:** This is the monolithic backend file containing all API logic, database models, and business rules. It has grown significantly with each new feature.
-    -   **Summary of Changes:** Major additions were made for three features:
-        1.  **Messagerie:** Added Pydantic models (, , etc.), CRUD API endpoints for each, and SMTP logic for sending emails. The  function was modified to auto-generate an email draft.
-        2.  **Bilan Partenaire:** Added a complex  endpoint. The implementation evolved significantly, from a failed template-based approach to a final, from-scratch programmatic generation using  that handles multiple programs for a single partner.
-        3.  **Paramètres (Auth):** Added new dependencies (, ), Pydantic models for users and tokens (, , ), and core helper functions for password hashing, token creation, and user verification (, , ).
+**Key Technical Concepts**
+-   **Backend:** FastAPI, Pydantic, MongoDB (motor).
+-   **Frontend:** React, Vite, Shadcn UI, Tailwind CSS, axios, React Context.
+-   **Authentication:** JWT (JSON Web Tokens) with  and . Role-based access control (RBAC).
+-   **File Generation:**  (current, to be replaced),  (for PDF).
 
--   :
-    -   **Importance:** A new page created to provide the UI for generating partner reports.
-    -   **Summary of Changes:** The file was created from scratch. It contains a form with a partner dropdown and custom date range selectors (, ). It handles the API call to the backend and triggers the download of the generated  file.
+**key DB schema**
+-   **users:**  (new fields: , , ).
+-   **partenaires:**  (new field: ).
+-   **tests_site / tests_ligne / incidents:**  (new field: ).
 
--   :
-    -   **Importance:** A new page that serves as the UI for the entire messaging feature.
-    -   **Summary of Changes:** Created from scratch, it uses Shadcn UI's  component to provide separate views for Brouillons (Drafts), Templates, Signatures, and Historique (History). It implements all frontend logic for interacting with the corresponding backend APIs.
+**changes in tech stack**
+-    was added to the backend for PDF generation.
 
--    & :
-    -   **Importance:** These files manage application routing and the main navigation layout.
-    -   **Summary of Changes:** Both were updated to add routes and navigation links for the new Messagerie and Bilan Partenaire pages, making them accessible to the user.
-</code_architecture>
-<pending_tasks>
-- **Complete Paramètres Backend:** Create API endpoints for login (), user creation, and user management.
-- **Migrate Existing Data:** Update , , and other relevant models to include a  to track which user performed an action.
-- **Build Paramètres Frontend:** Create the UI for user management, role assignment, and password resets.
-- **Implement Role-Based Access Control (RBAC):** Restrict frontend UI elements (e.g., menu items) and backend API access based on the logged-in user's role (Admin or Agent).
-- **Build Statistics Page:** Implement the UI for viewing user contribution statistics.
-</pending_tasks>
-<current_work>
-The immediate past work focused on initiating the Paramètres (Settings) feature, which introduces user authentication and roles. The work was performed exclusively on the backend.
+**All files**
+-   **Created:**
+    -   : Provides authentication state (user, token, roles) to the entire app.
+    -   : The new user login page.
+    -   : UI for user management and changing own password.
+    -   : UI to display user contribution statistics.
+-   **Updated:**
+    -   : Major changes to add all auth endpoints, role-based data filtering, new report generation logic, and dashboard stat calculations.
+    -   : To add new routes and wrap the app in the .
+    -   : To make the navigation menu dynamic based on user role.
+    -    & : To enforce authentication on API calls and add the Created By column.
+    -   : To add the Code Promo field and fix multiple bugs related to data entry.
+    -   : To display new and corrected statistics.
+    -   : To add .
 
-1.  **Dependencies:**  and  were identified as necessary and confirmed to be installed.
-2.  **Backend Code ():**
-    *   **Constants & Configuration:** , , and  constants for JWT were added. A  for hashing was configured.
-    *   **Pydantic Models:** New models were created to handle user data and authentication tokens:
-        - ,  (includes )
-        - , 
-    *   **Authentication Helper Functions:** The core logic for handling security was added. This was the very last action taken. The following functions were created:
-        
-The implementation is paused at this stage. The next logical step is to create the actual API endpoints that will use these helper functions, such as the login route ().
-</current_work>
-<optional_next_step>
-I will now add the API endpoints for authentication () and user creation to , as this is the next logical step in building the Paramètres feature.
-</optional_next_step>
+**Areas that need refactoring**:
+None noted.
+
+**key api endpoints**
+-   : (POST) Authenticates a user and returns a JWT.
+-   : (GET) Returns the current logged-in user's data.
+-   : (GET, POST) Manage users (admin only).
+-   : (PUT, DELETE) Manage a specific user (admin only).
+-   : (GET) Returns all statistics for the main dashboard.
+-   : (GET) Generates and returns a PDF report for an incident.
+-   : (GET) The endpoint for partner reports, pending a complete rewrite.
+
+**Critical Info for New Agent**
+-   **The highest priority task is the complete rework of the Bilan Partenaire feature.** The current implementation must be discarded. The new implementation is **blocked** until the user provides the required PowerPoint template file: . You must ask the user for this file before starting.
+-   The user also needs to clarify the format of placeholders (e.g.,  or ) within the template.
+-   All new features and fixes from this session have been implemented, with the last one (password visibility toggle) pending explicit user verification.
+
+**documents created in this job**
+None.
+
+**Last 5 User Messages and any pending user messages**
+1.  **User (Analysis Request):** Asked the agent to explain its understanding of the Generate Bilan feature without taking any action. (COMPLETED)
+2.  **Agent:** Provided a detailed analysis of the current from-scratch PPT generation. (COMPLETED)
+3.  **User (New Prompt):** Provided a new, detailed prompt to completely change the Bilan Partenaire logic to use a specific template. (PENDING IMPLEMENTATION)
+4.  **Agent:** Analyzed the new prompt and correctly identified that it is blocked pending the user providing the template file. (COMPLETED)
+5.  **User (Feature Request):** Requested a show/hide password (eye icon) feature for password fields. (COMPLETED)
+
+**Project Health Check:**
+-   **Broken:** None. The application is functional.
+-   **Mocked:** None.
+
+**Testing status**
+-   **Testing agent used after significant changes:** YES ( was used to validate the auth endpoints).
+-   **Troubleshoot agent used after agent stuck in loop:** NO.
+-   **Test files created:** None.
+-   **Known regressions:** None.
+
+**Credentials to test flow:**
+-   **Admin:**  / 
+-   Other users (Agent, Programme, Partenaire) have been created during development and testing. Their credentials can be found in the database or recreated via the Paramètres page by the admin.
+
+**What agent forgot to execute**
+-   The agent intentionally deferred fixing a minor UI bug: the  of the role selection dropdown on the user creation dialog. It was deemed low priority.</analysis>
