@@ -1466,37 +1466,48 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         part_id = partenaire['id']
         part_nom = partenaire['nom']
         programmes_ids = partenaire.get('programmes_ids', [])
+        test_site_requis = partenaire.get('test_site_requis', True)
+        test_ligne_requis = partenaire.get('test_ligne_requis', True)
         
         # Pour chaque programme associé à ce partenaire
         for prog_id in programmes_ids:
             prog_nom = programmes_dict.get(prog_id, 'Programme inconnu')
-            tests_attendus += 2  # 1 site + 1 ligne
             
-            # Vérifier test site ce mois pour ce partenaire x programme
-            test_site_count = await db.tests_site.count_documents({
-                "partenaire_id": part_id,
-                "programme_id": prog_id,
-                "date_test": {"$gte": first_day, "$lte": last_day}
-            })
+            # Calculer les tests attendus selon la configuration du partenaire
+            tests_attendus_partenaire = 0
+            if test_site_requis:
+                tests_attendus_partenaire += 1
+            if test_ligne_requis:
+                tests_attendus_partenaire += 1
+            tests_attendus += tests_attendus_partenaire
             
-            # Vérifier test ligne ce mois pour ce partenaire x programme
-            test_ligne_count = await db.tests_ligne.count_documents({
-                "partenaire_id": part_id,
-                "programme_id": prog_id,
-                "date_test": {"$gte": first_day, "$lte": last_day}
-            })
+            # Vérifier test site ce mois (uniquement si requis)
+            test_site_count = 0
+            if test_site_requis:
+                test_site_count = await db.tests_site.count_documents({
+                    "partenaire_id": part_id,
+                    "programme_id": prog_id,
+                    "date_test": {"$gte": first_day, "$lte": last_day}
+                })
+                if test_site_count > 0:
+                    tests_effectues += 1
             
-            # Compter les tests effectués
-            if test_site_count > 0:
-                tests_effectues += 1
-            if test_ligne_count > 0:
-                tests_effectues += 1
+            # Vérifier test ligne ce mois (uniquement si requis)
+            test_ligne_count = 0
+            if test_ligne_requis:
+                test_ligne_count = await db.tests_ligne.count_documents({
+                    "partenaire_id": part_id,
+                    "programme_id": prog_id,
+                    "date_test": {"$gte": first_day, "$lte": last_day}
+                })
+                if test_ligne_count > 0:
+                    tests_effectues += 1
             
             # Collecter les tests manquants
             manquants = []
-            if test_site_count == 0:
+            if test_site_requis and test_site_count == 0:
                 manquants.append("Site")
-            if test_ligne_count == 0:
+            if test_ligne_requis and test_ligne_count == 0:
                 manquants.append("Ligne")
             
             if manquants:
