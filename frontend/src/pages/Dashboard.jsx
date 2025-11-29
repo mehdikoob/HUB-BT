@@ -344,4 +344,217 @@ const Dashboard = () => {
   );
 };
 
+// Dashboard simplifié pour les agents
+const AgentDashboard = ({ stats }) => {
+  // Grouper les tâches par programme
+  const groupTasksByProgramme = (taches) => {
+    if (!taches || taches.length === 0) return [];
+    
+    const grouped = {};
+    taches.forEach(tache => {
+      const progId = tache.programme_id;
+      const progNom = tache.programme_nom;
+      
+      if (!grouped[progId]) {
+        grouped[progId] = {
+          programme_id: progId,
+          programme_nom: progNom,
+          tests: []
+        };
+      }
+      
+      grouped[progId].tests.push({
+        partenaire_nom: tache.partenaire_nom,
+        type_test: tache.type_test,
+        priorite: tache.priorite
+      });
+    });
+    
+    return Object.values(grouped);
+  };
+
+  const groupedTasks = groupTasksByProgramme(stats?.taches_tests || []);
+
+  return (
+    <div data-testid="agent-dashboard">
+      {/* Header avec message encourageant */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
+          Mon Espace de Travail
+        </h1>
+        <p className="text-gray-600">{stats?.message_encourageant || 'Bienvenue !'}</p>
+      </div>
+
+      {/* Cartes de résumé */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Tâches à effectuer */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-lg bg-blue-50">
+                <ListTodo className="text-blue-600" size={24} />
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Tests à effectuer ce mois</p>
+              <p className="text-3xl font-bold text-gray-900">{stats?.total_taches || 0}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Incidents en cours */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-lg bg-orange-50">
+                <AlertCircle className="text-orange-600" size={24} />
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Incidents nécessitant un suivi</p>
+              <p className="text-3xl font-bold text-gray-900">{stats?.total_incidents || 0}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Liste des tâches à effectuer */}
+      {stats?.total_taches > 0 && (
+        <Card className="mb-6 border-0 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ListTodo className="text-blue-600" size={20} />
+              Tests à réaliser ce mois
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-4">
+              Voici la liste des tests qui doivent encore être effectués pour ce mois.
+            </p>
+            
+            {/* Groupés par programme */}
+            <div className="space-y-4">
+              {groupedTasks.slice(0, 10).map((programme, idx) => (
+                <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <h4 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
+                    <span className="bg-blue-100 px-2 py-1 rounded text-sm mr-2">Programme</span>
+                    {programme.programme_nom}
+                  </h4>
+                  <div className="space-y-2 pl-4">
+                    {programme.tests.slice(0, 8).map((test, tIdx) => (
+                      <div key={tIdx} className="flex items-center justify-between bg-white rounded px-3 py-2 border border-gray-100">
+                        <span className="text-sm font-medium text-gray-900">{test.partenaire_nom}</span>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          test.type_test === 'Site' 
+                            ? 'bg-red-100 text-red-700' 
+                            : 'bg-purple-100 text-purple-700'
+                        }`}>
+                          Test {test.type_test}
+                        </span>
+                      </div>
+                    ))}
+                    {programme.tests.length > 8 && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        ... et {programme.tests.length - 8} autre{programme.tests.length - 8 > 1 ? 's' : ''} test{programme.tests.length - 8 > 1 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {groupedTasks.length > 10 && (
+              <p className="text-sm text-gray-600 mt-4">
+                ... et {groupedTasks.length - 10} autre{groupedTasks.length - 10 > 1 ? 's' : ''} programme{groupedTasks.length - 10 > 1 ? 's' : ''}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Message si aucune tâche */}
+      {stats?.total_taches === 0 && (
+        <Card className="mb-6 border-0 shadow-sm bg-green-50">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <CheckCircle2 className="text-green-600" size={32} />
+              <div>
+                <h3 className="text-lg font-semibold text-green-900 mb-1">
+                  Tous les tests sont à jour ! 🎉
+                </h3>
+                <p className="text-green-800">
+                  Excellent travail ! Tous les tests mensuels ont été effectués.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Incidents en cours */}
+      {stats?.total_incidents > 0 && (
+        <Card className="mb-6 border-0 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="text-orange-600" size={20} />
+              Incidents en cours
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-4">
+              Ces incidents nécessitent un suivi ou une action.
+            </p>
+            
+            <div className="space-y-3">
+              {stats.incidents_en_cours.slice(0, 10).map((incident, idx) => (
+                <div key={idx} className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900">{incident.partenaire_nom}</p>
+                      <p className="text-sm text-gray-600">{incident.programme_nom}</p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      incident.type_test === 'TS' 
+                        ? 'bg-red-100 text-red-700' 
+                        : 'bg-purple-100 text-purple-700'
+                    }`}>
+                      Test {incident.type_test === 'TS' ? 'Site' : 'Ligne'}
+                    </span>
+                  </div>
+                  {incident.description && (
+                    <p className="text-sm text-gray-700 mt-2">{incident.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+            {stats.incidents_en_cours.length > 10 && (
+              <p className="text-sm text-gray-600 mt-4">
+                ... et {stats.incidents_en_cours.length - 10} autre{stats.incidents_en_cours.length - 10 > 1 ? 's' : ''} incident{stats.incidents_en_cours.length - 10 > 1 ? 's' : ''}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Message si aucun incident */}
+      {stats?.total_incidents === 0 && (
+        <Card className="mb-6 border-0 shadow-sm bg-green-50">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <CheckCircle2 className="text-green-600" size={32} />
+              <div>
+                <h3 className="text-lg font-semibold text-green-900 mb-1">
+                  Aucun incident en cours 👍
+                </h3>
+                <p className="text-green-800">
+                  Tout se passe bien ! Aucun incident à signaler pour le moment.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
 export default Dashboard;
