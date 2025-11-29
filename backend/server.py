@@ -113,7 +113,13 @@ class PartenaireBase(BaseModel):
     test_ligne_requis: bool = True  # Test ligne requis pour ce partenaire
 
 class PartenaireCreate(PartenaireBase):
-    pass
+    @classmethod
+    def model_validate(cls, obj):
+        """Validation : au moins un type de test doit être requis"""
+        instance = super().model_validate(obj)
+        if not instance.test_site_requis and not instance.test_ligne_requis:
+            raise ValueError('Au moins un type de test (Site ou Ligne) doit être requis')
+        return instance
 
 class Partenaire(PartenaireBase):
     model_config = ConfigDict(extra="ignore")
