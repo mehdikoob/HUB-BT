@@ -14,6 +14,38 @@ import { useAuth } from '../contexts/AuthContext';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+// Générer les options de mois/année pour les 24 derniers mois
+const generateMonthYearOptions = () => {
+  const options = [];
+  const now = new Date();
+  
+  for (let i = 0; i < 24; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const monthName = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const value = `${year}-${String(month).padStart(2, '0')}`;
+    
+    options.push({ value, label: monthName.charAt(0).toUpperCase() + monthName.slice(1) });
+  }
+  
+  return options;
+};
+
+// Convertir mois/année en dates début et fin complètes
+const monthYearToDateRange = (monthYear) => {
+  if (!monthYear) return { start: '', end: '' };
+  
+  const [year, month] = monthYear.split('-').map(Number);
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0, 23, 59, 59);
+  
+  return {
+    start: firstDay.toISOString(),
+    end: lastDay.toISOString()
+  };
+};
+
 const TestsLigne = () => {
   const { getAuthHeader } = useAuth();
   const [tests, setTests] = useState([]);
@@ -24,11 +56,14 @@ const TestsLigne = () => {
   const [editingTest, setEditingTest] = useState(null);
   const [bilanDialogOpen, setBilanDialogOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  
+  // Initialiser avec le mois en cours
+  const currentMonthYear = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
   const [filters, setFilters] = useState({
     programme_id: '',
     partenaire_id: '',
-    date_debut: '',
-    date_fin: '',
+    date_debut: currentMonthYear,
+    date_fin: currentMonthYear,
   });
   const [bilanData, setBilanData] = useState({
     partenaire_id: '',
