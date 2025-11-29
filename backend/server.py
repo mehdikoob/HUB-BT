@@ -1295,9 +1295,14 @@ async def export_incident_report(
 
 # Routes - Stats & Dashboard
 @api_router.get("/stats/dashboard")
-async def get_dashboard_stats():
+async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     from datetime import datetime, timezone
     
+    # Si l'utilisateur est un agent, retourner un dashboard simplifié
+    if current_user and current_user.role == "agent":
+        return await get_agent_dashboard_stats(current_user)
+    
+    # Pour les autres rôles (admin, programme, partenaire), le dashboard normal
     total_programmes = await db.programmes.count_documents({})
     total_partenaires = await db.partenaires.count_documents({})
     total_incidents_ouverts = await db.incidents.count_documents({"statut": "ouvert"})
