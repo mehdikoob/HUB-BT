@@ -111,13 +111,6 @@ class PartenaireBase(BaseModel):
     contact_email: Optional[str] = None  # Email du contact principal
     test_site_requis: bool = True  # Test site requis pour ce partenaire
     test_ligne_requis: bool = True  # Test ligne requis pour ce partenaire
-    
-    @field_validator('test_site_requis', 'test_ligne_requis')
-    def validate_at_least_one_test(cls, v, info):
-        """Validation : au moins un type de test doit être requis"""
-        if info.data.get('test_site_requis') == False and info.data.get('test_ligne_requis') == False:
-            raise ValueError('Au moins un type de test (Site ou Ligne) doit être requis')
-        return v
 
 class PartenaireCreate(PartenaireBase):
     pass
