@@ -971,3 +971,73 @@ agent_communication:
       - Self-Deletion Prevention: ✅ PASS
       
       All authentication and user management requirements from the review request have been successfully verified and are working correctly!
+---
+## Test Session - Dashboard Agent Simplifié
+**Date:** 2025-11-29
+**Feature:** Nouveau tableau de bord pour les agents
+
+### Modifications Effectuées
+
+#### Backend (`/app/backend/server.py`)
+1. ✅ Ajout de la fonction `get_agent_dashboard_stats()` qui retourne des données simplifiées pour les agents
+2. ✅ Ajout de la fonction `get_encouragement_message()` qui génère des messages positifs basés sur le nombre de tests
+3. ✅ Modification de l'endpoint `/api/stats/dashboard` pour détecter le rôle de l'utilisateur et retourner des données différentes
+
+#### Frontend (`/app/frontend/src/pages/Dashboard.jsx`)
+1. ✅ Ajout du composant `AgentDashboard` avec un design épuré
+2. ✅ Ajout de la logique pour afficher le dashboard agent ou le dashboard normal selon le rôle
+3. ✅ Import du contexte d'authentification pour envoyer le token JWT
+
+### Tests Effectués
+
+#### Test 1: Dashboard Agent
+- **Utilisateur:** test.agent@example.com / agent123
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Affiche "Mon Espace de Travail" au lieu de "Tableau de bord"
+  - Message encourageant : "Bon début ! 1 test effectué ce mois-ci 🎯"
+  - 2 cartes simples : "Tests à effectuer ce mois" (235) et "Incidents nécessitant un suivi" (4)
+  - Liste des tâches organisée par programme avec badges de type de test (Site/Ligne)
+  - Design épuré, tons neutres et positifs
+  - Pas de métriques anxiogènes (pas de taux de réussite, retard, comparaisons)
+
+#### Test 2: Dashboard Admin
+- **Utilisateur:** admin@hubblindtests.com / admin123
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Affiche le dashboard complet traditionnel
+  - Toutes les métriques de performance présentes
+  - Indicateurs de retard, taux de complétion, moyenne tests/jour
+  - Alertes visuelles (URGENT, Retard important)
+
+#### Test 3: Dashboard Partenaire
+- **Utilisateur:** rf@qwertys.fr / admin123
+- **Résultat:** ✅ SUCCÈS
+- **Observations:**
+  - Affiche le dashboard complet traditionnel
+  - Identique au dashboard admin
+
+### API Tests
+
+```bash
+# Test avec agent
+curl -X GET https://user-roles-6.preview.emergentagent.com/api/stats/dashboard \
+  -H "Authorization: Bearer <AGENT_TOKEN>"
+# Retourne: {"role": "agent", "taches_tests": [...], "total_taches": 235, ...}
+
+# Test avec admin
+curl -X GET https://user-roles-6.preview.emergentagent.com/api/stats/dashboard \
+  -H "Authorization: Bearer <ADMIN_TOKEN>"
+# Retourne: {"total_programmes": 8, "total_partenaires": 38, ...}
+```
+
+### Conclusion
+✅ **Tous les tests passent avec succès**
+
+Le nouveau dashboard agent est opérationnel et répond aux exigences :
+- Design épuré et non anxiogène
+- Focus sur les tâches à faire plutôt que sur les retards
+- Messages encourageants
+- Incidents affichés de manière neutre
+- Autres rôles (Admin, Programme, Partenaire) conservent le dashboard complet
+
