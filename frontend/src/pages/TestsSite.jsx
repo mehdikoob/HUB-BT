@@ -922,29 +922,43 @@ const TestsSite = () => {
             <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="filter-date-debut" className="text-sm text-gray-600 mb-1.5 block">
-                  Date de début
+                  Mois de début
                 </Label>
-                <Input
-                  id="filter-date-debut"
-                  type="date"
-                  data-testid="filter-date-debut"
+                <Select
                   value={filters.date_debut}
-                  onChange={(e) => setFilters({ ...filters, date_debut: e.target.value })}
-                  placeholder="Date de début"
-                />
+                  onValueChange={(value) => setFilters({ ...filters, date_debut: value })}
+                >
+                  <SelectTrigger id="filter-date-debut" data-testid="filter-date-debut">
+                    <SelectValue placeholder="Sélectionner un mois" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {generateMonthYearOptions().map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="filter-date-fin" className="text-sm text-gray-600 mb-1.5 block">
-                  Date de fin
+                  Mois de fin
                 </Label>
-                <Input
-                  id="filter-date-fin"
-                  type="date"
-                  data-testid="filter-date-fin"
+                <Select
                   value={filters.date_fin}
-                  onChange={(e) => setFilters({ ...filters, date_fin: e.target.value })}
-                  placeholder="Date de fin"
-                />
+                  onValueChange={(value) => setFilters({ ...filters, date_fin: value })}
+                >
+                  <SelectTrigger id="filter-date-fin" data-testid="filter-date-fin">
+                    <SelectValue placeholder="Sélectionner un mois" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {generateMonthYearOptions().map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             {(filters.date_debut || filters.date_fin) && (
