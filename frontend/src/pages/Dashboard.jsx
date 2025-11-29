@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle, BarChart3 } from 'lucide-react';
+import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle, BarChart3, CheckCircle2, ListTodo } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { useAuth } from '../contexts/AuthContext';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { getAuthHeader } = useAuth();
 
   useEffect(() => {
     fetchStats();
@@ -15,7 +17,9 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API}/stats/dashboard`);
+      const response = await axios.get(`${API}/stats/dashboard`, {
+        headers: getAuthHeader()
+      });
       setStats(response.data);
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error);
