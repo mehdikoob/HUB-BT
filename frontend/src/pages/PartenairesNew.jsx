@@ -496,6 +496,33 @@ const PartenairesNew = () => {
                 
                 {isExpanded && linkedProgrammes.length > 0 && (
                   <div className="mt-4 pt-4 border-t space-y-3">
+                    {/* URL du logo - Accordéon */}
+                    {partenaire.logo_url && (
+                      <div className="mb-4">
+                        <button
+                          onClick={() => setExpandedLogoId(expandedLogoId === partenaire.id ? null : partenaire.id)}
+                          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                        >
+                          <Link size={16} className="text-red-600" />
+                          <span className="font-medium">URL du logo</span>
+                          {expandedLogoId === partenaire.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                        {expandedLogoId === partenaire.id && (
+                          <div className="mt-2 ml-6 p-3 bg-gray-50 rounded text-sm text-gray-700 break-all">
+                            <a 
+                              href={partenaire.logo_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="hover:text-red-600 hover:underline flex items-center gap-1"
+                            >
+                              {partenaire.logo_url}
+                              <ExternalLink size={14} />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <h4 className="font-semibold text-gray-700 mb-3">Coordonnées par programme</h4>
                     {linkedProgrammes.map((progId) => {
                       const contact = getContactForProgramme(partenaire, progId);
