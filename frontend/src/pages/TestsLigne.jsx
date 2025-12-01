@@ -1026,23 +1026,18 @@ const TestsLigne = () => {
                       <span className="text-green-600 text-xs">✓ OK</span>
                     )}
                   </td>
-                  {/* Colonne visible uniquement pour les admins */}
-                  {useAuth().isAdmin() && (
-                    <td className="px-4 py-3 text-sm">
-                      {test.created_by ? (
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {test.created_by.prenom} {test.created_by.nom}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {test.created_by.role === 'admin' ? 'Admin' : test.created_by.role === 'agent' ? 'Agent' : test.created_by.role}
-                          </div>
+                  {/* Colonne "Créé par" - discrète et visible pour tous */}
+                  <td className="px-2 py-3 text-xs text-gray-500">
+                    {test.created_by ? (
+                      <div className="max-w-[100px]">
+                        <div className="truncate" title={`${test.created_by.prenom} ${test.created_by.nom}`}>
+                          {test.created_by.prenom} {test.created_by.nom?.charAt(0)}.
                         </div>
-                      ) : (
-                        <span className="text-gray-400 italic text-xs">Non assigné</span>
-                      )}
-                    </td>
-                  )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 italic">-</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-sm">
                     <div className="flex gap-1">
                       <Button
