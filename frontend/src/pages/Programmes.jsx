@@ -32,6 +32,13 @@ const Programmes = () => {
     fetchData();
   }, []);
 
+  // Réinitialiser l'accordéon quand le dialog se ferme
+  useEffect(() => {
+    if (!dialogOpen) {
+      setConnexionExpanded(false);
+    }
+  }, [dialogOpen]);
+
   const fetchData = async () => {
     try {
       const [progResponse, partResponse] = await Promise.all([
