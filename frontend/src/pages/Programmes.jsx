@@ -17,7 +17,14 @@ const Programmes = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProgramme, setEditingProgramme] = useState(null);
-  const [formData, setFormData] = useState({ nom: '', description: '', logo_url: '' });
+  const [formData, setFormData] = useState({ 
+    nom: '', 
+    description: '', 
+    logo_url: '',
+    url_plateforme: '',
+    identifiant: '',
+    mot_de_passe: ''
+  });
   const [selectedPartenairesIds, setSelectedPartenairesIds] = useState([]);
 
   useEffect(() => {
