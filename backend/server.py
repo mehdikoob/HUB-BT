@@ -1708,6 +1708,16 @@ async def export_bilan_site_excel(
     date_fin: str = Query(...)
 ):
     from datetime import datetime as dt
+    import locale
+    
+    # Essayer de définir la locale française
+    try:
+        locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+    except:
+        try:
+            locale.setlocale(locale.LC_TIME, 'fr_FR')
+        except:
+            pass  # Si pas de locale française, on utilisera l'anglais
     
     # Récupérer le partenaire
     partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
@@ -1728,6 +1738,14 @@ async def export_bilan_site_excel(
     }
     
     tests_site = await db.tests_site.find(query, {"_id": 0}).to_list(10000)
+    
+    # Grouper les tests par programme
+    tests_par_programme = {}
+    for test in tests_site:
+        prog_id = test['programme_id']
+        if prog_id not in tests_par_programme:
+            tests_par_programme[prog_id] = []
+        tests_par_programme[prog_id].append(test)
     
     # Créer le workbook Excel
     wb = Workbook()
