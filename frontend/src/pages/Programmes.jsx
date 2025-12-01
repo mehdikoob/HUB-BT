@@ -208,12 +208,22 @@ const Programmes = () => {
               </div>
               
               <div className="border-t pt-4 mt-4">
-                <h3 className="font-semibold text-gray-800 mb-3">Informations de connexion</h3>
-                <p className="text-xs text-gray-600 mb-3">
-                  Ces informations seront affichées lors de la création d'un test site pour faciliter la connexion des agents.
-                </p>
+                <button
+                  type="button"
+                  onClick={() => setConnexionExpanded(!connexionExpanded)}
+                  className="w-full flex items-center justify-between text-left hover:bg-gray-50 rounded p-2 transition-colors"
+                >
+                  <div>
+                    <h3 className="font-semibold text-gray-800 mb-1">Informations de connexion</h3>
+                    <p className="text-xs text-gray-600">
+                      Ces informations seront affichées lors de la création d'un test site
+                    </p>
+                  </div>
+                  {connexionExpanded ? <ChevronUp size={20} className="text-gray-600" /> : <ChevronDown size={20} className="text-gray-600" />}
+                </button>
                 
-                <div className="space-y-3">
+                {connexionExpanded && (
+                  <div className="space-y-3 mt-3 pt-3 border-t">
                   <div>
                     <Label htmlFor="url_plateforme">URL de la plateforme</Label>
                     <Input
