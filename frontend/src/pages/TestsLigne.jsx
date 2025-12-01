@@ -940,10 +940,8 @@ const TestsLigne = () => {
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Alertes</th>
-                {/* Colonne visible uniquement pour les admins */}
-                {useAuth().isAdmin() && (
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Créé par</th>
-                )}
+                {/* Colonne "Créé par" - discrète et visible pour tous */}
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500">Créé par</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
