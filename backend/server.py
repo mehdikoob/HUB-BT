@@ -1776,87 +1776,84 @@ async def export_bilan_site_excel(
         9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
     }
     
-    # Titre principal (ligne 1 fusionnée)
-    ws.merge_cells('A1:I1')
-    title_cell = ws['A1']
-    today = dt.now().strftime('%d/%m/%Y')
-    title_cell.value = f"BILAN TESTS SITE – {partenaire['nom']}"
-    title_cell.font = title_font
-    title_cell.alignment = title_alignment
-    ws.row_dimensions[1].height = 25
-    
-    # En-têtes (ligne 2)
-    headers = ['Date', 'Programme', 'Application remise', 'Prix public', 'Prix remisé', 
-               '% Remise', 'Naming', 'Cumul codes', 'Commentaire']
-    
-    for col_num, header in enumerate(headers, 1):
-        cell = ws.cell(row=2, column=col_num)
-        cell.value = header
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = header_alignment
-        cell.border = border_style
-    
-    ws.row_dimensions[2].height = 30
-    
-    # Données
-    for row_num, test in enumerate(tests_site, 3):
-        # Date
-        date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
-        try:
-            date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
-            date_formatted = date_obj.strftime('%d/%m/%Y %H:%M')
-        except:
-            date_formatted = date_str
+    # Créer une feuille par programme
+    for prog_id, tests in tests_par_programme.items():
+        programme_nom = programmes_dict.get(prog_id, prog_id)
         
-        programme_nom = programmes_dict.get(test['programme_id'], test['programme_id'])
+        # Créer la feuille (limiter le nom à 31 caractères pour Excel)
+        sheet_name = f"{partenaire['nom'][:15]} - {programme_nom[:12]}"
+        ws = wb.create_sheet(title=sheet_name)
         
-        row_data = [
-            date_formatted,
-            programme_nom,
-            'OUI' if test['application_remise'] else 'NON',
-            test['prix_public'],
-            test['prix_remise'],
-            test['pct_remise_calcule'],
-            test.get('naming_constate', ''),
-            'OUI' if test['cumul_codes'] else 'NON',
-            test.get('commentaire', '')
-        ]
+        # Titre principal (ligne 1 fusionnée)
+        ws.merge_cells('A1:F1')
+        title_cell = ws['A1']
+        title_cell.value = f"TESTS SITE – {partenaire['nom']} – {programme_nom}"
+        title_cell.font = title_font
+        title_cell.alignment = title_alignment
+        ws.row_dimensions[1].height = 25
         
-        for col_num, value in enumerate(row_data, 1):
-            cell = ws.cell(row=row_num, column=col_num)
-            cell.value = value
+        # En-têtes (ligne 2) - NOUVELLES COLONNES
+        headers = ['MOIS', 'DATE EXACTE', 'APPLICATION DE LA REMISE', 
+                   'Application claire (Prix GP vs Prix remisé)', 'Naming de la remise', 
+                   'Cumul des codes promos']
+        
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=2, column=col_num)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
             cell.border = border_style
+        
+        ws.row_dimensions[2].height = 30
+        
+        # Données
+        for row_num, test in enumerate(tests, 3):
+            # Date
+            date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
+            try:
+                date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
+                # MOIS : Février-2025
+                mois_nom = mois_fr.get(date_obj.month, date_obj.strftime('%B'))
+                mois_formatted = f"{mois_nom}-{date_obj.year}"
+                # DATE EXACTE : 15/02/2025
+                date_formatted = date_obj.strftime('%d/%m/%Y')
+            except:
+                mois_formatted = date_str[:7]
+                date_formatted = date_str
             
-            # Alignement
-            if col_num == 9:  # Commentaire
-                cell.alignment = cell_alignment_left
-            else:
+            # Application claire de la remise
+            prix_gp = test.get('prix_public', 0)
+            prix_remise = test.get('prix_remise', 0)
+            application_claire = f"{prix_gp}€ vs {prix_remise}€"
+            
+            row_data = [
+                mois_formatted,  # MOIS
+                date_formatted,  # DATE EXACTE
+                'Oui' if test.get('application_remise') else 'Non',  # APPLICATION DE LA REMISE
+                application_claire,  # Application claire
+                test.get('naming_constate', ''),  # Naming de la remise
+                'Oui' if test.get('cumul_codes') else 'Non',  # Cumul des codes promos
+            ]
+            
+            for col_num, value in enumerate(row_data, 1):
+                cell = ws.cell(row=row_num, column=col_num)
+                cell.value = value
+                cell.border = border_style
                 cell.alignment = cell_alignment_center
-            
-            # Format monétaire pour prix
-            if col_num in [4, 5]:  # Prix public et Prix remisé
-                cell.number_format = '#,##0.00 "€"'
-            
-            # Format pourcentage
-            if col_num == 6:  # % Remise
-                cell.number_format = '0.00"%"'
-    
-    # Ajuster largeurs de colonnes
-    column_widths = {
-        'A': 18,  # Date
-        'B': 20,  # Programme
-        'C': 18,  # Application remise
-        'D': 15,  # Prix public
-        'E': 15,  # Prix remisé
-        'F': 12,  # % Remise
-        'G': 30,  # Naming
-        'H': 15,  # Cumul codes
-        'I': 40   # Commentaire
-    }
-    
-    for col_letter, width in column_widths.items():
-        ws.column_dimensions[col_letter].width = width
+        
+        # Ajuster largeurs de colonnes
+        column_widths = {
+            'A': 18,  # MOIS
+            'B': 15,  # DATE EXACTE
+            'C': 25,  # APPLICATION DE LA REMISE
+            'D': 30,  # Application claire
+            'E': 30,  # Naming
+            'F': 25   # Cumul codes
+        }
+        
+        for col_letter, width in column_widths.items():
+            ws.column_dimensions[col_letter].width = width
     
     # Sauvegarder dans un buffer
     output = io.BytesIO()
