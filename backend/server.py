@@ -85,6 +85,9 @@ class ProgrammeBase(BaseModel):
     nom: str
     description: Optional[str] = None
     logo_url: Optional[str] = None
+    url_plateforme: Optional[str] = None  # URL de la plateforme du programme
+    identifiant: Optional[str] = None  # Identifiant de connexion
+    mot_de_passe: Optional[str] = None  # Mot de passe
 
 class ProgrammeCreate(ProgrammeBase):
     pass
