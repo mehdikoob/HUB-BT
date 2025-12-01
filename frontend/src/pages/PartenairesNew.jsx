@@ -306,39 +306,6 @@ const PartenairesNew = () => {
               </div>
               
               <div>
-                <Label className="text-base font-semibold mb-3 block">Types de tests requis</Label>
-                <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="test_site_requis"
-                      checked={formData.test_site_requis}
-                      onChange={(e) => setFormData({ ...formData, test_site_requis: e.target.checked })}
-                      className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
-                    />
-                    <Label htmlFor="test_site_requis" className="mb-0 cursor-pointer font-medium">
-                      Test Site requis
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="test_ligne_requis"
-                      checked={formData.test_ligne_requis}
-                      onChange={(e) => setFormData({ ...formData, test_ligne_requis: e.target.checked })}
-                      className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
-                    />
-                    <Label htmlFor="test_ligne_requis" className="mb-0 cursor-pointer font-medium">
-                      Test Ligne requis
-                    </Label>
-                  </div>
-                  <p className="text-xs text-gray-600 mt-2">
-                    Au moins un type de test doit être requis. Décochez un type si ce partenaire ne peut pas être testé sur ce canal.
-                  </p>
-                </div>
-              </div>
-              
-              <div>
                 <Label className="text-lg font-semibold mb-4 block">Programmes associés et coordonnées</Label>
                 <div className="space-y-4 border rounded-lg p-4 max-h-96 overflow-y-auto bg-gray-50">
                   {programmes.length === 0 ? (
