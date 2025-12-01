@@ -149,8 +149,10 @@ const TestsSite = () => {
     if (partenaire && partenaire.contacts_programmes) {
       const contact = partenaire.contacts_programmes.find(c => c.programme_id === programmeId);
       setPartenaireUrl(contact?.url_site || '');
+      setPartenaireReferer(contact?.referer || '');
     } else {
       setPartenaireUrl('');
+      setPartenaireReferer('');
     }
   };
 
