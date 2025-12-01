@@ -52,12 +52,6 @@ const PartenairesNew = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation : au moins un type de test doit être requis
-    if (!formData.test_site_requis && !formData.test_ligne_requis) {
-      toast.error('Au moins un type de test (Site ou Ligne) doit être requis');
-      return;
-    }
-    
     try {
       const submitData = {
         ...formData,
