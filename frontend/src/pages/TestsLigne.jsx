@@ -503,13 +503,13 @@ const TestsLigne = () => {
                 variant="outline"
                 className="border-red-600 text-red-600 hover:bg-red-50"
               >
-                <FileBarChart size={20} className="mr-2" />
-                Générer un bilan
+                <FileDown size={20} className="mr-2" />
+                Export
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>Générer un bilan partenaire</DialogTitle>
+                <DialogTitle>Export des tests</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div>
