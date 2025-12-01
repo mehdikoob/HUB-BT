@@ -1749,8 +1749,7 @@ async def export_bilan_site_excel(
     
     # Créer le workbook Excel
     wb = Workbook()
-    ws = wb.active
-    ws.title = "Tests site"
+    wb.remove(wb.active)  # Supprimer la feuille par défaut
     
     # Styles
     header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
@@ -1769,6 +1768,13 @@ async def export_bilan_site_excel(
         top=Side(style='thin', color='000000'),
         bottom=Side(style='thin', color='000000')
     )
+    
+    # Mapper mois en français
+    mois_fr = {
+        1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
+        5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
+        9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
+    }
     
     # Titre principal (ligne 1 fusionnée)
     ws.merge_cells('A1:I1')
