@@ -1943,85 +1943,89 @@ async def export_bilan_ligne_excel(
         bottom=Side(style='thin', color='000000')
     )
     
-    # Titre principal (ligne 1 fusionnée)
-    ws.merge_cells('A1:K1')
-    title_cell = ws['A1']
-    today = dt.now().strftime('%d/%m/%Y')
-    title_cell.value = f"BILAN TESTS LIGNE – {partenaire['nom']}"
-    title_cell.font = title_font
-    title_cell.alignment = title_alignment
-    ws.row_dimensions[1].height = 25
-    
-    # En-têtes (ligne 2)
-    headers = ['Date', 'Programme', 'Partenaire', 'N° de tél', 'Messagerie vocale dédiée', 
-               'Délai d\'attente', 'Nom du conseiller', 'Décroche dédiée', 
-               'Évaluation de l\'accueil', 'Application de l\'offre', 'Commentaire']
-    
-    for col_num, header in enumerate(headers, 1):
-        cell = ws.cell(row=2, column=col_num)
-        cell.value = header
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = header_alignment
-        cell.border = border_style
-    
-    ws.row_dimensions[2].height = 30
-    
-    # Données
-    for row_num, test in enumerate(tests_ligne, 3):
-        # Date
-        date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
-        try:
-            date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
-            date_formatted = date_obj.strftime('%d/%m/%Y %H:%M')
-        except:
-            date_formatted = date_str
-        
-        programme_nom = programmes_dict.get(test['programme_id'], test['programme_id'])
-        
-        # Récupérer le nom du partenaire
-        part = await db.partenaires.find_one({"id": test['partenaire_id']}, {"_id": 0})
-        partenaire_nom = part['nom'] if part else test['partenaire_id']
-        
-        row_data = [
-            date_formatted,
-            programme_nom,
-            partenaire_nom,
-            test['numero_telephone'],
-            'OUI' if test['messagerie_vocale_dediee'] else 'NON',
-            test['delai_attente'],
-            test.get('nom_conseiller', 'NC'),
-            'OUI' if test['decroche_dedie'] else 'NON',
-            test['evaluation_accueil'],
-            'OUI' if test['application_offre'] else 'NON',
-            test.get('commentaire', '')
-        ]
-        
-        for col_num, value in enumerate(row_data, 1):
-            cell = ws.cell(row=row_num, column=col_num)
-            cell.value = value
-            cell.border = border_style
-            
-            # Alignement
-            if col_num == 11:  # Commentaire
-                cell.alignment = cell_alignment_left
-            else:
-                cell.alignment = cell_alignment_center
-    
-    # Ajuster largeurs de colonnes
-    column_widths = {
-        'A': 18,  # Date
-        'B': 20,  # Programme
-        'C': 20,  # Partenaire
-        'D': 18,  # N° de tél
-        'E': 20,  # Messagerie vocale dédiée
-        'F': 15,  # Délai d'attente
-        'G': 20,  # Nom du conseiller
-        'H': 15,  # Décroche dédiée
-        'I': 20,  # Évaluation de l'accueil
-        'J': 18,  # Application de l'offre
-        'K': 40   # Commentaire
+    # Mapper mois en français
+    mois_fr = {
+        1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
+        5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
+        9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
     }
+    
+    # Créer une feuille par programme
+    for prog_id, tests in tests_par_programme.items():
+        programme_nom = programmes_dict.get(prog_id, prog_id)
+        
+        # Créer la feuille (limiter le nom à 31 caractères pour Excel)
+        sheet_name = f"{partenaire['nom'][:15]} - {programme_nom[:12]}"
+        ws = wb.create_sheet(title=sheet_name)
+        
+        # Titre principal (ligne 1 fusionnée)
+        ws.merge_cells('A1:I1')
+        title_cell = ws['A1']
+        title_cell.value = f"TESTS LIGNE – {partenaire['nom']} – {programme_nom}"
+        title_cell.font = title_font
+        title_cell.alignment = title_alignment
+        ws.row_dimensions[1].height = 25
+        
+        # En-têtes (ligne 2) - NOUVELLES COLONNES
+        headers = ['MOIS', 'DATE EXACTE', 'Numéro de téléphone', 'Messagerie Vocale dédiée', 
+                   'Délai d\'attente', 'Nom du conseiller', 'Décroche dédiée', 
+                   'Évaluation de l\'accueil', 'Application de l\'offre']
+        
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=2, column=col_num)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+            cell.border = border_style
+        
+        ws.row_dimensions[2].height = 30
+        
+        # Données
+        for row_num, test in enumerate(tests, 3):
+            # Date
+            date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
+            try:
+                date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
+                # MOIS : Février-2025
+                mois_nom = mois_fr.get(date_obj.month, date_obj.strftime('%B'))
+                mois_formatted = f"{mois_nom}-{date_obj.year}"
+                # DATE EXACTE : 15/02/2025
+                date_formatted = date_obj.strftime('%d/%m/%Y')
+            except:
+                mois_formatted = date_str[:7]
+                date_formatted = date_str
+            
+            row_data = [
+                mois_formatted,  # MOIS
+                date_formatted,  # DATE EXACTE
+                test.get('numero_telephone', ''),  # Numéro de téléphone
+                'Oui' if test.get('messagerie_vocale_dediee') else 'Non',  # Messagerie Vocale dédiée
+                test.get('delai_attente', ''),  # Délai d'attente
+                test.get('nom_conseiller', ''),  # Nom du conseiller
+                'Oui' if test.get('decroche_dedie') else 'Non',  # Décroche dédiée
+                test.get('evaluation_accueil', ''),  # Évaluation de l'accueil
+                'Oui' if test.get('application_offre') else 'Non',  # Application de l'offre
+            ]
+            
+            for col_num, value in enumerate(row_data, 1):
+                cell = ws.cell(row=row_num, column=col_num)
+                cell.value = value
+                cell.border = border_style
+                cell.alignment = cell_alignment_center
+        
+        # Ajuster largeurs de colonnes
+        column_widths = {
+            'A': 18,  # MOIS
+            'B': 15,  # DATE EXACTE
+            'C': 20,  # Numéro de téléphone
+            'D': 25,  # Messagerie Vocale dédiée
+            'E': 18,  # Délai d'attente
+            'F': 25,  # Nom du conseiller
+            'G': 18,  # Décroche dédiée
+            'H': 25,  # Évaluation de l'accueil
+            'I': 25   # Application de l'offre
+        }
     
     for col_letter, width in column_widths.items():
         ws.column_dimensions[col_letter].width = width
