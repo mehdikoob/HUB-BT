@@ -86,6 +86,7 @@ const TestsSite = () => {
   const [partenaireUrl, setPartenaireUrl] = useState('');
   const [partenaireReferer, setPartenaireReferer] = useState('');
   const [programmeInfo, setProgrammeInfo] = useState(null);
+  const [programmeInfoExpanded, setProgrammeInfoExpanded] = useState(false);
   const [filteredPartenaires, setFilteredPartenaires] = useState([]);
   const [filteredProgrammes, setFilteredProgrammes] = useState([]);
 
