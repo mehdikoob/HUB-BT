@@ -707,15 +707,23 @@ const TestsSite = () => {
                   </div>
                 </div>
                 
-                {/* Display Programme Info if available */}
+                {/* Display Programme Info if available - Accordéon replié par défaut */}
                 {programmeInfo && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <Label className="text-sm text-green-800 font-semibold mb-3 flex items-center gap-2">
-                      <Globe size={16} />
-                      Informations de connexion - {programmeInfo.nom}
-                    </Label>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <button
+                      type="button"
+                      onClick={() => setProgrammeInfoExpanded(!programmeInfoExpanded)}
+                      className="w-full flex items-center justify-between text-left hover:bg-green-100 rounded p-2 transition-colors"
+                    >
+                      <Label className="text-sm text-green-800 font-semibold flex items-center gap-2 cursor-pointer mb-0">
+                        <Globe size={16} />
+                        Informations de connexion - {programmeInfo.nom}
+                      </Label>
+                      {programmeInfoExpanded ? <ChevronUp size={18} className="text-green-700" /> : <ChevronDown size={18} className="text-green-700" />}
+                    </button>
                     
-                    <div className="space-y-3">
+                    {programmeInfoExpanded && (
+                      <div className="space-y-3 mt-3 pt-3 border-t border-green-300">
                       {programmeInfo.url_plateforme && (
                         <div>
                           <p className="text-xs text-green-700 font-medium mb-1">URL de la plateforme :</p>
