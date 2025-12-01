@@ -206,6 +206,58 @@ const Programmes = () => {
                 )}
               </div>
               
+              <div className="border-t pt-4 mt-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Informations de connexion</h3>
+                <p className="text-xs text-gray-600 mb-3">
+                  Ces informations seront affichées lors de la création d'un test site pour faciliter la connexion des agents.
+                </p>
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="url_plateforme">URL de la plateforme</Label>
+                    <Input
+                      id="url_plateforme"
+                      data-testid="programme-url-plateforme-input"
+                      value={formData.url_plateforme}
+                      onChange={(e) => setFormData({ ...formData, url_plateforme: e.target.value })}
+                      placeholder="https://admin.programme.fr"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      URL de connexion à la plateforme du programme
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="identifiant">Identifiant de connexion</Label>
+                    <Input
+                      id="identifiant"
+                      data-testid="programme-identifiant-input"
+                      value={formData.identifiant}
+                      onChange={(e) => setFormData({ ...formData, identifiant: e.target.value })}
+                      placeholder="agent@programme.fr"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Identifiant pour se connecter
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="mot_de_passe">Mot de passe</Label>
+                    <Input
+                      id="mot_de_passe"
+                      type="text"
+                      data-testid="programme-mot-de-passe-input"
+                      value={formData.mot_de_passe}
+                      onChange={(e) => setFormData({ ...formData, mot_de_passe: e.target.value })}
+                      placeholder="••••••••"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Mot de passe pour se connecter
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
               <div>
                 <Label>Partenaires associés</Label>
                 <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
