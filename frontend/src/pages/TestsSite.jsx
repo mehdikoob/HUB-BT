@@ -706,6 +706,98 @@ const TestsSite = () => {
                   </div>
                 </div>
                 
+                {/* Display Programme Info if available */}
+                {programmeInfo && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <Label className="text-sm text-green-800 font-semibold mb-3 flex items-center gap-2">
+                      <Globe size={16} />
+                      Informations de connexion - {programmeInfo.nom}
+                    </Label>
+                    
+                    <div className="space-y-3">
+                      {programmeInfo.url_plateforme && (
+                        <div>
+                          <p className="text-xs text-green-700 font-medium mb-1">URL de la plateforme :</p>
+                          <div className="flex items-center gap-2">
+                            <a 
+                              href={programmeInfo.url_plateforme} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-green-600 hover:text-green-800 underline font-medium text-sm break-all flex-1"
+                            >
+                              {programmeInfo.url_plateforme}
+                            </a>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                navigator.clipboard.writeText(programmeInfo.url_plateforme);
+                                toast.success('URL copiée !');
+                              }}
+                              className="h-8 px-2"
+                            >
+                              <Copy size={14} />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {programmeInfo.identifiant && (
+                        <div>
+                          <p className="text-xs text-green-700 font-medium mb-1 flex items-center gap-1">
+                            <User size={12} />
+                            Identifiant :
+                          </p>
+                          <div className="flex items-center gap-2 bg-white rounded px-3 py-2 border border-green-300">
+                            <code className="text-green-900 font-mono text-sm flex-1 break-all">
+                              {programmeInfo.identifiant}
+                            </code>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                navigator.clipboard.writeText(programmeInfo.identifiant);
+                                toast.success('Identifiant copié !');
+                              }}
+                              className="h-8 px-2"
+                            >
+                              <Copy size={14} />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {programmeInfo.mot_de_passe && (
+                        <div>
+                          <p className="text-xs text-green-700 font-medium mb-1 flex items-center gap-1">
+                            <Lock size={12} />
+                            Mot de passe :
+                          </p>
+                          <div className="flex items-center gap-2 bg-white rounded px-3 py-2 border border-green-300">
+                            <code className="text-green-900 font-mono text-sm flex-1 break-all">
+                              {programmeInfo.mot_de_passe}
+                            </code>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                navigator.clipboard.writeText(programmeInfo.mot_de_passe);
+                                toast.success('Mot de passe copié !');
+                              }}
+                              className="h-8 px-2"
+                            >
+                              <Copy size={14} />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
                 {/* Display URL if available */}
                 {partenaireUrl && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
