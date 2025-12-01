@@ -1320,12 +1320,13 @@ async def get_agent_dashboard_stats(user: User):
     for partenaire in partenaires:
         part_id = partenaire['id']
         part_nom = partenaire['nom']
-        programmes_ids = partenaire.get('programmes_ids', [])
-        test_site_requis = partenaire.get('test_site_requis', True)
-        test_ligne_requis = partenaire.get('test_ligne_requis', True)
+        contacts_programmes = partenaire.get('contacts_programmes', [])
         
-        for prog_id in programmes_ids:
+        for contact in contacts_programmes:
+            prog_id = contact.get('programme_id')
             prog_nom = programmes_dict.get(prog_id, 'Programme inconnu')
+            test_site_requis = contact.get('test_site_requis', True)
+            test_ligne_requis = contact.get('test_ligne_requis', True)
             
             # Vérifier test site ce mois (uniquement si requis)
             if test_site_requis:
