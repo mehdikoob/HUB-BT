@@ -96,26 +96,29 @@ const TestsLigne = () => {
     }
   }, [dialogOpen, editingTest]);
 
-  // Filter partenaires based on selected programme
+  // Filter partenaires based on selected programme (only those with test_ligne_requis=true for this programme)
   useEffect(() => {
     if (formData.programme_id) {
-      const filtered = partenaires.filter(p => 
-        p.programmes_ids && p.programmes_ids.includes(formData.programme_id)
-      );
+      const filtered = partenaires.filter(p => {
+        if (!p.contacts_programmes) return false;
+        const contact = p.contacts_programmes.find(c => c.programme_id === formData.programme_id);
+        return contact && contact.test_ligne_requis !== false;
+      });
       setFilteredPartenaires(filtered);
     } else {
       setFilteredPartenaires(partenaires);
     }
   }, [formData.programme_id, partenaires]);
 
-  // Filter programmes based on selected partenaire
+  // Filter programmes based on selected partenaire (only programmes with test_ligne_requis=true)
   useEffect(() => {
     if (formData.partenaire_id) {
       const partenaire = partenaires.find(p => p.id === formData.partenaire_id);
-      if (partenaire && partenaire.programmes_ids) {
-        const filtered = programmes.filter(prog => 
-          partenaire.programmes_ids.includes(prog.id)
-        );
+      if (partenaire && partenaire.contacts_programmes) {
+        const filtered = programmes.filter(prog => {
+          const contact = partenaire.contacts_programmes.find(c => c.programme_id === prog.id);
+          return contact && contact.test_ligne_requis !== false;
+        });
         setFilteredProgrammes(filtered);
       } else {
         setFilteredProgrammes(programmes);
