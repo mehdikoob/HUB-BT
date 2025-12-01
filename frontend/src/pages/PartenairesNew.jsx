@@ -333,6 +333,39 @@ const PartenairesNew = () => {
                           
                           {isSelected && (
                             <div className="ml-8 space-y-3 mt-3 pt-3 border-t">
+                              {/* Types de tests requis pour ce programme */}
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                                  Types de tests requis pour ce programme
+                                </Label>
+                                <div className="flex gap-4">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      id={`test_site-${prog.id}`}
+                                      checked={contact?.test_site_requis !== false}
+                                      onChange={(e) => updateContactProgramme(prog.id, 'test_site_requis', e.target.checked)}
+                                      className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                                    />
+                                    <Label htmlFor={`test_site-${prog.id}`} className="mb-0 cursor-pointer text-sm">
+                                      Test Site
+                                    </Label>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      id={`test_ligne-${prog.id}`}
+                                      checked={contact?.test_ligne_requis !== false}
+                                      onChange={(e) => updateContactProgramme(prog.id, 'test_ligne_requis', e.target.checked)}
+                                      className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                                    />
+                                    <Label htmlFor={`test_ligne-${prog.id}`} className="mb-0 cursor-pointer text-sm">
+                                      Test Ligne
+                                    </Label>
+                                  </div>
+                                </div>
+                              </div>
+                              
                               <div>
                                 <Label className="text-sm text-gray-600 flex items-center gap-2">
                                   <Globe size={16} />
@@ -349,6 +382,24 @@ const PartenairesNew = () => {
                                   Site web dédié du partenaire pour ce programme
                                 </p>
                               </div>
+                              
+                              <div>
+                                <Label className="text-sm text-gray-600 flex items-center gap-2">
+                                  <Link size={16} />
+                                  URL Referer
+                                </Label>
+                                <Input
+                                  data-testid={`referer-${prog.id}`}
+                                  value={contact?.referer || ''}
+                                  onChange={(e) => updateContactProgramme(prog.id, 'referer', e.target.value)}
+                                  placeholder="https://referer.exemple.com"
+                                  className="mt-1"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                  URL de référence pour effectuer les tests (optionnel)
+                                </p>
+                              </div>
+                              
                               <div>
                                 <Label className="text-sm text-gray-600 flex items-center gap-2">
                                   <FileText size={16} />
