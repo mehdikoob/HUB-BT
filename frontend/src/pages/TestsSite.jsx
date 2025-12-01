@@ -130,6 +130,20 @@ const TestsSite = () => {
     }
   }, [formData.partenaire_id, partenaires, programmes]);
 
+  // Get programme info when programme is selected
+  useEffect(() => {
+    if (formData.programme_id) {
+      const programme = programmes.find(p => p.id === formData.programme_id);
+      if (programme && (programme.url_plateforme || programme.identifiant || programme.mot_de_passe)) {
+        setProgrammeInfo(programme);
+      } else {
+        setProgrammeInfo(null);
+      }
+    } else {
+      setProgrammeInfo(null);
+    }
+  }, [formData.programme_id, programmes]);
+
   // Calculate discount percentage automatically
   const calculateRemisePercentage = () => {
     const prixPublic = parseFloat(formData.prix_public);
