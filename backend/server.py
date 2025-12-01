@@ -1460,21 +1460,22 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     for partenaire in partenaires:
         part_id = partenaire['id']
         part_nom = partenaire['nom']
-        programmes_ids = partenaire.get('programmes_ids', [])
-        test_site_requis = partenaire.get('test_site_requis', True)
-        test_ligne_requis = partenaire.get('test_ligne_requis', True)
+        contacts_programmes = partenaire.get('contacts_programmes', [])
         
         # Pour chaque programme associé à ce partenaire
-        for prog_id in programmes_ids:
+        for contact in contacts_programmes:
+            prog_id = contact.get('programme_id')
             prog_nom = programmes_dict.get(prog_id, 'Programme inconnu')
+            test_site_requis = contact.get('test_site_requis', True)
+            test_ligne_requis = contact.get('test_ligne_requis', True)
             
-            # Calculer les tests attendus selon la configuration du partenaire
-            tests_attendus_partenaire = 0
+            # Calculer les tests attendus selon la configuration du programme
+            tests_attendus_programme = 0
             if test_site_requis:
-                tests_attendus_partenaire += 1
+                tests_attendus_programme += 1
             if test_ligne_requis:
-                tests_attendus_partenaire += 1
-            tests_attendus += tests_attendus_partenaire
+                tests_attendus_programme += 1
+            tests_attendus += tests_attendus_programme
             
             # Vérifier test site ce mois (uniquement si requis)
             test_site_count = 0
