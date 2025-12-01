@@ -112,17 +112,9 @@ class PartenaireBase(BaseModel):
     remise_minimum: Optional[float] = None  # Remise minimum attendue en %
     logo_url: Optional[str] = None
     contact_email: Optional[str] = None  # Email du contact principal
-    test_site_requis: bool = True  # Test site requis pour ce partenaire
-    test_ligne_requis: bool = True  # Test ligne requis pour ce partenaire
 
 class PartenaireCreate(PartenaireBase):
-    @classmethod
-    def model_validate(cls, obj):
-        """Validation : au moins un type de test doit être requis"""
-        instance = super().model_validate(obj)
-        if not instance.test_site_requis and not instance.test_ligne_requis:
-            raise ValueError('Au moins un type de test (Site ou Ligne) doit être requis')
-        return instance
+    pass
 
 class Partenaire(PartenaireBase):
     model_config = ConfigDict(extra="ignore")
