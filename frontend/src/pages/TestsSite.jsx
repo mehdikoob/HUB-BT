@@ -97,6 +97,10 @@ const TestsSite = () => {
       const formattedDate = format(now, "yyyy-MM-dd'T'HH:mm");
       setFormData(prev => ({ ...prev, date_test: formattedDate }));
     }
+    // Réinitialiser l'accordéon quand le dialog se ferme
+    if (!dialogOpen) {
+      setProgrammeInfoExpanded(false);
+    }
   }, [dialogOpen, editingTest]);
 
   // Filter partenaires based on selected programme (only those with test_site_requis=true for this programme)
