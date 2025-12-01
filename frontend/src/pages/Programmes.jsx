@@ -89,7 +89,10 @@ const Programmes = () => {
     setFormData({ 
       nom: programme.nom, 
       description: programme.description || '',
-      logo_url: programme.logo_url || ''
+      logo_url: programme.logo_url || '',
+      url_plateforme: programme.url_plateforme || '',
+      identifiant: programme.identifiant || '',
+      mot_de_passe: programme.mot_de_passe || ''
     });
     
     // Find partenaires linked to this programme
