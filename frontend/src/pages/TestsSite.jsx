@@ -84,6 +84,7 @@ const TestsSite = () => {
   });
   const [uploadingFile, setUploadingFile] = useState(false);
   const [partenaireUrl, setPartenaireUrl] = useState('');
+  const [partenaireReferer, setPartenaireReferer] = useState('');
   const [filteredPartenaires, setFilteredPartenaires] = useState([]);
   const [filteredProgrammes, setFilteredProgrammes] = useState([]);
 
