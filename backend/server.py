@@ -100,6 +100,9 @@ class ProgrammeContact(BaseModel):
     url_site: Optional[str] = None
     code_promo: Optional[str] = None
     numero_telephone: Optional[str] = None
+    referer: Optional[str] = None  # URL Referer pour les tests
+    test_site_requis: bool = True  # Test site requis pour ce programme
+    test_ligne_requis: bool = True  # Test ligne requis pour ce programme
 
 class PartenaireBase(BaseModel):
     nom: str
