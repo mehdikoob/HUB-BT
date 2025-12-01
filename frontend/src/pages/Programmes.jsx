@@ -266,7 +266,8 @@ const Programmes = () => {
                       Mot de passe pour se connecter
                     </p>
                   </div>
-                </div>
+                  </div>
+                )}
               </div>
               
               <div>
