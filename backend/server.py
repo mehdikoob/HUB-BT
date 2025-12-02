@@ -2525,7 +2525,10 @@ async def register(user_create: UserCreate, current_user: User = Depends(get_cur
         nom=user_create.nom,
         prenom=user_create.prenom,
         role=user_create.role,
-        is_active=user_create.is_active
+        is_active=user_create.is_active,
+        programme_id=user_create.programme_id,
+        partenaire_id=user_create.partenaire_id,
+        programme_ids=user_create.programme_ids
     )
     
     user_dict = user.model_dump()
@@ -2603,7 +2606,10 @@ async def create_user(user_create: UserCreate, current_user: User = Depends(get_
         nom=user_create.nom,
         prenom=user_create.prenom,
         role=user_create.role,
-        is_active=user_create.is_active
+        is_active=user_create.is_active,
+        programme_id=user_create.programme_id,
+        partenaire_id=user_create.partenaire_id,
+        programme_ids=user_create.programme_ids
     )
     
     user_dict = user.model_dump()
