@@ -275,15 +275,21 @@ const Parametres = () => {
   };
 
   const getRoleBadge = (role) => {
-    return role === 'admin' ? (
-      <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
-        <Shield className="h-3 w-3 mr-1" />
-        Admin
-      </Badge>
-    ) : (
-      <Badge variant="secondary">
-        <UserCog className="h-3 w-3 mr-1" />
-        Agent
+    const roleConfig = {
+      admin: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Admin', icon: Shield },
+      chef_projet: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Chef de projet', icon: Shield },
+      agent: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Agent', icon: UserCog },
+      programme: { bg: 'bg-green-100', text: 'text-green-800', label: 'Programme', icon: UserCog },
+      partenaire: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Partenaire', icon: UserCog }
+    };
+    
+    const config = roleConfig[role] || roleConfig.agent;
+    const Icon = config.icon;
+    
+    return (
+      <Badge className={`${config.bg} ${config.text} hover:${config.bg}`}>
+        <Icon className="h-3 w-3 mr-1" />
+        {config.label}
       </Badge>
     );
   };
