@@ -128,6 +128,7 @@ const Parametres = () => {
         programme_ids: []  // Pour les chefs de projet
       });
     }
+    setShowPassword(false);  // Réinitialiser la visibilité du mot de passe
     setDialogOpen(true);
   };
 
