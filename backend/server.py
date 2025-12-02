@@ -309,6 +309,7 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     programme_id: Optional[str] = None
     partenaire_id: Optional[str] = None
+    programme_ids: Optional[List[str]] = None  # Pour les chefs de projet
 
 class User(UserBase):
     model_config = ConfigDict(extra="ignore")
