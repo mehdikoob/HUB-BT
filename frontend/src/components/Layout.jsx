@@ -142,15 +142,19 @@ const Layout = () => {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         {/* Mobile Header */}
-        <div className="md:hidden bg-white border-b border-gray-200 p-4 sticky top-0 z-30">
+        {/* Header (Mobile & Desktop) */}
+        <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-30">
           <div className="flex items-center justify-between">
+            {/* Mobile menu button */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-700 hover:text-red-600"
+              className="md:hidden text-gray-700 hover:text-red-600"
             >
               <Menu size={24} />
             </button>
-            <div className="flex items-center gap-2">
+            
+            {/* Logo (mobile only) */}
+            <div className="flex items-center gap-2 md:hidden">
               <div className="bg-red-600 p-1.5 rounded">
                 <Glasses className="text-white" size={18} />
               </div>
@@ -158,7 +162,16 @@ const Layout = () => {
                 QWERTYS
               </span>
             </div>
-            <div className="w-6" />
+            
+            {/* Spacer for desktop */}
+            <div className="hidden md:block flex-1" />
+            
+            {/* Notification Center (visible pour admin et chef_projet uniquement) */}
+            <div className="flex items-center gap-3">
+              {(user?.role === 'admin' || user?.role === 'chef_projet') && (
+                <NotificationCenter />
+              )}
+            </div>
           </div>
         </div>
         
