@@ -215,6 +215,23 @@ class Alerte(AlerteBase):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     resolved_at: Optional[datetime] = None
 
+# Models - Notification
+class NotificationBase(BaseModel):
+    user_id: str  # Chef de projet qui reçoit la notification
+    alerte_id: str  # ID de l'alerte concernée
+    programme_id: str  # Programme concerné
+    partenaire_id: str  # Partenaire concerné
+    message: str  # Message de la notification
+    read: bool = False  # Notification lue ou non
+
+class NotificationCreate(NotificationBase):
+    pass
+
+class Notification(NotificationBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 # Models - Email Template
 class EmailTemplateBase(BaseModel):
     name: str
