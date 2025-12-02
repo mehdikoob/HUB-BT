@@ -576,7 +576,7 @@ const Messagerie = () => {
               <Input
                 value={templateForm.name}
                 onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-                placeholder="Ex: Template incident remise"
+                placeholder="Ex: Template alerte remise"
               />
             </div>
             <div>

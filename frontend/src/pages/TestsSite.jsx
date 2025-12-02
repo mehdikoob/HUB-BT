@@ -397,10 +397,10 @@ const TestsSite = () => {
     }
   };
 
-  const handleDownloadIncidentReport = async (testId) => {
+  const handleDownloadAlerteReport = async (testId) => {
     try {
       const response = await axios.get(
-        `${API}/export-incident-report/${testId}?test_type=site`,
+        `${API}/export-alerte-report/${testId}?test_type=site`,
         {
           headers: getAuthHeader(),
           responseType: 'blob'
@@ -1301,8 +1301,8 @@ const TestsSite = () => {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleDownloadIncidentReport(test.id)}
-                          title="Télécharger le rapport d'incident"
+                          onClick={() => handleDownloadAlerteReport(test.id)}
+                          title="Télécharger le rapport d'alerte"
                         >
                           <FileDown size={16} className="text-orange-600" />
                         </Button>

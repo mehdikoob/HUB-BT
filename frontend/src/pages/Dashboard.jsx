@@ -97,7 +97,7 @@ const Dashboard = () => {
       alert: stats?.indicateur_couleur === 'red',
     },
     {
-      title: 'Incidents Ouverts',
+      title: 'Alertes Ouverts',
       value: stats?.total_incidents_ouverts || 0,
       icon: AlertCircle,
       color: 'text-purple-600',
@@ -402,7 +402,7 @@ const AgentDashboard = ({ stats }) => {
           </CardContent>
         </Card>
 
-        {/* Incidents en cours */}
+        {/* Alertes en cours */}
         <Card className="border-0 shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -411,7 +411,7 @@ const AgentDashboard = ({ stats }) => {
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Incidents nécessitant un suivi</p>
+              <p className="text-sm text-gray-600 mb-1">Alertes nécessitant un suivi</p>
               <p className="text-3xl font-bold text-gray-900">{stats?.total_incidents || 0}</p>
             </div>
           </CardContent>
@@ -490,52 +490,52 @@ const AgentDashboard = ({ stats }) => {
         </Card>
       )}
 
-      {/* Incidents en cours */}
+      {/* Alertes en cours */}
       {stats?.total_incidents > 0 && (
         <Card className="mb-6 border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="text-orange-600" size={20} />
-              Incidents en cours
+              Alertes en cours
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-4">
-              Ces incidents nécessitent un suivi ou une action.
+              Ces alertes nécessitent un suivi ou une action.
             </p>
             
             <div className="space-y-3">
-              {stats.incidents_en_cours.slice(0, 10).map((incident, idx) => (
+              {stats.incidents_en_cours.slice(0, 10).map((alerte, idx) => (
                 <div key={idx} className="bg-orange-50 rounded-lg p-4 border border-orange-200">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900">{incident.partenaire_nom}</p>
-                      <p className="text-sm text-gray-600">{incident.programme_nom}</p>
+                      <p className="font-semibold text-gray-900">{alerte.partenaire_nom}</p>
+                      <p className="text-sm text-gray-600">{alerte.programme_nom}</p>
                     </div>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      incident.type_test === 'TS' 
+                      alerte.type_test === 'TS' 
                         ? 'bg-red-100 text-red-700' 
                         : 'bg-purple-100 text-purple-700'
                     }`}>
-                      Test {incident.type_test === 'TS' ? 'Site' : 'Ligne'}
+                      Test {alerte.type_test === 'TS' ? 'Site' : 'Ligne'}
                     </span>
                   </div>
-                  {incident.description && (
-                    <p className="text-sm text-gray-700 mt-2">{incident.description}</p>
+                  {alerte.description && (
+                    <p className="text-sm text-gray-700 mt-2">{alerte.description}</p>
                   )}
                 </div>
               ))}
             </div>
             {stats.incidents_en_cours.length > 10 && (
               <p className="text-sm text-gray-600 mt-4">
-                ... et {stats.incidents_en_cours.length - 10} autre{stats.incidents_en_cours.length - 10 > 1 ? 's' : ''} incident{stats.incidents_en_cours.length - 10 > 1 ? 's' : ''}
+                ... et {stats.incidents_en_cours.length - 10} autre{stats.incidents_en_cours.length - 10 > 1 ? 's' : ''} alerte{stats.incidents_en_cours.length - 10 > 1 ? 's' : ''}
               </p>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* Message si aucun incident */}
+      {/* Message si aucun alerte */}
       {stats?.total_incidents === 0 && (
         <Card className="mb-6 border-0 shadow-sm bg-green-50">
           <CardContent className="p-6">
@@ -543,10 +543,10 @@ const AgentDashboard = ({ stats }) => {
               <CheckCircle2 className="text-green-600" size={32} />
               <div>
                 <h3 className="text-lg font-semibold text-green-900 mb-1">
-                  Aucun incident en cours 👍
+                  Aucun alerte en cours 👍
                 </h3>
                 <p className="text-green-800">
-                  Tout se passe bien ! Aucun incident à signaler pour le moment.
+                  Tout se passe bien ! Aucun alerte à signaler pour le moment.
                 </p>
               </div>
             </div>

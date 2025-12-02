@@ -41,7 +41,7 @@ const Statistiques = () => {
     return stats.reduce((sum, stat) => sum + stat.total_tests, 0);
   };
 
-  const getTotalIncidents = () => {
+  const getTotalAlertes = () => {
     return stats.reduce((sum, stat) => sum + stat.incidents_count, 0);
   };
 
@@ -102,11 +102,11 @@ const Statistiques = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Incidents</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Alertes</CardTitle>
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{getTotalIncidents()}</div>
+            <div className="text-2xl font-bold">{getTotalAlertes()}</div>
             <p className="text-xs text-muted-foreground">
               Détectés par les utilisateurs
             </p>
@@ -135,7 +135,7 @@ const Statistiques = () => {
                   <th className="text-center py-3 px-4">Tests Site</th>
                   <th className="text-center py-3 px-4">Tests Ligne</th>
                   <th className="text-center py-3 px-4">Total Tests</th>
-                  <th className="text-center py-3 px-4">Incidents</th>
+                  <th className="text-center py-3 px-4">Alertes</th>
                   <th className="text-left py-3 px-4">Statut</th>
                 </tr>
               </thead>
