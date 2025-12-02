@@ -97,7 +97,12 @@ const Layout = () => {
                     }`}
                   >
                     <Icon size={20} />
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
+                    {item.wip && (
+                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-medium">
+                        WIP
+                      </span>
+                    )}
                   </Link>
                 </li>
               );
