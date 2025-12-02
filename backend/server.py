@@ -405,7 +405,7 @@ async def send_email_smtp(recipient: str, subject: str, body: str, signature: st
         logging.error(f"SMTP Error: {str(e)}")
         return {"status": "error", "message": str(e)}
 
-async def create_email_draft_for_incident(incident_id: str):
+async def create_email_draft_for_alerte(incident_id: str):
     """Automatically create an email draft when an incident is created"""
     try:
         # Get incident
@@ -495,7 +495,7 @@ async def check_and_create_alerte(test_id: str, type_test: TypeTest, description
     await db.alertes.insert_one(doc)
     
     # Automatically create email draft for this incident
-    await create_email_draft_for_incident(incident.id)
+    await create_email_draft_for_alerte(incident.id)
 
 # Authentication helper functions
 def verify_password(plain_password, hashed_password):
