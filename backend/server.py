@@ -521,6 +521,46 @@ async def check_and_create_alerte(test_id: str, type_test: TypeTest, description
     if programme_id:
         await create_notifications_for_chefs_projet(alerte.id, programme_id, partenaire_id, description)
 
+async def create_notifications_for_chefs_projet(alerte_id: str, programme_id: str, partenaire_id: str, description: str):
+    """Créer des notifications pour les chefs de projet concernés par cette alerte"""
+    try:
+        # Trouver tous les chefs de projet qui ont ce programme dans leur liste
+        chefs_projet = await db.users.find({
+            "role": "chef_projet",
+            "is_active": True,
+            "programme_ids": programme_id
+        }, {"_id": 0}).to_list(100)
+        
+        if not chefs_projet:
+            return
+        
+        # Récupérer les noms du programme et partenaire pour le message
+        programme = await db.programmes.find_one({"id": programme_id}, {"_id": 0, "nom": 1})
+        partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0, "nom": 1})
+        
+        programme_nom = programme.get('nom') if programme else 'Programme inconnu'
+        partenaire_nom = partenaire.get('nom') if partenaire else 'Partenaire inconnu'
+        
+        # Créer une notification pour chaque chef de projet concerné
+        for chef in chefs_projet:
+            notification = Notification(
+                user_id=chef['id'],
+                alerte_id=alerte_id,
+                programme_id=programme_id,
+                partenaire_id=partenaire_id,
+                message=f"[{programme_nom}] - {partenaire_nom} : {description[:100]}",
+                read=False
+            )
+            
+            doc = notification.model_dump()
+            doc['created_at'] = doc['created_at'].isoformat()
+            await db.notifications.insert_one(doc)
+        
+        print(f"✅ {len(chefs_projet)} notification(s) créée(s) pour l'alerte {alerte_id}")
+        
+    except Exception as e:
+        print(f"❌ Erreur lors de la création des notifications: {str(e)}")
+
 # Authentication helper functions
 def verify_password(plain_password, hashed_password):
     """Verify a password against its hash"""
