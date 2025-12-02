@@ -653,6 +653,11 @@ const Parametres = () => {
                         )}
                       </p>
                       <p className="text-sm text-gray-600">{user.email}</p>
+                      {user.role === 'chef_projet' && user.programme_ids && user.programme_ids.length > 0 && (
+                        <p className="text-xs text-blue-600 mt-1">
+                          📋 {user.programme_ids.length} programme(s) affilié(s)
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
