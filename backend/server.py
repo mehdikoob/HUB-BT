@@ -66,7 +66,7 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # Enums
-class StatutIncident(str, Enum):
+class StatutAlerte(str, Enum):
     ouvert = "ouvert"
     resolu = "resolu"
 
