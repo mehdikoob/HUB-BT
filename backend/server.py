@@ -336,7 +336,7 @@ def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float
 async def replace_template_variables(template_text: str, incident_id: str) -> str:
     """Replace template variables with actual data from incident"""
     # Get incident data
-    incident = await db.incidents.find_one({"id": incident_id})
+    incident = await db.alertes.find_one({"id": incident_id})
     if not incident:
         return template_text
     
@@ -409,7 +409,7 @@ async def create_email_draft_for_incident(incident_id: str):
     """Automatically create an email draft when an incident is created"""
     try:
         # Get incident
-        incident = await db.incidents.find_one({"id": incident_id})
+        incident = await db.alertes.find_one({"id": incident_id})
         if not incident:
             return
         
@@ -492,7 +492,7 @@ async def check_and_create_incident(test_id: str, type_test: TypeTest, descripti
     )
     doc = incident.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
-    await db.incidents.insert_one(doc)
+    await db.alertes.insert_one(doc)
     
     # Automatically create email draft for this incident
     await create_email_draft_for_incident(incident.id)
@@ -1057,7 +1057,7 @@ async def get_incidents(
     if statut:
         query['statut'] = statut
     
-    incidents = await db.incidents.find(query, {"_id": 0}).to_list(1000)
+    incidents = await db.alertes.find(query, {"_id": 0}).to_list(1000)
     for i in incidents:
         if isinstance(i.get('created_at'), str):
             i['created_at'] = datetime.fromisoformat(i['created_at'])
@@ -1072,7 +1072,7 @@ async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None))
     if statut:
         query['statut'] = statut
     
-    incidents = await db.incidents.find(query, {"_id": 0}).to_list(1000)
+    incidents = await db.alertes.find(query, {"_id": 0}).to_list(1000)
     
     # Enrich with programme and partenaire data
     for incident in incidents:
@@ -1097,17 +1097,17 @@ async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None))
 
 @api_router.put("/incidents/{incident_id}", response_model=Incident)
 async def resolve_incident(incident_id: str):
-    existing = await db.incidents.find_one({"id": incident_id})
+    existing = await db.alertes.find_one({"id": incident_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Incident non trouvé")
     
     resolved_at = datetime.now(timezone.utc).isoformat()
-    await db.incidents.update_one(
+    await db.alertes.update_one(
         {"id": incident_id},
         {"$set": {"statut": StatutIncident.resolu, "resolved_at": resolved_at}}
     )
     
-    updated = await db.incidents.find_one({"id": incident_id}, {"_id": 0})
+    updated = await db.alertes.find_one({"id": incident_id}, {"_id": 0})
     if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
     if updated.get('resolved_at') and isinstance(updated['resolved_at'], str):
@@ -1117,7 +1117,7 @@ async def resolve_incident(incident_id: str):
 @api_router.delete("/incidents/{incident_id}")
 async def delete_incident(incident_id: str):
     """Delete an incident (only if resolved)"""
-    existing = await db.incidents.find_one({"id": incident_id})
+    existing = await db.alertes.find_one({"id": incident_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Incident non trouvé")
     
@@ -1125,7 +1125,7 @@ async def delete_incident(incident_id: str):
     if existing.get('statut') != StatutIncident.resolu:
         raise HTTPException(status_code=400, detail="Seuls les incidents résolus peuvent être supprimés")
     
-    result = await db.incidents.delete_one({"id": incident_id})
+    result = await db.alertes.delete_one({"id": incident_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Incident non trouvé")
     
@@ -1154,7 +1154,7 @@ async def export_incident_report(
         raise HTTPException(status_code=404, detail="Test non trouvé")
     
     # Récupérer les incidents liés à ce test
-    incidents = await db.incidents.find({"test_id": test_id}).to_list(length=None)
+    incidents = await db.alertes.find({"test_id": test_id}).to_list(length=None)
     
     if not incidents:
         raise HTTPException(status_code=404, detail="Aucun incident trouvé pour ce test")
@@ -1380,7 +1380,7 @@ async def get_agent_dashboard_stats(user: User):
                     })
     
     # Incidents en cours (ouverts uniquement)
-    incidents_en_cours = await db.incidents.find(
+    incidents_en_cours = await db.alertes.find(
         {"statut": "ouvert"},
         {"_id": 0}
     ).to_list(1000)
@@ -1445,7 +1445,7 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     # Pour les autres rôles (admin, programme, partenaire), le dashboard normal
     total_programmes = await db.programmes.count_documents({})
     total_partenaires = await db.partenaires.count_documents({})
-    total_incidents_ouverts = await db.incidents.count_documents({"statut": "ouvert"})
+    total_incidents_ouverts = await db.alertes.count_documents({"statut": "ouvert"})
     
     # Calculer les dates du mois en cours
     now = datetime.now(timezone.utc)
@@ -2335,7 +2335,7 @@ async def send_email_draft(draft_id: str, request: SendEmailRequest):
         await db.email_history.insert_one(history_doc)
         
         # Update incident status to indicate contact was made
-        await db.incidents.update_one(
+        await db.alertes.update_one(
             {"id": draft['incident_id']},
             {"$set": {"statut": "resolu"}}
         )
@@ -2556,7 +2556,7 @@ async def get_users_stats(current_user: User = Depends(get_current_active_user))
         total_tests = tests_site + tests_ligne
         
         # Count incidents handled
-        incidents = await db.incidents.count_documents({"user_id": user_id})
+        incidents = await db.alertes.count_documents({"user_id": user_id})
         
         stats.append({
             "user": User(**user),
@@ -3465,7 +3465,7 @@ async def export_bilan_partenaire_ppt(
         tests_ligne = sorted(tests_ligne, key=lambda t: t.get('date_test', ''), reverse=True)
         
         # Get incidents
-        incidents = await db.incidents.find({
+        incidents = await db.alertes.find({
             "programme_id": programme['id'],
             "partenaire_id": partenaire_id
         }).to_list(length=None)
