@@ -286,6 +286,7 @@ class UserRole(str, Enum):
     agent = "agent"
     programme = "programme"
     partenaire = "partenaire"
+    chef_projet = "chef_projet"  # Chef de projet avec droits admin, affilié à des programmes
 
 class UserBase(BaseModel):
     email: str
@@ -295,6 +296,7 @@ class UserBase(BaseModel):
     is_active: bool = True
     programme_id: Optional[str] = None  # Pour les utilisateurs de type "programme"
     partenaire_id: Optional[str] = None  # Pour les utilisateurs de type "partenaire"
+    programme_ids: List[str] = []  # Pour les chefs de projet (plusieurs programmes)
 
 class UserCreate(UserBase):
     password: str
