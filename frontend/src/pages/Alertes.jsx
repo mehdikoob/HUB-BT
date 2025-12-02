@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const Incidents = () => {
-  const [incidents, setIncidents] = useState([]);
+  const [alertes, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
 
@@ -23,20 +23,20 @@ const Incidents = () => {
       const params = {};
       if (filter) params.statut = filter;
       
-      const response = await axios.get(`${API}/incidents/enriched`, { params });
+      const response = await axios.get(`${API}/alertes/enriched`, { params });
       setIncidents(response.data);
     } catch (error) {
       console.error('Erreur:', error);
-      toast.error('Erreur lors du chargement des incidents');
+      toast.error('Erreur lors du chargement des alertes');
     } finally {
       setLoading(false);
     }
   };
 
   const handleResolve = async (id) => {
-    if (!window.confirm('Marquer cet incident comme résolu ?')) return;
+    if (!window.confirm('Marquer cet alerte comme résolu ?')) return;
     try {
-      await axios.put(`${API}/incidents/${id}`);
+      await axios.put(`${API}/alertes/${id}`);
       toast.success('Incident résolu');
       fetchIncidents();
     } catch (error) {
@@ -46,9 +46,9 @@ const Incidents = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet incident résolu ?')) return;
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet alerte résolu ?')) return;
     try {
-      await axios.delete(`${API}/incidents/${id}`);
+      await axios.delete(`${API}/alertes/${id}`);
       toast.success('Incident supprimé');
       fetchIncidents();
     } catch (error) {
@@ -62,12 +62,12 @@ const Incidents = () => {
   }
 
   return (
-    <div data-testid="incidents-page">
+    <div data-testid="alertes-page">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
           Incidents
         </h1>
-        <p className="text-gray-600">Suivi et résolution des incidents détectés</p>
+        <p className="text-gray-600">Suivi et résolution des alertes détectés</p>
       </div>
 
       {/* Filter */}
@@ -79,7 +79,7 @@ const Incidents = () => {
               <SelectValue placeholder="Filtrer par statut" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tous les incidents</SelectItem>
+              <SelectItem value="all">Tous les alertes</SelectItem>
               <SelectItem value="ouvert">Ouverts</SelectItem>
               <SelectItem value="resolu">Résolus</SelectItem>
             </SelectContent>
@@ -89,12 +89,12 @@ const Incidents = () => {
 
       {/* Incidents List */}
       <div className="space-y-4">
-        {incidents.map((incident) => (
+        {alertes.map((alerte) => (
           <Card 
-            key={incident.id} 
+            key={alerte.id} 
             className="border-0 shadow-sm"
             style={{ 
-              backgroundColor: incident.statut === 'ouvert' ? '#FFE5E5' : '#E8F8E8' 
+              backgroundColor: alerte.statut === 'ouvert' ? '#FFE5E5' : '#E8F8E8' 
             }}
           >
             <CardHeader>
@@ -102,10 +102,10 @@ const Incidents = () => {
                 <div className="flex items-start gap-4">
                   <div
                     className={`p-3 rounded-lg ${
-                      incident.statut === 'ouvert' ? 'bg-red-100' : 'bg-green-100'
+                      alerte.statut === 'ouvert' ? 'bg-red-100' : 'bg-green-100'
                     }`}
                   >
-                    {incident.statut === 'ouvert' ? (
+                    {alerte.statut === 'ouvert' ? (
                       <AlertCircle className="text-red-600" size={24} />
                     ) : (
                       <CheckCircle className="text-green-600" size={24} />
@@ -113,54 +113,54 @@ const Incidents = () => {
                   </div>
                   <div className="flex-1">
                     <CardTitle className="text-lg mb-2">
-                      {incident.type_test === 'TS' ? 'Test Site' : 'Test Ligne'}
+                      {alerte.type_test === 'TS' ? 'Test Site' : 'Test Ligne'}
                       <span
                         className={`ml-3 px-3 py-1 rounded-full text-xs font-medium ${
-                          incident.statut === 'ouvert'
+                          alerte.statut === 'ouvert'
                             ? 'bg-red-100 text-red-800'
                             : 'bg-green-100 text-green-800'
                         }`}
                       >
-                        {incident.statut === 'ouvert' ? 'OUVERT' : 'RÉSOLU'}
+                        {alerte.statut === 'ouvert' ? 'OUVERT' : 'RÉSOLU'}
                       </span>
                     </CardTitle>
                     
                     {/* Programme and Partenaire */}
                     <div className="mb-3 space-y-1">
-                      {incident.programme_nom && (
+                      {alerte.programme_nom && (
                         <p className="text-sm text-gray-700">
-                          <span className="font-semibold">Programme :</span> {incident.programme_nom}
+                          <span className="font-semibold">Programme :</span> {alerte.programme_nom}
                         </p>
                       )}
-                      {incident.partenaire_nom && (
+                      {alerte.partenaire_nom && (
                         <p className="text-sm text-gray-700">
-                          <span className="font-semibold">Partenaire :</span> {incident.partenaire_nom}
+                          <span className="font-semibold">Partenaire :</span> {alerte.partenaire_nom}
                         </p>
                       )}
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-2">{incident.description}</p>
+                    <p className="text-sm text-gray-600 mb-2">{alerte.description}</p>
                     
                     <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
-                      <span>Créé le {format(new Date(incident.created_at), 'dd/MM/yyyy à HH:mm')}</span>
-                      {incident.resolved_at && (
+                      <span>Créé le {format(new Date(alerte.created_at), 'dd/MM/yyyy à HH:mm')}</span>
+                      {alerte.resolved_at && (
                         <>
                           <span>•</span>
-                          <span>Résolu le {format(new Date(incident.resolved_at), 'dd/MM/yyyy à HH:mm')}</span>
+                          <span>Résolu le {format(new Date(alerte.resolved_at), 'dd/MM/yyyy à HH:mm')}</span>
                         </>
                       )}
                     </div>
                     
                     {/* Contact */}
-                    {incident.partenaire_contact_email && (
+                    {alerte.partenaire_contact_email && (
                       <div className="pt-2 border-t border-gray-300">
                         <p className="text-sm text-gray-700">
                           <span className="font-semibold">Contact :</span>{' '}
                           <a 
-                            href={`mailto:${incident.partenaire_contact_email}`}
+                            href={`mailto:${alerte.partenaire_contact_email}`}
                             className="text-blue-600 hover:text-blue-800 underline"
                           >
-                            📧 {incident.partenaire_contact_email}
+                            📧 {alerte.partenaire_contact_email}
                           </a>
                         </p>
                       </div>
@@ -168,10 +168,10 @@ const Incidents = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  {incident.statut === 'ouvert' ? (
+                  {alerte.statut === 'ouvert' ? (
                     <Button
-                      onClick={() => handleResolve(incident.id)}
-                      data-testid={`resolve-incident-${incident.id}`}
+                      onClick={() => handleResolve(alerte.id)}
+                      data-testid={`resolve-alerte-${alerte.id}`}
                       className="bg-green-600 hover:bg-green-700 text-white"
                     >
                       <CheckCircle size={16} className="mr-2" />
@@ -179,8 +179,8 @@ const Incidents = () => {
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => handleDelete(incident.id)}
-                      data-testid={`delete-incident-${incident.id}`}
+                      onClick={() => handleDelete(alerte.id)}
+                      data-testid={`delete-alerte-${alerte.id}`}
                       variant="outline"
                       className="border-red-600 text-red-600 hover:bg-red-50"
                     >
@@ -195,12 +195,12 @@ const Incidents = () => {
         ))}
       </div>
 
-      {incidents.length === 0 && (
+      {alertes.length === 0 && (
         <Card className="border-0 shadow-sm">
           <CardContent className="py-12 text-center">
             <CheckCircle className="mx-auto mb-4 text-green-600" size={48} />
-            <p className="text-gray-500 text-lg">Aucun incident pour le moment</p>
-            <p className="text-sm text-gray-400 mt-2">Les incidents sont créés automatiquement lors de la détection d'anomalies</p>
+            <p className="text-gray-500 text-lg">Aucun alerte pour le moment</p>
+            <p className="text-sm text-gray-400 mt-2">Les alertes sont créés automatiquement lors de la détection d'anomalies</p>
           </CardContent>
         </Card>
       )}
