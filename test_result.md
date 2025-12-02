@@ -1362,3 +1362,31 @@ Pour masquer un partenaire de Tests Ligne (ex: Babbel, Fram), éditer le partena
 
 ### Statut : ✅ TERMINÉ
 
+
+---
+
+## Phase 4 : Badges "En travaux" ✅
+
+**Date** : 02/12/2025
+
+### Modifications effectuées
+
+#### Frontend
+- ✅ **Layout.jsx** : 
+  - Propriété `wip: true` ajoutée aux menus "Messagerie" et "Bilan Partenaire"
+  - Badge orange "WIP" affiché dans le menu latéral
+  
+- ✅ **BilanPartenaire.jsx** :
+  - Bannière jaune d'avertissement en haut de page
+  - Message : "⚠️ Cette fonctionnalité est en cours de développement. Certaines options peuvent être limitées."
+  
+- ✅ **Messagerie.jsx** :
+  - Bannière jaune d'avertissement identique
+
+### Tests de vérification
+- ✅ Badges "WIP" visibles dans le menu latéral
+- ✅ Bannières d'avertissement affichées sur les deux pages
+- ✅ Design cohérent et non intrusif
+
+### Statut : ✅ TERMINÉ
+
