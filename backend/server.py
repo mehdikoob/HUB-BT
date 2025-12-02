@@ -480,7 +480,7 @@ Bien cordialement,""",
     except Exception as e:
         logging.error(f"Error creating email draft: {str(e)}")
 
-async def check_and_create_incident(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None, user_id: str = None):
+async def check_and_create_alerte(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None, user_id: str = None):
     incident = Incident(
         test_id=test_id,
         type_test=type_test,
@@ -709,7 +709,7 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
     
     # Validations et création d'incidents
     if input.prix_remise > input.prix_public:
-        await check_and_create_incident(
+        await check_and_create_alerte(
             test.id,
             TypeTest.TS,
             f"Prix remisé ({input.prix_remise}€) supérieur au prix public ({input.prix_public}€)",
@@ -719,7 +719,7 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
         )
     
     if not input.application_remise:
-        await check_and_create_incident(
+        await check_and_create_alerte(
             test.id,
             TypeTest.TS,
             "Remise non appliquée",
@@ -732,7 +732,7 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
     if partenaire and partenaire.get('remise_minimum'):
         remise_minimum = partenaire['remise_minimum']
         if pct_remise < remise_minimum:
-            await check_and_create_incident(
+            await check_and_create_alerte(
                 test.id,
                 TypeTest.TS,
                 f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {remise_minimum - pct_remise}%)",
@@ -905,7 +905,7 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
     
     # Validations et création d'incidents
     if not input.application_offre:
-        await check_and_create_incident(
+        await check_and_create_alerte(
             test.id,
             TypeTest.TL,
             "Offre non appliquée",
@@ -915,7 +915,7 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
         )
     
     if not input.messagerie_vocale_dediee and not input.decroche_dedie:
-        await check_and_create_incident(
+        await check_and_create_alerte(
             test.id,
             TypeTest.TL,
             "Ni messagerie dédiée ni décroche dédié détecté",
