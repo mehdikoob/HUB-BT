@@ -1299,3 +1299,33 @@ const filtered = partenaires.filter(p => {
 **Note utilisateur :**
 Pour masquer un partenaire de Tests Ligne (ex: Babbel, Fram), éditer le partenaire et décocher "Test Ligne requis" pour les programmes concernés.
 
+
+---
+
+## Phase 1 : Renommage "Incidents" → "Alertes" ✅
+
+**Date** : 02/12/2025
+
+### Modifications effectuées
+
+#### Backend (`/app/backend/server.py`)
+- ✅ Enum `StatutIncident` → `StatutAlerte`
+- ✅ Modèles `IncidentBase`, `IncidentCreate`, `Incident` → `AlerteBase`, `AlerteCreate`, `Alerte`
+- ✅ Endpoints `/api/incidents` → `/api/alertes`
+- ✅ Toutes références code (variables, fonctions) : `incident` → `alerte`
+- ✅ Collection MongoDB renommée : `incidents` → `alertes` (8 documents migrés)
+
+#### Frontend
+- ✅ Fichier renommé : `Incidents.jsx` → `Alertes.jsx`
+- ✅ Route mise à jour : `/incidents` → `/alertes`
+- ✅ Menu latéral : "Incidents" → "Alertes"
+- ✅ Toutes pages référençant incidents : `Dashboard.jsx`, `Messagerie.jsx`, `Statistiques.jsx`, `TestsSite.jsx`, `TestsLigne.jsx`
+
+### Tests de vérification
+- ✅ Syntaxe Python validée
+- ✅ Endpoint `/api/alertes` fonctionnel (8 alertes récupérées)
+- ✅ Interface UI : Menu et page "Alertes" affichés correctement
+- ✅ Migration MongoDB réussie (0 perte de données)
+
+### Statut : ✅ TERMINÉ
+
