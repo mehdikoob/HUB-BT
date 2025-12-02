@@ -7,7 +7,7 @@ import Programmes from './pages/Programmes';
 import PartenairesNew from './pages/PartenairesNew';
 import TestsSite from './pages/TestsSite';
 import TestsLigne from './pages/TestsLigne';
-import Incidents from './pages/Incidents';
+import Alertes from './pages/Alertes';
 import Messagerie from './pages/Messagerie';
 import BilanPartenaire from './pages/BilanPartenaire';
 import Login from './pages/Login';
