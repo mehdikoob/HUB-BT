@@ -1037,7 +1037,7 @@ async def delete_test_ligne(test_id: str):
     return {"message": "Test supprimé"}
 
 # Routes - Incidents
-@api_router.get("/alertes", response_model=List[Incident])
+@api_router.get("/alertes", response_model=List[Alerte])
 async def get_incidents(
     statut: Optional[StatutIncident] = Query(None),
     current_user: User = Depends(get_current_active_user)
@@ -1095,7 +1095,7 @@ async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None))
     
     return alertes
 
-@api_router.put("/alertes/{alerte_id}", response_model=Incident)
+@api_router.put("/alertes/{alerte_id}", response_model=Alerte)
 async def resolve_incident(alerte_id: str):
     existing = await db.alertes.find_one({"id": alerte_id})
     if not existing:
