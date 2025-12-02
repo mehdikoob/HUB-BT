@@ -11,16 +11,16 @@ const Layout = () => {
   const { user, isAdmin, logout } = useAuth();
 
   const menuItems = [
-    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord', allowedRoles: ['admin', 'agent', 'programme', 'partenaire'] },
-    { path: '/programmes', icon: FileText, label: 'Programmes', allowedRoles: ['admin', 'agent', 'programme'] },
-    { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['admin', 'agent', 'partenaire'] },
-    { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['admin', 'agent', 'programme', 'partenaire'] },
-    { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['admin', 'agent', 'programme', 'partenaire'] },
-    { path: '/alertes', icon: AlertCircle, label: 'Alertes', allowedRoles: ['admin'] },
-    { path: '/messagerie', icon: Mail, label: 'Messagerie', allowedRoles: ['admin'] },
-    { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire', allowedRoles: ['admin', 'agent'] },
-    { path: '/statistiques', icon: BarChart3, label: 'Statistiques', allowedRoles: ['admin'] },
-    { path: '/parametres', icon: Settings, label: 'Paramètres', allowedRoles: ['admin'] },
+    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord', allowedRoles: ['admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
+    { path: '/programmes', icon: FileText, label: 'Programmes', allowedRoles: ['admin', 'chef_projet', 'agent', 'programme'] },
+    { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['admin', 'chef_projet', 'agent', 'partenaire'] },
+    { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
+    { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
+    { path: '/alertes', icon: AlertCircle, label: 'Alertes', allowedRoles: ['admin', 'chef_projet'] },
+    { path: '/messagerie', icon: Mail, label: 'Messagerie', allowedRoles: ['admin', 'chef_projet'] },
+    { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire', allowedRoles: ['admin', 'chef_projet', 'agent'] },
+    { path: '/statistiques', icon: BarChart3, label: 'Statistiques', allowedRoles: ['admin', 'chef_projet'] },
+    { path: '/parametres', icon: Settings, label: 'Paramètres', allowedRoles: ['admin', 'chef_projet'] },
   ];
 
   const visibleMenuItems = menuItems.filter(item => 
