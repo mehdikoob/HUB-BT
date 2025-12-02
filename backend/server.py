@@ -334,31 +334,31 @@ def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float
     return round((1 - prix_remise / prix_public) * 100, 2)
 
 async def replace_template_variables(template_text: str, alerte_id: str) -> str:
-    """Replace template variables with actual data from incident"""
-    # Get incident data
-    incident = await db.alertes.find_one({"id": alerte_id})
-    if not incident:
+    """Replace template variables with actual data from alerte"""
+    # Get alerte data
+    alerte = await db.alertes.find_one({"id": alerte_id})
+    if not alerte:
         return template_text
     
     # Get related data
-    programme = await db.programmes.find_one({"id": incident.get('programme_id')}) if incident.get('programme_id') else None
-    partenaire = await db.partenaires.find_one({"id": incident.get('partenaire_id')}) if incident.get('partenaire_id') else None
+    programme = await db.programmes.find_one({"id": alerte.get('programme_id')}) if alerte.get('programme_id') else None
+    partenaire = await db.partenaires.find_one({"id": alerte.get('partenaire_id')}) if alerte.get('partenaire_id') else None
     
     # Get test data
     test = None
-    if incident['type_test'] == 'TS':
-        test = await db.tests_site.find_one({"id": incident['test_id']})
+    if alerte['type_test'] == 'TS':
+        test = await db.tests_site.find_one({"id": alerte['test_id']})
     else:
-        test = await db.tests_ligne.find_one({"id": incident['test_id']})
+        test = await db.tests_ligne.find_one({"id": alerte['test_id']})
     
     # Build replacement dictionary
     replacements = {
         '[Nom du programme]': programme['nom'] if programme else 'N/A',
-        '[Nature du problème constaté]': incident.get('description', 'N/A'),
+        '[Nature du problème constaté]': alerte.get('description', 'N/A'),
         '[Date du test]': datetime.fromisoformat(test['date_test']).strftime('%d/%m/%Y') if test and test.get('date_test') else 'N/A',
-        '[Nom du site / canal du test]': 'Site web' if incident['type_test'] == 'TS' else 'Téléphone',
+        '[Nom du site / canal du test]': 'Site web' if alerte['type_test'] == 'TS' else 'Téléphone',
         '[Remise attendue]': f"{partenaire.get('remise_minimum', 'N/A')} %" if partenaire else 'N/A',
-        '[Observation]': incident.get('description', 'N/A'),
+        '[Observation]': alerte.get('description', 'N/A'),
         '[Nom du contact]': partenaire.get('contact_email', 'N/A') if partenaire else 'N/A',
     }
     
@@ -406,17 +406,17 @@ async def send_email_smtp(recipient: str, subject: str, body: str, signature: st
         return {"status": "error", "message": str(e)}
 
 async def create_email_draft_for_alerte(alerte_id: str):
-    """Automatically create an email draft when an incident is created"""
+    """Automatically create an email draft when an alerte is created"""
     try:
-        # Get incident
-        incident = await db.alertes.find_one({"id": alerte_id})
-        if not incident:
+        # Get alerte
+        alerte = await db.alertes.find_one({"id": alerte_id})
+        if not alerte:
             return
         
         # Get partenaire to get recipient email
-        partenaire = await db.partenaires.find_one({"id": incident.get('partenaire_id')}) if incident.get('partenaire_id') else None
+        partenaire = await db.partenaires.find_one({"id": alerte.get('partenaire_id')}) if alerte.get('partenaire_id') else None
         if not partenaire or not partenaire.get('contact_email'):
-            logging.warning(f"No contact email for incident {alerte_id}")
+            logging.warning(f"No contact email for alerte {alerte_id}")
             return
         
         # Get default template
@@ -476,12 +476,12 @@ Bien cordialement,""",
         doc['created_at'] = doc['created_at'].isoformat()
         await db.email_drafts.insert_one(doc)
         
-        logging.info(f"Email draft created for incident {alerte_id}")
+        logging.info(f"Email draft created for alerte {alerte_id}")
     except Exception as e:
         logging.error(f"Error creating email draft: {str(e)}")
 
 async def check_and_create_alerte(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None, user_id: str = None):
-    incident = Incident(
+    alerte = Incident(
         test_id=test_id,
         type_test=type_test,
         description=description,
@@ -490,12 +490,12 @@ async def check_and_create_alerte(test_id: str, type_test: TypeTest, description
         partenaire_id=partenaire_id,
         user_id=user_id
     )
-    doc = incident.model_dump()
+    doc = alerte.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.alertes.insert_one(doc)
     
-    # Automatically create email draft for this incident
-    await create_email_draft_for_alerte(incident.id)
+    # Automatically create email draft for this alerte
+    await create_email_draft_for_alerte(alerte.id)
 
 # Authentication helper functions
 def verify_password(plain_password, hashed_password):
@@ -1075,23 +1075,23 @@ async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None))
     incidents = await db.alertes.find(query, {"_id": 0}).to_list(1000)
     
     # Enrich with programme and partenaire data
-    for incident in incidents:
-        if isinstance(incident.get('created_at'), str):
-            incident['created_at'] = datetime.fromisoformat(incident['created_at'])
-        if incident.get('resolved_at') and isinstance(incident['resolved_at'], str):
-            incident['resolved_at'] = datetime.fromisoformat(incident['resolved_at'])
+    for alerte in incidents:
+        if isinstance(alerte.get('created_at'), str):
+            alerte['created_at'] = datetime.fromisoformat(alerte['created_at'])
+        if alerte.get('resolved_at') and isinstance(alerte['resolved_at'], str):
+            alerte['resolved_at'] = datetime.fromisoformat(alerte['resolved_at'])
         
         # Get programme details
-        if incident.get('programme_id'):
-            programme = await db.programmes.find_one({"id": incident['programme_id']}, {"_id": 0})
-            incident['programme_nom'] = programme['nom'] if programme else None
+        if alerte.get('programme_id'):
+            programme = await db.programmes.find_one({"id": alerte['programme_id']}, {"_id": 0})
+            alerte['programme_nom'] = programme['nom'] if programme else None
         
         # Get partenaire details
-        if incident.get('partenaire_id'):
-            partenaire = await db.partenaires.find_one({"id": incident['partenaire_id']}, {"_id": 0})
+        if alerte.get('partenaire_id'):
+            partenaire = await db.partenaires.find_one({"id": alerte['partenaire_id']}, {"_id": 0})
             if partenaire:
-                incident['partenaire_nom'] = partenaire['nom']
-                incident['partenaire_contact_email'] = partenaire.get('contact_email')
+                alerte['partenaire_nom'] = partenaire['nom']
+                alerte['partenaire_contact_email'] = partenaire.get('contact_email')
     
     return incidents
 
@@ -1116,12 +1116,12 @@ async def resolve_incident(alerte_id: str):
 
 @api_router.delete("/incidents/{alerte_id}")
 async def delete_incident(alerte_id: str):
-    """Delete an incident (only if resolved)"""
+    """Delete an alerte (only if resolved)"""
     existing = await db.alertes.find_one({"id": alerte_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Incident non trouvé")
     
-    # Verify that the incident is resolved before allowing deletion
+    # Verify that the alerte is resolved before allowing deletion
     if existing.get('statut') != StatutIncident.resolu:
         raise HTTPException(status_code=400, detail="Seuls les incidents résolus peuvent être supprimés")
     
@@ -1132,13 +1132,13 @@ async def delete_incident(alerte_id: str):
     return {"message": "Incident supprimé avec succès"}
 
 # Routes - Export Incident Report
-@api_router.get("/export-incident-report/{test_id}")
+@api_router.get("/export-alerte-report/{test_id}")
 async def export_incident_report(
     test_id: str,
     test_type: str = Query(..., description="Type de test: 'site' ou 'ligne'"),
     current_user: User = Depends(get_current_active_user)
 ):
-    """Generate a PDF incident report for a test"""
+    """Generate a PDF alerte report for a test"""
     
     # Récupérer le test selon son type
     if test_type == "site":
@@ -1157,7 +1157,7 @@ async def export_incident_report(
     incidents = await db.alertes.find({"test_id": test_id}).to_list(length=None)
     
     if not incidents:
-        raise HTTPException(status_code=404, detail="Aucun incident trouvé pour ce test")
+        raise HTTPException(status_code=404, detail="Aucun alerte trouvé pour ce test")
     
     # Récupérer les informations du programme et partenaire
     programme = await db.programmes.find_one({"id": test.get("programme_id")})
@@ -1254,12 +1254,12 @@ async def export_incident_report(
     story.append(Paragraph(f"INCIDENTS DÉTECTÉS ({len(incidents)})", heading_style))
     story.append(Spacer(1, 0.1*inch))
     
-    for idx, incident in enumerate(incidents, 1):
+    for idx, alerte in enumerate(incidents, 1):
         incident_data = [
             [f"Incident #{idx}"],
-            ["Description", incident.get('description', 'N/A')],
-            ["Statut", incident.get('statut', 'N/A').upper()],
-            ["Date de création", incident.get('created_at', 'N/A')[:10] if incident.get('created_at') else 'N/A'],
+            ["Description", alerte.get('description', 'N/A')],
+            ["Statut", alerte.get('statut', 'N/A').upper()],
+            ["Date de création", alerte.get('created_at', 'N/A')[:10] if alerte.get('created_at') else 'N/A'],
         ]
         
         incident_table = Table(incident_data, colWidths=[2.5*inch, 4*inch])
@@ -1386,20 +1386,20 @@ async def get_agent_dashboard_stats(user: User):
     ).to_list(1000)
     
     # Enrichir les incidents avec les noms de partenaires et programmes
-    for incident in incidents_en_cours:
+    for alerte in incidents_en_cours:
         # Récupérer le partenaire
         partenaire = await db.partenaires.find_one(
-            {"id": incident.get("partenaire_id")},
+            {"id": alerte.get("partenaire_id")},
             {"_id": 0, "nom": 1}
         )
-        incident["partenaire_nom"] = partenaire.get("nom") if partenaire else "Inconnu"
+        alerte["partenaire_nom"] = partenaire.get("nom") if partenaire else "Inconnu"
         
         # Récupérer le programme
         programme = await db.programmes.find_one(
-            {"id": incident.get("programme_id")},
+            {"id": alerte.get("programme_id")},
             {"_id": 0, "nom": 1}
         )
-        incident["programme_nom"] = programme.get("nom") if programme else "Inconnu"
+        alerte["programme_nom"] = programme.get("nom") if programme else "Inconnu"
     
     # Compter les tests effectués ce mois (pour message encourageant)
     tests_effectues_mois = await db.tests_site.count_documents({
@@ -2334,7 +2334,7 @@ async def send_email_draft(draft_id: str, request: SendEmailRequest):
         history_doc['sent_at'] = history_doc['sent_at'].isoformat()
         await db.email_history.insert_one(history_doc)
         
-        # Update incident status to indicate contact was made
+        # Update alerte status to indicate contact was made
         await db.alertes.update_one(
             {"id": draft['alerte_id']},
             {"$set": {"statut": "resolu"}}
@@ -3518,9 +3518,9 @@ async def export_bilan_partenaire_ppt(
             top_types = Counter(types).most_common(2)
             synthese_types = ", ".join([t[0] for t in top_types])
             
-            logs["incidentsSynthese"] = f"{nb_incidents} incident(s) détecté(s). Principaux types: {synthese_types}."
+            logs["incidentsSynthese"] = f"{nb_incidents} alerte(s) détecté(s). Principaux types: {synthese_types}."
         else:
-            logs["incidentsSynthese"] = "Aucun incident sur la période."
+            logs["incidentsSynthese"] = "Aucun alerte sur la période."
         
         # === LOAD TEMPLATE ===
         template_path = TEMPLATE_DIR / "Bilan_Blindtest_template.pptx"
