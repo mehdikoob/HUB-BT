@@ -501,7 +501,7 @@ Bien cordialement,""",
         logging.error(f"Error creating email draft: {str(e)}")
 
 async def check_and_create_alerte(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None, user_id: str = None):
-    alerte = Incident(
+    alerte = Alerte(
         test_id=test_id,
         type_test=type_test,
         description=description,
@@ -516,6 +516,10 @@ async def check_and_create_alerte(test_id: str, type_test: TypeTest, description
     
     # Automatically create email draft for this alerte
     await create_email_draft_for_alerte(alerte.id)
+    
+    # Create notifications for relevant chefs de projet
+    if programme_id:
+        await create_notifications_for_chefs_projet(alerte.id, programme_id, partenaire_id, description)
 
 # Authentication helper functions
 def verify_password(plain_password, hashed_password):
