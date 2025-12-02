@@ -552,6 +552,10 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+def is_admin_or_chef_projet(user: User) -> bool:
+    """Vérifier si l'utilisateur a des droits d'admin (admin ou chef de projet)"""
+    return user.role in [UserRole.admin, UserRole.chef_projet]
+
 # Routes - Root
 @api_router.get("/")
 async def root():
