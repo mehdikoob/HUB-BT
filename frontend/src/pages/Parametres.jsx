@@ -392,11 +392,43 @@ const Parametres = () => {
                     <SelectContent>
                       <SelectItem value="agent">Agent</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="chef_projet">Chef de projet</SelectItem>
                       <SelectItem value="programme">Programme</SelectItem>
                       <SelectItem value="partenaire">Partenaire</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+                
+                {/* Multi-select programmes pour chef de projet */}
+                {formData.role === 'chef_projet' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="programme_ids">Programmes affiliés *</Label>
+                    <div className="border rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                      {programmes.map((prog) => (
+                        <label key={prog.id} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.programme_ids.includes(prog.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData({ ...formData, programme_ids: [...formData.programme_ids, prog.id] });
+                              } else {
+                                setFormData({ ...formData, programme_ids: formData.programme_ids.filter(id => id !== prog.id) });
+                              }
+                            }}
+                            className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                          />
+                          <span className="text-sm">{prog.nom}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {formData.programme_ids.length > 0 && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formData.programme_ids.length} programme(s) sélectionné(s)
+                      </p>
+                    )}
+                  </div>
+                )}
                 
                 {/* Programme selection (visible only if role is "programme") */}
                 {formData.role === 'programme' && (
