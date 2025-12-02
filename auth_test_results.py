@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://user-roles-6.preview.emergentagent.com/api"
+BASE_URL = "https://testmgr-dash.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class Colors:
