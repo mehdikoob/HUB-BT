@@ -707,7 +707,7 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
     # Récupérer le partenaire pour vérifier la remise minimum
     partenaire = await db.partenaires.find_one({"id": input.partenaire_id}, {"_id": 0})
     
-    # Validations et création d'incidents
+    # Validations et création d'alertes
     if input.prix_remise > input.prix_public:
         await check_and_create_alerte(
             test.id,
@@ -903,7 +903,7 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
     
     test = TestLigne(**input.model_dump(), user_id=current_user.id)
     
-    # Validations et création d'incidents
+    # Validations et création d'alertes
     if not input.application_offre:
         await check_and_create_alerte(
             test.id,
@@ -1037,7 +1037,7 @@ async def delete_test_ligne(test_id: str):
     return {"message": "Test supprimé"}
 
 # Routes - Incidents
-@api_router.get("/incidents", response_model=List[Incident])
+@api_router.get("/alertes", response_model=List[Incident])
 async def get_incidents(
     statut: Optional[StatutIncident] = Query(None),
     current_user: User = Depends(get_current_active_user)
@@ -1057,25 +1057,25 @@ async def get_incidents(
     if statut:
         query['statut'] = statut
     
-    incidents = await db.alertes.find(query, {"_id": 0}).to_list(1000)
-    for i in incidents:
+    alertes = await db.alertes.find(query, {"_id": 0}).to_list(1000)
+    for i in alertes:
         if isinstance(i.get('created_at'), str):
             i['created_at'] = datetime.fromisoformat(i['created_at'])
         if i.get('resolved_at') and isinstance(i['resolved_at'], str):
             i['resolved_at'] = datetime.fromisoformat(i['resolved_at'])
-    return incidents
+    return alertes
 
-@api_router.get("/incidents/enriched")
+@api_router.get("/alertes/enriched")
 async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None)):
-    """Get incidents with programme and partenaire details"""
+    """Get alertes with programme and partenaire details"""
     query = {}
     if statut:
         query['statut'] = statut
     
-    incidents = await db.alertes.find(query, {"_id": 0}).to_list(1000)
+    alertes = await db.alertes.find(query, {"_id": 0}).to_list(1000)
     
     # Enrich with programme and partenaire data
-    for alerte in incidents:
+    for alerte in alertes:
         if isinstance(alerte.get('created_at'), str):
             alerte['created_at'] = datetime.fromisoformat(alerte['created_at'])
         if alerte.get('resolved_at') and isinstance(alerte['resolved_at'], str):
@@ -1093,9 +1093,9 @@ async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None))
                 alerte['partenaire_nom'] = partenaire['nom']
                 alerte['partenaire_contact_email'] = partenaire.get('contact_email')
     
-    return incidents
+    return alertes
 
-@api_router.put("/incidents/{alerte_id}", response_model=Incident)
+@api_router.put("/alertes/{alerte_id}", response_model=Incident)
 async def resolve_incident(alerte_id: str):
     existing = await db.alertes.find_one({"id": alerte_id})
     if not existing:
@@ -1114,7 +1114,7 @@ async def resolve_incident(alerte_id: str):
         updated['resolved_at'] = datetime.fromisoformat(updated['resolved_at'])
     return updated
 
-@api_router.delete("/incidents/{alerte_id}")
+@api_router.delete("/alertes/{alerte_id}")
 async def delete_incident(alerte_id: str):
     """Delete an alerte (only if resolved)"""
     existing = await db.alertes.find_one({"id": alerte_id})
@@ -1123,7 +1123,7 @@ async def delete_incident(alerte_id: str):
     
     # Verify that the alerte is resolved before allowing deletion
     if existing.get('statut') != StatutIncident.resolu:
-        raise HTTPException(status_code=400, detail="Seuls les incidents résolus peuvent être supprimés")
+        raise HTTPException(status_code=400, detail="Seuls les alertes résolus peuvent être supprimés")
     
     result = await db.alertes.delete_one({"id": alerte_id})
     if result.deleted_count == 0:
@@ -1153,10 +1153,10 @@ async def export_incident_report(
     if not test:
         raise HTTPException(status_code=404, detail="Test non trouvé")
     
-    # Récupérer les incidents liés à ce test
-    incidents = await db.alertes.find({"test_id": test_id}).to_list(length=None)
+    # Récupérer les alertes liés à ce test
+    alertes = await db.alertes.find({"test_id": test_id}).to_list(length=None)
     
-    if not incidents:
+    if not alertes:
         raise HTTPException(status_code=404, detail="Aucun alerte trouvé pour ce test")
     
     # Récupérer les informations du programme et partenaire
@@ -1250,11 +1250,11 @@ async def export_incident_report(
     story.append(test_table)
     story.append(Spacer(1, 0.3*inch))
     
-    # Liste des incidents
-    story.append(Paragraph(f"INCIDENTS DÉTECTÉS ({len(incidents)})", heading_style))
+    # Liste des alertes
+    story.append(Paragraph(f"INCIDENTS DÉTECTÉS ({len(alertes)})", heading_style))
     story.append(Spacer(1, 0.1*inch))
     
-    for idx, alerte in enumerate(incidents, 1):
+    for idx, alerte in enumerate(alertes, 1):
         incident_data = [
             [f"Incident #{idx}"],
             ["Description", alerte.get('description', 'N/A')],
@@ -1385,7 +1385,7 @@ async def get_agent_dashboard_stats(user: User):
         {"_id": 0}
     ).to_list(1000)
     
-    # Enrichir les incidents avec les noms de partenaires et programmes
+    # Enrichir les alertes avec les noms de partenaires et programmes
     for alerte in incidents_en_cours:
         # Récupérer le partenaire
         partenaire = await db.partenaires.find_one(
@@ -2555,15 +2555,15 @@ async def get_users_stats(current_user: User = Depends(get_current_active_user))
         tests_ligne = await db.tests_ligne.count_documents({"user_id": user_id})
         total_tests = tests_site + tests_ligne
         
-        # Count incidents handled
-        incidents = await db.alertes.count_documents({"user_id": user_id})
+        # Count alertes handled
+        alertes = await db.alertes.count_documents({"user_id": user_id})
         
         stats.append({
             "user": User(**user),
             "tests_site_count": tests_site,
             "tests_ligne_count": tests_ligne,
             "total_tests": total_tests,
-            "incidents_count": incidents
+            "incidents_count": alertes
         })
     
     return stats
@@ -3464,8 +3464,8 @@ async def export_bilan_partenaire_ppt(
         tests_site = sorted(tests_site, key=lambda t: t.get('date_test', ''), reverse=True)
         tests_ligne = sorted(tests_ligne, key=lambda t: t.get('date_test', ''), reverse=True)
         
-        # Get incidents
-        incidents = await db.alertes.find({
+        # Get alertes
+        alertes = await db.alertes.find({
             "programme_id": programme['id'],
             "partenaire_id": partenaire_id
         }).to_list(length=None)
@@ -3511,9 +3511,9 @@ async def export_bilan_partenaire_ppt(
         info_dd = "Oui" if dd_count > len(tests_ligne) / 2 else "Non" if len(tests_ligne) > 0 else "—"
         
         # === INCIDENTS SYNTHESE ===
-        if incidents:
-            nb_incidents = len(incidents)
-            types = [inc.get('description', 'N/A')[:30] for inc in incidents]
+        if alertes:
+            nb_incidents = len(alertes)
+            types = [inc.get('description', 'N/A')[:30] for inc in alertes]
             from collections import Counter
             top_types = Counter(types).most_common(2)
             synthese_types = ", ".join([t[0] for t in top_types])
@@ -3545,7 +3545,7 @@ async def export_bilan_partenaire_ppt(
             "info case MD": info_md,
             "info case DD": info_dd,
             "commentaire sur l'accueil": commentaire_accueil,
-            "Agent qui résume les faits inscrits lors des incidents dans la case dédiée aux commentaires": logs["incidentsSynthese"]
+            "Agent qui résume les faits inscrits lors des alertes dans la case dédiée aux commentaires": logs["incidentsSynthese"]
         }
         
         # === REPLACE PLACEHOLDERS WITH TOLERANT REGEX ===
