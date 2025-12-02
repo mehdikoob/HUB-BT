@@ -196,22 +196,22 @@ class TestLigne(TestLigneBase):
     created_by: Optional[CreatedByInfo] = None  # Informations du créateur
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-# Models - Incident
-class IncidentBase(BaseModel):
+# Models - Alerte
+class AlerteBase(BaseModel):
     test_id: str
     type_test: TypeTest
     description: str
-    statut: StatutIncident = StatutIncident.ouvert
+    statut: StatutAlerte = StatutAlerte.ouvert
     programme_id: Optional[str] = None
     partenaire_id: Optional[str] = None
 
-class IncidentCreate(IncidentBase):
+class AlerteCreate(AlerteBase):
     pass
 
-class Incident(IncidentBase):
+class Alerte(AlerteBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    user_id: Optional[str] = None  # ID de l'utilisateur qui a créé/détecté l'incident
+    user_id: Optional[str] = None  # ID de l'utilisateur qui a créé/détecté l'alerte
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     resolved_at: Optional[datetime] = None
 
