@@ -110,7 +110,8 @@ const Parametres = () => {
         role: user.role,
         is_active: user.is_active,
         programme_id: user.programme_id || '',
-        partenaire_id: user.partenaire_id || ''
+        partenaire_id: user.partenaire_id || '',
+        programme_ids: user.programme_ids || []  // Pour les chefs de projet
       });
     } else {
       setEditingUser(null);
@@ -122,7 +123,8 @@ const Parametres = () => {
         role: 'agent',
         is_active: true,
         programme_id: '',
-        partenaire_id: ''
+        partenaire_id: '',
+        programme_ids: []  // Pour les chefs de projet
       });
     }
     setDialogOpen(true);
