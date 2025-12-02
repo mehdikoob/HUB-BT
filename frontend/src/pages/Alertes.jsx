@@ -9,22 +9,22 @@ import { format } from 'date-fns';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const Incidents = () => {
-  const [alertes, setIncidents] = useState([]);
+const Alertes = () => {
+  const [alertes, setAlertes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    fetchIncidents();
+    fetchAlertes();
   }, [filter]);
 
-  const fetchIncidents = async () => {
+  const fetchAlertes = async () => {
     try {
       const params = {};
       if (filter) params.statut = filter;
       
       const response = await axios.get(`${API}/alertes/enriched`, { params });
-      setIncidents(response.data);
+      setAlertes(response.data);
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors du chargement des alertes');
@@ -37,8 +37,8 @@ const Incidents = () => {
     if (!window.confirm('Marquer cet alerte comme résolu ?')) return;
     try {
       await axios.put(`${API}/alertes/${id}`);
-      toast.success('Incident résolu');
-      fetchIncidents();
+      toast.success('Alerte résolu');
+      fetchAlertes();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors de la résolution');
@@ -49,8 +49,8 @@ const Incidents = () => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet alerte résolu ?')) return;
     try {
       await axios.delete(`${API}/alertes/${id}`);
-      toast.success('Incident supprimé');
-      fetchIncidents();
+      toast.success('Alerte supprimé');
+      fetchAlertes();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error(error.response?.data?.detail || 'Erreur lors de la suppression');
@@ -65,7 +65,7 @@ const Incidents = () => {
     <div data-testid="alertes-page">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
-          Incidents
+          Alertes
         </h1>
         <p className="text-gray-600">Suivi et résolution des alertes détectés</p>
       </div>
@@ -87,7 +87,7 @@ const Incidents = () => {
         </div>
       </Card>
 
-      {/* Incidents List */}
+      {/* Alertes List */}
       <div className="space-y-4">
         {alertes.map((alerte) => (
           <Card 
@@ -208,4 +208,4 @@ const Incidents = () => {
   );
 };
 
-export default Incidents;
+export default Alertes;
