@@ -1390,3 +1390,90 @@ Pour masquer un partenaire de Tests Ligne (ex: Babbel, Fram), éditer le partena
 
 ### Statut : ✅ TERMINÉ
 
+
+---
+
+## Phase 3 : Système de notifications in-app ✅
+
+**Date** : 02/12/2025
+
+### Modifications effectuées
+
+#### Backend (`/app/backend/server.py`)
+- ✅ **Modèle `Notification`** créé avec champs :
+  - `user_id`, `alerte_id`, `programme_id`, `partenaire_id`, `message`, `read`, `created_at`
+  
+- ✅ **4 endpoints créés** :
+  - `GET /api/notifications` : Récupérer les notifications de l'utilisateur
+  - `GET /api/notifications/unread-count` : Compteur de notifications non lues
+  - `PUT /api/notifications/{id}/read` : Marquer une notification comme lue
+  - `PUT /api/notifications/mark-all-read` : Marquer toutes comme lues
+  
+- ✅ **Logique automatique** :
+  - Fonction `create_notifications_for_chefs_projet()` créée
+  - Lors de création d'alerte, détecte les chefs de projet concernés
+  - Crée automatiquement une notification pour chaque chef de projet ayant le programme dans sa liste
+  
+- ✅ **Fix bug création utilisateur** :
+  - Endpoints `/api/users` et `/api/auth/register` corrigés
+  - Champs `programme_ids`, `programme_id`, `partenaire_id` maintenant correctement enregistrés
+
+#### Frontend
+- ✅ **Composant `NotificationCenter.jsx`** créé :
+  - Icône cloche 🔔 avec badge compteur rouge
+  - Panel déroulant responsive
+  - Liste des notifications avec formatage `[Programme] - Partenaire : Description`
+  - Date relative (Il y a X min/h/j)
+  - Point bleu pour notifications non lues
+  - Clic sur notification → redirection vers page Alertes
+  - Bouton "Marquer tout comme lu"
+  - Auto-refresh toutes les 30 secondes
+  
+- ✅ **Integration dans `Layout.jsx`** :
+  - NotificationCenter visible uniquement pour `admin` et `chef_projet`
+  - Positionné dans le header (mobile + desktop)
+  
+- ✅ **Service `api.js`** créé :
+  - Instance axios configurée avec baseURL `/api`
+  - Intercepteurs pour authentification automatique
+  - Gestion auto des erreurs 401 (redirection login)
+
+### Tests de vérification
+- ✅ Chef de projet créé avec 2 programmes affiliés
+- ✅ Alerte créée → notification automatiquement générée
+- ✅ API `/api/notifications` retourne 1 notification
+- ✅ Compteur non lues : 1
+- ✅ Interface UI : Badge rouge "1" affiché
+- ✅ Panel s'ouvre et affiche le message correctement formaté
+- ✅ Date relative affichée ("Il y a 3 min")
+- ✅ Point bleu pour notification non lue visible
+
+### Statut : ✅ TERMINÉ
+
+---
+
+## 🎉 TOUTES LES PHASES TERMINÉES ! 🎉
+
+### Récapitulatif complet
+
+✅ **Phase 1 : Renommage "Incidents" → "Alertes"**
+- Collection MongoDB, modèles, endpoints, frontend : TOUT renommé
+
+✅ **Phase 2 : Nouveau rôle "Chef de projet"**
+- Rôle créé avec droits admin + affiliation multi-programmes
+- Interface de gestion dans Paramètres
+
+✅ **Phase 3 : Système de notifications in-app**
+- Notifications automatiques lors de création d'alertes
+- Panel déroulant fonctionnel avec badge compteur
+
+✅ **Phase 4 : Badges "En travaux"**
+- Badges WIP orange dans menu
+- Bannières d'avertissement sur pages concernées
+
+### Statistiques
+- **Fichiers modifiés** : 8+
+- **Fichiers créés** : 2 (NotificationCenter.jsx, api.js)
+- **Lignes de code ajoutées** : ~500+
+- **Tests effectués** : Backend API ✅, Frontend UI ✅, Intégration E2E ✅
+
