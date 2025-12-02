@@ -485,7 +485,7 @@ async def check_and_create_alerte(test_id: str, type_test: TypeTest, description
         test_id=test_id,
         type_test=type_test,
         description=description,
-        statut=StatutIncident.ouvert,
+        statut=StatutAlerte.ouvert,
         programme_id=programme_id,
         partenaire_id=partenaire_id,
         user_id=user_id
@@ -1039,7 +1039,7 @@ async def delete_test_ligne(test_id: str):
 # Routes - Incidents
 @api_router.get("/alertes", response_model=List[Alerte])
 async def get_incidents(
-    statut: Optional[StatutIncident] = Query(None),
+    statut: Optional[StatutAlerte] = Query(None),
     current_user: User = Depends(get_current_active_user)
 ):
     query = {}
@@ -1066,7 +1066,7 @@ async def get_incidents(
     return alertes
 
 @api_router.get("/alertes/enriched")
-async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None)):
+async def get_incidents_enriched(statut: Optional[StatutAlerte] = Query(None)):
     """Get alertes with programme and partenaire details"""
     query = {}
     if statut:
@@ -1104,7 +1104,7 @@ async def resolve_incident(alerte_id: str):
     resolved_at = datetime.now(timezone.utc).isoformat()
     await db.alertes.update_one(
         {"id": alerte_id},
-        {"$set": {"statut": StatutIncident.resolu, "resolved_at": resolved_at}}
+        {"$set": {"statut": StatutAlerte.resolu, "resolved_at": resolved_at}}
     )
     
     updated = await db.alertes.find_one({"id": alerte_id}, {"_id": 0})
@@ -1122,7 +1122,7 @@ async def delete_incident(alerte_id: str):
         raise HTTPException(status_code=404, detail="Incident non trouvé")
     
     # Verify that the alerte is resolved before allowing deletion
-    if existing.get('statut') != StatutIncident.resolu:
+    if existing.get('statut') != StatutAlerte.resolu:
         raise HTTPException(status_code=400, detail="Seuls les alertes résolus peuvent être supprimés")
     
     result = await db.alertes.delete_one({"id": alerte_id})
