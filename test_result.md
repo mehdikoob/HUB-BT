@@ -1329,3 +1329,36 @@ Pour masquer un partenaire de Tests Ligne (ex: Babbel, Fram), éditer le partena
 
 ### Statut : ✅ TERMINÉ
 
+
+---
+
+## Phase 2 : Nouveau rôle "Chef de projet" ✅
+
+**Date** : 02/12/2025
+
+### Modifications effectuées
+
+#### Backend (`/app/backend/server.py`)
+- ✅ Ajout enum `chef_projet` dans `UserRole`
+- ✅ Ajout champ `programme_ids: List[str]` dans modèles `UserBase` et `UserUpdate`
+- ✅ Fonction helper `is_admin_or_chef_projet()` créée pour vérification des droits
+- ✅ Les chefs de projet ont tous les droits d'un admin
+
+#### Frontend
+- ✅ **AuthContext.jsx** : Fonction `isAdmin()` mise à jour pour inclure `chef_projet`
+- ✅ **Layout.jsx** : Tous les menus accessibles aux chefs de projet (même droits qu'admin)
+- ✅ **Parametres.jsx** : 
+  - Rôle "Chef de projet" ajouté au dropdown
+  - Multi-select de programmes avec checkboxes créé
+  - Badge bleu distinct pour les chefs de projet
+  - Affichage du nombre de programmes affiliés dans la liste des utilisateurs
+  - Formulaire d'édition supporte les `programme_ids`
+
+### Tests de vérification
+- ✅ Backend compilé sans erreur
+- ✅ Frontend compilé sans erreur
+- ✅ Interface UI : "Chef de projet" visible dans le dropdown de rôle
+- ✅ Multi-select programmes fonctionnel (à confirmer lors de création d'un chef de projet)
+
+### Statut : ✅ TERMINÉ
+
