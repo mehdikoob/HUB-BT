@@ -140,11 +140,20 @@ class TestSiteBase(BaseModel):
 class TestSiteCreate(TestSiteBase):
     pass
 
+class CreatedByInfo(BaseModel):
+    """Informations sur l'utilisateur créateur"""
+    id: str
+    nom: str
+    prenom: str
+    email: str
+    role: str
+
 class TestSite(TestSiteBase):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     pct_remise_calcule: float = 0.0
     user_id: Optional[str] = None  # ID de l'utilisateur qui a créé le test
+    created_by: Optional[CreatedByInfo] = None  # Informations du créateur
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # Models - Test Ligne
