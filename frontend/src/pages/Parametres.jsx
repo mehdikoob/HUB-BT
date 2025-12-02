@@ -34,7 +34,8 @@ const Parametres = () => {
     role: 'agent',
     is_active: true,
     programme_id: '',
-    partenaire_id: ''
+    partenaire_id: '',
+    programme_ids: []  // Pour les chefs de projet
   });
 
   const { getAuthHeader, user: currentUser, fetchCurrentUser } = useAuth();
