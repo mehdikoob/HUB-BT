@@ -56,10 +56,10 @@ function AppRoutes() {
         <Route path="tests-site" element={<TestsSite />} />
         <Route path="tests-ligne" element={<TestsLigne />} />
         <Route
-          path="incidents"
+          path="alertes"
           element={
             <ProtectedRoute adminOnly>
-              <Incidents />
+              <Alertes />
             </ProtectedRoute>
           }
         />
