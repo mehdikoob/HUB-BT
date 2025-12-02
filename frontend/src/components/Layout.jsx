@@ -16,7 +16,7 @@ const Layout = () => {
     { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['admin', 'agent', 'partenaire'] },
     { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['admin', 'agent', 'programme', 'partenaire'] },
     { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['admin', 'agent', 'programme', 'partenaire'] },
-    { path: '/incidents', icon: AlertCircle, label: 'Incidents', allowedRoles: ['admin'] },
+    { path: '/alertes', icon: AlertCircle, label: 'Alertes', allowedRoles: ['admin'] },
     { path: '/messagerie', icon: Mail, label: 'Messagerie', allowedRoles: ['admin'] },
     { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire', allowedRoles: ['admin', 'agent'] },
     { path: '/statistiques', icon: BarChart3, label: 'Statistiques', allowedRoles: ['admin'] },
