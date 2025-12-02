@@ -249,7 +249,7 @@ class EmailDraftStatus(str, Enum):
     sent = "sent"
 
 class EmailDraftBase(BaseModel):
-    incident_id: str
+    alerte_id: str
     template_id: Optional[str] = None
     subject: str
     body: str
@@ -267,7 +267,7 @@ class EmailDraft(EmailDraftBase):
 
 # Models - Email History
 class EmailHistoryBase(BaseModel):
-    incident_id: str
+    alerte_id: str
     draft_id: str
     recipient: str
     subject: str
@@ -333,10 +333,10 @@ def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float
         return 0.0
     return round((1 - prix_remise / prix_public) * 100, 2)
 
-async def replace_template_variables(template_text: str, incident_id: str) -> str:
+async def replace_template_variables(template_text: str, alerte_id: str) -> str:
     """Replace template variables with actual data from incident"""
     # Get incident data
-    incident = await db.alertes.find_one({"id": incident_id})
+    incident = await db.alertes.find_one({"id": alerte_id})
     if not incident:
         return template_text
     
@@ -405,18 +405,18 @@ async def send_email_smtp(recipient: str, subject: str, body: str, signature: st
         logging.error(f"SMTP Error: {str(e)}")
         return {"status": "error", "message": str(e)}
 
-async def create_email_draft_for_alerte(incident_id: str):
+async def create_email_draft_for_alerte(alerte_id: str):
     """Automatically create an email draft when an incident is created"""
     try:
         # Get incident
-        incident = await db.alertes.find_one({"id": incident_id})
+        incident = await db.alertes.find_one({"id": alerte_id})
         if not incident:
             return
         
         # Get partenaire to get recipient email
         partenaire = await db.partenaires.find_one({"id": incident.get('partenaire_id')}) if incident.get('partenaire_id') else None
         if not partenaire or not partenaire.get('contact_email'):
-            logging.warning(f"No contact email for incident {incident_id}")
+            logging.warning(f"No contact email for incident {alerte_id}")
             return
         
         # Get default template
@@ -460,12 +460,12 @@ Bien cordialement,""",
             body_template = default_template.body_template
             template_id = default_template.id
             
-        subject = await replace_template_variables(subject_template, incident_id)
-        body = await replace_template_variables(body_template, incident_id)
+        subject = await replace_template_variables(subject_template, alerte_id)
+        body = await replace_template_variables(body_template, alerte_id)
         
         # Create draft
         draft = EmailDraft(
-            incident_id=incident_id,
+            alerte_id=alerte_id,
             template_id=template_id,
             subject=subject,
             body=body,
@@ -476,7 +476,7 @@ Bien cordialement,""",
         doc['created_at'] = doc['created_at'].isoformat()
         await db.email_drafts.insert_one(doc)
         
-        logging.info(f"Email draft created for incident {incident_id}")
+        logging.info(f"Email draft created for incident {alerte_id}")
     except Exception as e:
         logging.error(f"Error creating email draft: {str(e)}")
 
@@ -1095,29 +1095,29 @@ async def get_incidents_enriched(statut: Optional[StatutIncident] = Query(None))
     
     return incidents
 
-@api_router.put("/incidents/{incident_id}", response_model=Incident)
-async def resolve_incident(incident_id: str):
-    existing = await db.alertes.find_one({"id": incident_id})
+@api_router.put("/incidents/{alerte_id}", response_model=Incident)
+async def resolve_incident(alerte_id: str):
+    existing = await db.alertes.find_one({"id": alerte_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Incident non trouvé")
     
     resolved_at = datetime.now(timezone.utc).isoformat()
     await db.alertes.update_one(
-        {"id": incident_id},
+        {"id": alerte_id},
         {"$set": {"statut": StatutIncident.resolu, "resolved_at": resolved_at}}
     )
     
-    updated = await db.alertes.find_one({"id": incident_id}, {"_id": 0})
+    updated = await db.alertes.find_one({"id": alerte_id}, {"_id": 0})
     if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
     if updated.get('resolved_at') and isinstance(updated['resolved_at'], str):
         updated['resolved_at'] = datetime.fromisoformat(updated['resolved_at'])
     return updated
 
-@api_router.delete("/incidents/{incident_id}")
-async def delete_incident(incident_id: str):
+@api_router.delete("/incidents/{alerte_id}")
+async def delete_incident(alerte_id: str):
     """Delete an incident (only if resolved)"""
-    existing = await db.alertes.find_one({"id": incident_id})
+    existing = await db.alertes.find_one({"id": alerte_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Incident non trouvé")
     
@@ -1125,7 +1125,7 @@ async def delete_incident(incident_id: str):
     if existing.get('statut') != StatutIncident.resolu:
         raise HTTPException(status_code=400, detail="Seuls les incidents résolus peuvent être supprimés")
     
-    result = await db.alertes.delete_one({"id": incident_id})
+    result = await db.alertes.delete_one({"id": alerte_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Incident non trouvé")
     
@@ -2323,7 +2323,7 @@ async def send_email_draft(draft_id: str, request: SendEmailRequest):
         
         # Create history entry
         history = EmailHistory(
-            incident_id=draft['incident_id'],
+            alerte_id=draft['alerte_id'],
             draft_id=draft_id,
             recipient=draft['recipient'],
             subject=draft['subject'],
@@ -2336,7 +2336,7 @@ async def send_email_draft(draft_id: str, request: SendEmailRequest):
         
         # Update incident status to indicate contact was made
         await db.alertes.update_one(
-            {"id": draft['incident_id']},
+            {"id": draft['alerte_id']},
             {"$set": {"statut": "resolu"}}
         )
         
@@ -2344,7 +2344,7 @@ async def send_email_draft(draft_id: str, request: SendEmailRequest):
     else:
         # Log failure in history
         history = EmailHistory(
-            incident_id=draft['incident_id'],
+            alerte_id=draft['alerte_id'],
             draft_id=draft_id,
             recipient=draft['recipient'],
             subject=draft['subject'],
@@ -2360,10 +2360,10 @@ async def send_email_draft(draft_id: str, request: SendEmailRequest):
 
 # Routes - Email History
 @api_router.get("/email-history", response_model=List[EmailHistory])
-async def get_email_history(incident_id: Optional[str] = None):
+async def get_email_history(alerte_id: Optional[str] = None):
     query = {}
-    if incident_id:
-        query['incident_id'] = incident_id
+    if alerte_id:
+        query['alerte_id'] = alerte_id
     history = await db.email_history.find(query).sort("sent_at", -1).to_list(length=None)
     return history
 
