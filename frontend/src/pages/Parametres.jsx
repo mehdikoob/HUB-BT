@@ -21,6 +21,7 @@ const Parametres = () => {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);  // Pour le formulaire d'édition/création
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
