@@ -53,8 +53,8 @@ const InsightsIA = () => {
     setLoading(true);
     try {
       let url = `${process.env.REACT_APP_BACKEND_URL}/api/insights/generate?period=${period}`;
-      if (programmeId) url += `&programme_id=${programmeId}`;
-      if (partenaireId) url += `&partenaire_id=${partenaireId}`;
+      if (programmeId && programmeId !== 'all') url += `&programme_id=${programmeId}`;
+      if (partenaireId && partenaireId !== 'all') url += `&partenaire_id=${partenaireId}`;
       
       const response = await axios.get(url, {
         headers: {
