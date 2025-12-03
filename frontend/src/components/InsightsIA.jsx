@@ -206,21 +206,21 @@ const InsightsIA = () => {
         </CardHeader>
 
         <CardContent className="pt-0">
-        {!insights && !loading && (
-          <div className="text-center py-12 text-gray-500">
-            <Sparkles className="mx-auto mb-4 text-gray-300" size={48} />
-            <p className="text-lg font-medium mb-2">Aucun insight généré</p>
-            <p className="text-sm">Cliquez sur "Générer" pour obtenir une analyse IA de vos données</p>
-          </div>
-        )}
+          {!insights && !loading && (
+            <div className="text-center py-6 text-gray-500">
+              <Sparkles className="mx-auto mb-3 text-gray-300" size={36} />
+              <p className="text-sm font-medium mb-1">Aucun insight généré</p>
+              <p className="text-xs">Sélectionnez vos filtres et cliquez sur "Générer"</p>
+            </div>
+          )}
 
-        {loading && (
-          <div className="text-center py-12">
-            <Loader2 className="mx-auto mb-4 animate-spin text-purple-500" size={48} />
-            <p className="text-lg font-medium text-gray-700">Analyse en cours...</p>
-            <p className="text-sm text-gray-500 mt-2">L'IA analyse vos données (5-10 secondes)</p>
-          </div>
-        )}
+          {loading && (
+            <div className="text-center py-6">
+              <Loader2 className="mx-auto mb-3 animate-spin text-purple-500" size={36} />
+              <p className="text-sm font-medium text-gray-700">Analyse IA en cours...</p>
+              <p className="text-xs text-gray-500 mt-1">Patientez quelques secondes</p>
+            </div>
+          )}
 
         {insights && insights.enabled && (
           <div className="space-y-4">
