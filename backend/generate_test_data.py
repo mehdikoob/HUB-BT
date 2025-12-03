@@ -72,14 +72,14 @@ async def generate_test_data():
         for prog_assoc in part_info['programmes']:
             prog_id = prog_assoc['programme_id']
             
-            # Générer 1 test par mois sur 12 mois (avec variation)
+            # Générer 1-2 tests par mois sur 12 mois (avec variation)
             for month_offset in range(12):
                 # Date du test (entre le 1er et le 28 du mois)
                 date_test = now - timedelta(days=30 * month_offset + random.randint(1, 28))
                 created_at = date_test - timedelta(hours=random.randint(1, 48))
                 
-                # Probabilité de faire le test (90% chance)
-                if random.random() > 0.9:
+                # Probabilité de faire le test (95% chance)
+                if random.random() > 0.95:
                     continue
                 
                 # Test Site si requis
