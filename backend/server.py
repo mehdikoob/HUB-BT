@@ -263,11 +263,18 @@ class AlerteCreateStandalone(BaseModel):
     type_test: TypeTest
     description: str
     statut: StatutAlerte = StatutAlerte.ouvert
+    screenshots: List[str] = []  # IDs des screenshots stockés dans GridFS (max 3)
     
     @field_validator('description')
     def validate_description(cls, v):
         if not v or not v.strip():
             raise ValueError('Description ne peut pas être vide')
+        return v
+    
+    @field_validator('screenshots')
+    def validate_screenshots(cls, v):
+        if len(v) > 3:
+            raise ValueError('Maximum 3 screenshots autorisés')
         return v
 
 class Alerte(AlerteBase):
