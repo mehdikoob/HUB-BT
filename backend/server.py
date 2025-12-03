@@ -702,12 +702,21 @@ async def generate_insights_with_ai(period: str = "week", programme_id: str = No
         
         top_3_issues = sorted(top_issues.items(), key=lambda x: x[1], reverse=True)[:3]
         
+        # Déterminer le scope de l'analyse
+        scope_text = ""
+        if programme_id:
+            prog_name = programmes_dict.get(programme_id, "Inconnu")
+            scope_text = f" - Programme: {prog_name}"
+        if partenaire_id:
+            part_name = partenaires_dict.get(partenaire_id, "Inconnu")
+            scope_text += f" - Partenaire: {part_name}"
+        
         # Construire prompt pour Gemini
         prompt = f"""Tu es un analyste de données pour une plateforme de tests aveugles de partenariats.
 
 Analyse les données suivantes et génère 3-4 insights pertinents et actionnables:
 
-PÉRIODE: {"Dernière semaine" if period == "week" else "Dernier mois"}
+PÉRIODE: {"Dernière semaine" if period == "week" else "Dernier mois"}{scope_text}
 
 DONNÉES:
 - Total tests effectués: {total_tests} (Site: {len(tests_site)}, Ligne: {len(tests_ligne)})
