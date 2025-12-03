@@ -229,7 +229,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm hover-lift animate-slide-up animation-delay-500">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="text-purple-600" size={20} />
