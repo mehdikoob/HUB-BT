@@ -976,14 +976,22 @@ const TestsSite = () => {
                     <Label htmlFor="cumul_codes" className="mb-0">Cumul des codes promo</Label>
                   </div>
                 </div>
+                </>
+                )}
+                
+                {/* Commentaires - Obligatoire si test avorté */}
                 <div>
-                  <Label htmlFor="commentaire">Commentaire</Label>
+                  <Label htmlFor="commentaire">
+                    Commentaire {formData.statut_test === 'avorte' && <span className="text-red-600">*</span>}
+                  </Label>
                   <Textarea
                     id="commentaire"
                     data-testid="test-site-commentaire-input"
                     value={formData.commentaire}
                     onChange={(e) => setFormData({ ...formData, commentaire: e.target.value })}
                     rows={3}
+                    required={formData.statut_test === 'avorte'}
+                    placeholder={formData.statut_test === 'avorte' ? "Décrivez le problème rencontré (obligatoire)" : "Commentaire optionnel"}
                   />
                 </div>
                 
