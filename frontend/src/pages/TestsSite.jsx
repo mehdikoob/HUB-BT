@@ -993,7 +993,6 @@ const TestsSite = () => {
                     <Label htmlFor="cumul_codes" className="mb-0">Cumul des codes promo</Label>
                   </div>
                 </div>
-                </>
                 )}
                 
                 {/* Commentaires - Obligatoire si test avorté */}
