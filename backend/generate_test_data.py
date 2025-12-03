@@ -83,7 +83,7 @@ async def generate_test_data():
                     continue
                 
                 # Test Site si requis
-                if prog_assoc['test_site_requis'] and random.random() > 0.1:
+                if prog_assoc['test_site_requis'] and random.random() > 0.05:
                     test_site = {
                         "id": str(uuid4()),
                         "date_test": date_test.isoformat(),
