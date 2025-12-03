@@ -74,6 +74,8 @@ const TestsSite = () => {
     programme_id: '',
     partenaire_id: '',
     date_test: '',
+    statut_test: 'effectue',  // 'effectue' ou 'avorte'
+    raison_avortement: '',
     application_remise: true,
     prix_public: '',
     prix_remise: '',
@@ -81,6 +83,7 @@ const TestsSite = () => {
     cumul_codes: false,
     commentaire: '',
     attachments: [],
+    screenshots: [],
   });
   const [uploadingFile, setUploadingFile] = useState(false);
   const [partenaireUrl, setPartenaireUrl] = useState('');
