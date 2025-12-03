@@ -1987,9 +1987,9 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         "total_incidents_ouverts": total_incidents_ouverts,
         "taux_reussite_ts": round(taux_reussite_ts, 2),
         "taux_reussite_tl": round(taux_reussite_tl, 2),
-        "tests_avortes": total_tests_avortes,  # Nouveau : nombre de tests avortés
-        "tests_avortes_site": tests_site_avortes,
-        "tests_avortes_ligne": tests_ligne_avortes,
+        "tests_non_realisables": total_tests_non_realisables,  # Nombre de tests non réalisables
+        "tests_non_realisables_site": tests_site_non_realisables,
+        "tests_non_realisables_ligne": tests_ligne_non_realisables,
         "tests_manquants": tests_manquants,
         "tests_manquants_count": len(tests_manquants),  # Nombre de combinaisons avec tests manquants
         "tests_manquants_reel": tests_manquants_reel,  # Vrai nombre de tests manquants
