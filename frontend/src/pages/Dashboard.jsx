@@ -173,8 +173,8 @@ const Dashboard = () => {
 
       {/* Indicateur de tests mensuels */}
       {stats?.tests_attendus > 0 && (
-        <Card className="mb-6 border-0 shadow-sm hover-lift animate-fade-in animation-delay-300">
-          <CardContent className="p-6">
+        <Card className="mb-4 border-0 shadow-sm hover-lift animate-fade-in animation-delay-300">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-lg bg-blue-50">
