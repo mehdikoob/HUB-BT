@@ -130,14 +130,13 @@ class TestSiteBase(BaseModel):
     programme_id: str
     partenaire_id: str
     date_test: datetime
-    statut_test: str = "effectue"  # "effectue" ou "avorte"
+    test_non_realisable: bool = False  # Checkbox simple
     application_remise: Optional[bool] = None
     prix_public: Optional[float] = None
     prix_remise: Optional[float] = None
     naming_constate: Optional[str] = None
     cumul_codes: Optional[bool] = None
     commentaire: Optional[str] = None
-    raison_avortement: Optional[str] = None  # Si statut_test = "avorte"
     attachments: List[str] = []  # URLs ou chemins des fichiers joints (jpeg, png, pdf)
     screenshots: List[str] = []  # Captures d'écran (base64)
 
