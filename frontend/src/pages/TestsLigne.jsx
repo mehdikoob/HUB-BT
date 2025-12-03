@@ -74,8 +74,7 @@ const TestsLigne = () => {
     programme_id: '',
     partenaire_id: '',
     date_test: '',
-    statut_test: 'effectue',  // 'effectue' ou 'avorte'
-    raison_avortement: '',
+    test_non_realisable: false,  // Checkbox simple
     numero_telephone: '',
     messagerie_vocale_dediee: false,
     decroche_dedie: false,
