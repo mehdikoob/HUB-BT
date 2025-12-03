@@ -158,7 +158,7 @@ const InsightsIA = () => {
                   <SelectValue placeholder="Tous programmes" />
                 </SelectTrigger>
                 <SelectContent className="z-[100]">
-                  <SelectItem value="">🌐 Tous programmes</SelectItem>
+                  <SelectItem value="all">🌐 Tous programmes</SelectItem>
                   {programmes.map((prog) => (
                     <SelectItem key={prog.id} value={prog.id}>
                       {prog.nom}
@@ -173,7 +173,7 @@ const InsightsIA = () => {
                   <SelectValue placeholder="Tous partenaires" />
                 </SelectTrigger>
                 <SelectContent className="z-[100]">
-                  <SelectItem value="">👥 Tous partenaires</SelectItem>
+                  <SelectItem value="all">👥 Tous partenaires</SelectItem>
                   {partenaires.map((part) => (
                     <SelectItem key={part.id} value={part.id}>
                       {part.nom}
