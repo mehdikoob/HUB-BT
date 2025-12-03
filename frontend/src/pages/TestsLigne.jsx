@@ -216,28 +216,50 @@ const TestsLigne = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validations conditionnelles
+    // Si test non réalisable : créer une alerte au lieu d'un test
     if (formData.test_non_realisable) {
-      // Si test non réalisable : commentaire obligatoire
       if (!formData.commentaire || !formData.commentaire.trim()) {
         toast.error('Le commentaire est obligatoire pour un test non réalisable');
         return;
       }
-    } else {
-      // Si test réalisable : validation des champs techniques
-      const delaiParts = formData.delai_attente.split(':');
-      if (delaiParts.length !== 2) {
-        toast.error('Format de délai invalide. Utilisez mm:ss');
-        return;
-      }
       
-      const minutes = parseInt(delaiParts[0]);
-      const seconds = parseInt(delaiParts[1]);
-      
-      if (isNaN(minutes) || isNaN(seconds) || seconds > 59 || minutes >= 10) {
-        toast.error('Délai invalide. Les minutes doivent être < 10 et les secondes < 60');
-        return;
+      try {
+        await axios.post(`${API}/alertes`, {
+          programme_id: formData.programme_id,
+          partenaire_id: formData.partenaire_id,
+          type_test: 'TL',
+          description: `Test ligne non réalisable - ${formData.commentaire}`,
+          statut: 'ouvert',
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        toast.success('Alerte créée avec succès');
+        resetForm();
+        setDialogOpen(false);
+        fetchTests();
+      } catch (error) {
+        console.error('Erreur création alerte:', error);
+        toast.error(error.response?.data?.detail || 'Erreur lors de la création de l\'alerte');
       }
+      return;
+    }
+    
+    // Si test réalisable : validation des champs techniques
+    const delaiParts = formData.delai_attente.split(':');
+    if (delaiParts.length !== 2) {
+      toast.error('Format de délai invalide. Utilisez mm:ss');
+      return;
+    }
+    
+    const minutes = parseInt(delaiParts[0]);
+    const seconds = parseInt(delaiParts[1]);
+    
+    if (isNaN(minutes) || isNaN(seconds) || seconds > 59 || minutes >= 10) {
+      toast.error('Délai invalide. Les minutes doivent être < 10 et les secondes < 60');
+      return;
     }
 
     // Check if test already exists this month for this partenaire/programme (only for new tests)
