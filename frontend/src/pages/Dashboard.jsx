@@ -176,28 +176,28 @@ const Dashboard = () => {
         <Card className="mb-4 border-0 shadow-sm hover-lift animate-fade-in animation-delay-300">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-blue-50">
-                  <TrendingUp className="text-blue-600" size={24} />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-50">
+                  <TrendingUp className="text-blue-600" size={20} />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Progression mensuelle</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    <span className="text-blue-600">{stats.tests_effectues}</span> / {stats.tests_attendus} tests réalisés ce mois-ci
+                  <p className="text-xs text-gray-600 mb-0.5">Progression mensuelle</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    <span className="text-blue-600">{stats.tests_effectues}</span> / {stats.tests_attendus} tests
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-blue-600">
                   {Math.round((stats.tests_effectues / stats.tests_attendus) * 100)}%
                 </div>
                 <p className="text-xs text-gray-500">Complétion</p>
               </div>
             </div>
             {/* Progress bar */}
-            <div className="mt-4 bg-gray-200 rounded-full h-2">
+            <div className="mt-3 bg-gray-200 rounded-full h-1.5">
               <div 
-                className="bg-blue-600 rounded-full h-2 transition-all duration-300"
+                className="bg-blue-600 rounded-full h-1.5 transition-all duration-300"
                 style={{ width: `${Math.min((stats.tests_effectues / stats.tests_attendus) * 100, 100)}%` }}
               ></div>
             </div>
