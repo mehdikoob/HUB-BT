@@ -758,14 +758,40 @@ const TestsLigne = () => {
                     <Label htmlFor="application_offre" className="mb-0">Application de l'offre</Label>
                   </div>
                 </div>
+                
+                {/* Checkbox Test non réalisable */}
+                <div className="border-l-4 border-orange-400 pl-4 py-2 bg-orange-50">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="test_non_realisable"
+                      checked={formData.test_non_realisable}
+                      onChange={(e) => setFormData({ ...formData, test_non_realisable: e.target.checked })}
+                      className="w-4 h-4 mt-1 text-orange-600 rounded focus:ring-orange-500"
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor="test_non_realisable" className="text-sm font-medium text-orange-900 cursor-pointer">
+                        Test non réalisable
+                      </Label>
+                      <p className="text-xs text-orange-700 mt-0.5">
+                        Cocher uniquement si le test n&apos;a pas pu être effectué
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
                 <div>
-                  <Label htmlFor="commentaire">Commentaire</Label>
+                  <Label htmlFor="commentaire">
+                    Commentaire {formData.test_non_realisable && <span className="text-red-600">*</span>}
+                  </Label>
                   <Textarea
                     id="commentaire"
                     data-testid="test-ligne-commentaire-input"
                     value={formData.commentaire}
                     onChange={(e) => setFormData({ ...formData, commentaire: e.target.value })}
                     rows={3}
+                    required={formData.test_non_realisable}
+                    placeholder={formData.test_non_realisable ? "Décrivez pourquoi le test n'a pas pu être réalisé (obligatoire)" : "Commentaire optionnel"}
                   />
                 </div>
                 <div className="flex gap-2 justify-end">
