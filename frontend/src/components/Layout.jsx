@@ -63,22 +63,39 @@ const Layout = () => {
       `}>
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="bg-red-600 p-2 rounded-lg">
+            {!sidebarCollapsed ? (
+              <div className="flex items-center gap-2">
+                <div className="bg-red-600 p-2 rounded-lg">
+                  <Glasses className="text-white" size={24} />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-red-600" style={{ fontFamily: 'Work Sans' }}>
+                    QWERTYS
+                  </h1>
+                  <p className="text-xs font-medium text-gray-700">HUB BLIND TESTS</p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-red-600 p-2 rounded-lg mx-auto">
                 <Glasses className="text-white" size={24} />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-red-600" style={{ fontFamily: 'Work Sans' }}>
-                  QWERTYS
-                </h1>
-                <p className="text-xs font-medium text-gray-700">HUB BLIND TESTS</p>
-              </div>
-            </div>
+            )}
+            
+            {/* Bouton fermer (mobile) */}
             <button
               onClick={() => setSidebarOpen(false)}
               className="md:hidden text-gray-500 hover:text-gray-700"
             >
               <X size={24} />
+            </button>
+            
+            {/* Bouton toggle collapse (desktop) */}
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="hidden md:block text-gray-500 hover:text-gray-700 transition-transform"
+              title={sidebarCollapsed ? "Déplier le menu" : "Replier le menu"}
+            >
+              <Menu size={20} className={`transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
             </button>
           </div>
         </div>
