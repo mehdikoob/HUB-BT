@@ -205,21 +205,21 @@ const Dashboard = () => {
         </Card>
       )}
 
-      {/* Success Rates - Moved up for better visibility */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      {/* Success Rates - VERSION COMPACTE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <Card className="border-0 shadow-sm hover-lift animate-slide-up animation-delay-400">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="text-red-600" size={20} />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="text-red-600" size={18} />
               Taux de réussite Tests Site
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="text-5xl font-bold text-red-600">
+          <CardContent className="pt-0">
+            <div className="flex items-center gap-3">
+              <div className="text-4xl font-bold text-red-600">
                 {stats?.taux_reussite_ts || 0}%
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-xs text-gray-600">
                 Tests avec remise appliquée correctement
               </div>
             </div>
@@ -227,18 +227,18 @@ const Dashboard = () => {
         </Card>
 
         <Card className="border-0 shadow-sm hover-lift animate-slide-up animation-delay-500">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="text-purple-600" size={20} />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="text-purple-600" size={18} />
               Taux de réussite Tests Ligne
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="text-5xl font-bold text-purple-600">
+          <CardContent className="pt-0">
+            <div className="flex items-center gap-3">
+              <div className="text-4xl font-bold text-purple-600">
                 {stats?.taux_reussite_tl || 0}%
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-xs text-gray-600">
                 Tests avec offre appliquée correctement
               </div>
             </div>
