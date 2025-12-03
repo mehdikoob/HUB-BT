@@ -127,7 +127,7 @@ async def generate_test_data():
                         "decroche_dedie": random.choice([True, False]),
                         "delai_attente": f"0{random.randint(0, 5)}:{random.randint(10, 59)}",
                         "nom_conseiller": random.choice(["Jean", "Marie", "Pierre", "Sophie", "NC"]),
-                        "evaluation_accueil": random.choice(["tres_bon", "bon", "moyen", "mauvais"]),
+                        "evaluation_accueil": random.choice(["Excellent", "Bien", "Moyen", "Médiocre"]),
                         "application_offre": random.choice([True, True, True, False]),  # 75% succès
                         "commentaire": random.choice([
                             "Offre appliquée correctement",
