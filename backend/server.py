@@ -251,6 +251,7 @@ class AlerteBase(BaseModel):
     statut: StatutAlerte = StatutAlerte.ouvert
     programme_id: Optional[str] = None
     partenaire_id: Optional[str] = None
+    screenshots: List[str] = []  # IDs des screenshots stockés dans GridFS
 
 class AlerteCreate(AlerteBase):
     pass
