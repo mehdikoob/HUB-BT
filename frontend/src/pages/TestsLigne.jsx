@@ -231,6 +231,7 @@ const TestsLigne = () => {
           type_test: 'TL',
           description: `Test ligne non réalisable - ${formData.commentaire}`,
           statut: 'ouvert',
+          screenshots: formData.screenshots,
         }, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
