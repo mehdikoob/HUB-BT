@@ -295,14 +295,39 @@ const TestsSite = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validations conditionnelles
+    // Si test non réalisable : créer une alerte au lieu d'un test
     if (formData.test_non_realisable) {
-      // Si test non réalisable : commentaire obligatoire, champs techniques optionnels
       if (!formData.commentaire || !formData.commentaire.trim()) {
         toast.error('Le commentaire est obligatoire pour un test non réalisable');
         return;
       }
-    } else {
+      
+      try {
+        await axios.post(`${API}/alertes`, {
+          programme_id: formData.programme_id,
+          partenaire_id: formData.partenaire_id,
+          type_test: 'TS',
+          description: `Test site non réalisable - ${formData.commentaire}`,
+          statut: 'ouvert',
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        toast.success('Alerte créée avec succès');
+        resetForm();
+        setDialogOpen(false);
+        fetchTests();
+      } catch (error) {
+        console.error('Erreur création alerte:', error);
+        toast.error(error.response?.data?.detail || 'Erreur lors de la création de l\'alerte');
+      }
+      return;
+    }
+    
+    // Si test réalisable : procédure normale
+    {
       // Si test réalisable : champs techniques obligatoires
       if (!formData.prix_public || parseFloat(formData.prix_public) <= 0) {
         toast.error('Le prix public doit être supérieur à 0');
