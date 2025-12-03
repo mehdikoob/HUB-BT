@@ -52,7 +52,11 @@ const InsightsIA = () => {
   const generateInsights = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/insights/generate?period=${period}`, {
+      let url = `${process.env.REACT_APP_BACKEND_URL}/api/insights/generate?period=${period}`;
+      if (programmeId) url += `&programme_id=${programmeId}`;
+      if (partenaireId) url += `&partenaire_id=${partenaireId}`;
+      
+      const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
