@@ -91,10 +91,10 @@ const Layout = () => {
                     to={item.path}
                     onClick={closeSidebar}
                     data-testid={`nav-${item.label.toLowerCase().replace(/ /g, '-')}`}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                       active
-                        ? 'bg-red-50 text-red-600 font-medium'
-                        : 'text-gray-700 hover:bg-gray-50'
+                        ? 'bg-red-50 text-red-600 font-medium scale-105 shadow-sm'
+                        : 'text-gray-700 hover:bg-gray-50 hover:scale-105 hover:translate-x-1'
                     }`}
                   >
                     <Icon size={20} />
