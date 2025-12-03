@@ -122,19 +122,19 @@ async def generate_test_data():
                         "date_test": date_test.isoformat(),
                         "programme_id": prog_id,
                         "partenaire_id": part_id,
-                        "offre_testee": random.choice([
-                            "Offre vacances",
-                            "Offre spéciale",
-                            "Promotion été",
-                            "Offre partenaire"
-                        ]),
+                        "numero_telephone": f"0{random.randint(1, 9)}{random.randint(10000000, 99999999)}",
+                        "messagerie_vocale_dediee": random.choice([True, False]),
+                        "decroche_dedie": random.choice([True, False]),
+                        "delai_attente": f"0{random.randint(0, 5)}:{random.randint(10, 59)}",
+                        "nom_conseiller": random.choice(["Jean", "Marie", "Pierre", "Sophie", "NC"]),
+                        "evaluation_accueil": random.choice(["tres_bon", "bon", "moyen", "mauvais"]),
                         "application_offre": random.choice([True, True, True, False]),  # 75% succès
-                        "commentaires": random.choice([
+                        "commentaire": random.choice([
                             "Offre appliquée correctement",
                             "Test réussi",
                             "Problème détecté",
                             "Validation OK",
-                            ""
+                            None
                         ]),
                         "user_id": random.choice(user_ids),
                         "created_at": created_at.isoformat(),
