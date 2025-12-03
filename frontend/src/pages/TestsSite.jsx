@@ -860,6 +860,50 @@ const TestsSite = () => {
                     required
                   />
                 </div>
+                
+                {/* Statut du test */}
+                <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+                  <Label htmlFor="statut_test" className="text-base font-semibold text-blue-900">Statut du test *</Label>
+                  <Select
+                    value={formData.statut_test}
+                    onValueChange={(value) => setFormData({ ...formData, statut_test: value })}
+                    required
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="z-[100]">
+                      <SelectItem value="effectue">✅ Test effectué</SelectItem>
+                      <SelectItem value="avorte">🔴 Test avorté</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Si test avorté : Raison obligatoire */}
+                {formData.statut_test === 'avorte' && (
+                  <div className="border-2 border-red-200 rounded-lg p-4 bg-red-50">
+                    <Label htmlFor="raison_avortement" className="text-base font-semibold text-red-900">Raison de l'avortement *</Label>
+                    <Select
+                      value={formData.raison_avortement}
+                      onValueChange={(value) => setFormData({ ...formData, raison_avortement: value })}
+                      required
+                    >
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder="Sélectionnez une raison" />
+                      </SelectTrigger>
+                      <SelectContent className="z-[100]">
+                        <SelectItem value="site_inaccessible">🚫 Site inaccessible / URL invalide</SelectItem>
+                        <SelectItem value="erreur_technique">⚠️ Erreur technique du site</SelectItem>
+                        <SelectItem value="maintenance">🔧 Site en maintenance</SelectItem>
+                        <SelectItem value="connexion_impossible">🔐 Connexion impossible</SelectItem>
+                        <SelectItem value="autre">❓ Autre (préciser dans commentaires)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
+                {/* Champs techniques - Conditionnels selon statut */}
+                {formData.statut_test === 'effectue' && (
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="prix_public">Prix public (€) *</Label>
