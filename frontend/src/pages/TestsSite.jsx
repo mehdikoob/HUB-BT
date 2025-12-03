@@ -296,15 +296,26 @@ const TestsSite = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validations
-    if (parseFloat(formData.prix_public) <= 0) {
-      toast.error('Le prix public doit être supérieur à 0');
-      return;
-    }
-    
-    if (parseFloat(formData.prix_remise) < 0) {
-      toast.error('Le prix remisé ne peut pas être négatif');
-      return;
+    // Validations conditionnelles selon le statut
+    if (formData.statut_test === 'effectue') {
+      if (parseFloat(formData.prix_public) <= 0) {
+        toast.error('Le prix public doit être supérieur à 0');
+        return;
+      }
+      
+      if (parseFloat(formData.prix_remise) < 0) {
+        toast.error('Le prix remisé ne peut pas être négatif');
+        return;
+      }
+    } else if (formData.statut_test === 'avorte') {
+      if (!formData.raison_avortement) {
+        toast.error('La raison de l\'avortement est obligatoire');
+        return;
+      }
+      if (!formData.commentaire || !formData.commentaire.trim()) {
+        toast.error('Le commentaire est obligatoire pour un test avorté');
+        return;
+      }
     }
 
     // Check if test already exists this month for this partenaire/programme (only for new tests)
@@ -331,8 +342,8 @@ const TestsSite = () => {
     try {
       const submitData = {
         ...formData,
-        prix_public: parseFloat(formData.prix_public),
-        prix_remise: parseFloat(formData.prix_remise),
+        prix_public: formData.prix_public ? parseFloat(formData.prix_public) : null,
+        prix_remise: formData.prix_remise ? parseFloat(formData.prix_remise) : null,
         date_test: new Date(formData.date_test).toISOString(),
         attachments: formData.attachments.map(att => typeof att === 'string' ? att : att.url), // Handle both string URLs and objects
       };
