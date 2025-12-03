@@ -12,7 +12,7 @@ import uuid
 import time
 
 # Configuration
-BASE_URL = "https://testinsight-ai.preview.emergentagent.com/api"
+BASE_URL = "https://insight-dashboard-25.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 # Global variables for authentication
