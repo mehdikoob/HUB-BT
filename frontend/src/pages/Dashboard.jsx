@@ -31,11 +31,7 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Chargement...</div>
-      </div>
-    );
+    return <LoadingSpinner text="Chargement du tableau de bord..." />;
   }
 
   // Si l'utilisateur est un agent, afficher le dashboard simplifié
