@@ -130,7 +130,7 @@ const InsightsIA = () => {
 
   return (
     <>
-      <Card className="w-full shadow-sm">
+      <Card className="w-full shadow-sm hover-lift transition-smooth">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
