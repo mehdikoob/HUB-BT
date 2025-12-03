@@ -675,25 +675,31 @@ const TestsLigne = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="numero_telephone">Numéro de téléphone *</Label>
+                  <Label htmlFor="numero_telephone">
+                    Numéro de téléphone {!formData.test_non_realisable && '*'}
+                  </Label>
                   <Input
                     id="numero_telephone"
                     data-testid="test-ligne-telephone-input"
                     value={formData.numero_telephone}
                     onChange={(e) => setFormData({ ...formData, numero_telephone: e.target.value })}
                     placeholder="+33 X XX XX XX XX"
-                    required
+                    required={!formData.test_non_realisable}
+                    disabled={formData.test_non_realisable}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="delai_attente">Délai d'attente (mm:ss) *</Label>
+                  <Label htmlFor="delai_attente">
+                    Délai d'attente (mm:ss) {!formData.test_non_realisable && '*'}
+                  </Label>
                   <Input
                     id="delai_attente"
                     data-testid="test-ligne-delai-input"
                     value={formData.delai_attente}
                     onChange={(e) => setFormData({ ...formData, delai_attente: e.target.value })}
                     placeholder="02:30"
-                    required
+                    required={!formData.test_non_realisable}
+                    disabled={formData.test_non_realisable}
                   />
                 </div>
                 <div>
