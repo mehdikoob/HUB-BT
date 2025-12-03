@@ -226,7 +226,7 @@ const InsightsIA = () => {
             <div className="space-y-3">
               {/* Résumé global - VERSION COMPACTE */}
               {insights.summary && (
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+                <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg animate-scale-in transition-smooth hover:shadow-md">
                   <div className="flex items-start gap-3">
                     <Sparkles className="text-purple-500 flex-shrink-0 mt-0.5" size={18} />
                     <div className="flex-1">
