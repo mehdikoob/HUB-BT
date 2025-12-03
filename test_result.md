@@ -1477,3 +1477,68 @@ Pour masquer un partenaire de Tests Ligne (ex: Babbel, Fram), éditer le partena
 - **Lignes de code ajoutées** : ~500+
 - **Tests effectués** : Backend API ✅, Frontend UI ✅, Intégration E2E ✅
 
+
+---
+
+## Phase 5 : Feature "Test non réalisable" ✅
+
+**Date** : 03/12/2025
+
+### Modifications effectuées
+
+#### Backend (`/app/backend/server.py`)
+- ✅ **Modèle `AlerteBase` modifié** :
+  - Champ `test_id` rendu optionnel (pour les alertes créées sans test associé)
+  
+- ✅ **Nouveau modèle `AlerteCreateStandalone`** créé :
+  - Permet de créer une alerte directement sans test associé
+  - Champs requis : `programme_id`, `partenaire_id`, `type_test`, `description`, `statut`
+  
+- ✅ **Nouvel endpoint `POST /api/alertes`** :
+  - Crée une alerte standalone lorsqu'un test n'est pas réalisable
+  - Valide l'existence du programme et du partenaire
+  - Crée automatiquement une notification pour le chef de projet concerné
+  - Retourne l'alerte créée avec tous ses champs
+
+#### Frontend
+- ✅ **TestsSite.jsx et TestsLigne.jsx** :
+  - Checkbox "Test non réalisable" déjà implémentée (placée en bas du formulaire)
+  - Logique `handleSubmit` modifiée pour appeler `POST /api/alertes` quand checkbox cochée
+  - Commentaire devient obligatoire pour les tests non réalisables
+  - Champs techniques deviennent optionnels
+  - Message de succès : "Alerte créée avec succès"
+
+### Tests de vérification
+
+#### Test 1: Backend API - Tests Site (TS)
+- ✅ `POST /api/alertes` avec `type_test: "TS"` fonctionne
+- ✅ Alerte créée avec `test_id: null`
+- ✅ Notification créée pour le chef de projet du programme
+- ✅ Validation du programme et partenaire fonctionne
+
+#### Test 2: Backend API - Tests Ligne (TL)
+- ✅ `POST /api/alertes` avec `type_test: "TL"` fonctionne
+- ✅ Type de test correctement enregistré
+
+#### Test 3: Frontend UI - Tests Site
+- ✅ Checkbox "Test non réalisable" visible en bas du formulaire
+- ✅ Quand checkbox cochée + commentaire rempli → Soumission réussie
+- ✅ Message "Alerte créée avec succès" affiché
+- ✅ Dialogue se ferme et retour à la liste des tests
+
+#### Test 4: Vérification Base de données
+- ✅ Alerte visible dans la collection `alertes`
+- ✅ Compteur d'alertes augmenté (37 alertes totales)
+
+### Flux complet vérifié
+1. ✅ Utilisateur coche "Test non réalisable"
+2. ✅ Champs techniques deviennent optionnels
+3. ✅ Commentaire devient obligatoire
+4. ✅ Soumission → `POST /api/alertes`
+5. ✅ Backend crée l'alerte sans `test_id`
+6. ✅ Backend crée notification pour chef de projet
+7. ✅ Frontend affiche message de succès
+8. ✅ Alerte visible dans la page Alertes
+
+### Statut : ✅ PHASE 1 TERMINÉE - PRÊT POUR TESTING AGENT COMPLET
+
