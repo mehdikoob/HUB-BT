@@ -1743,6 +1743,53 @@ async def export_incident_report(
         ]))
         
         story.append(incident_table)
+        story.append(Spacer(1, 0.1*inch))
+        
+        # Ajouter les screenshots si présents
+        screenshots_ids = alerte.get('screenshots', [])
+        if screenshots_ids and len(screenshots_ids) > 0:
+            story.append(Paragraph("<b>Captures d'écran :</b>", normal_style))
+            story.append(Spacer(1, 0.05*inch))
+            
+            # Créer une grille pour afficher les screenshots (2 par ligne max)
+            screenshot_images = []
+            for screenshot_id in screenshots_ids[:3]:  # Max 3 screenshots
+                try:
+                    # Récupérer l'image depuis GridFS
+                    grid_out = await fs.open_download_stream(ObjectId(screenshot_id))
+                    image_data = await grid_out.read()
+                    
+                    # Créer un objet Image reportlab depuis les bytes
+                    img_buffer = io.BytesIO(image_data)
+                    img = Image(img_buffer, width=2.5*inch, height=2*inch)
+                    screenshot_images.append(img)
+                except Exception as e:
+                    logging.error(f"Erreur chargement screenshot {screenshot_id}: {str(e)}")
+                    continue
+            
+            # Afficher les screenshots en grille 2 colonnes
+            if screenshot_images:
+                # Créer des lignes de 2 images
+                screenshot_rows = []
+                for i in range(0, len(screenshot_images), 2):
+                    row = screenshot_images[i:i+2]
+                    # Ajouter des cellules vides si nécessaire pour compléter la ligne
+                    while len(row) < 2:
+                        row.append('')
+                    screenshot_rows.append(row)
+                
+                screenshot_table = Table(screenshot_rows, colWidths=[3*inch, 3*inch])
+                screenshot_table.setStyle(TableStyle([
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 10),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+                    ('TOPPADDING', (0, 0), (-1, -1), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+                ]))
+                
+                story.append(screenshot_table)
+        
         story.append(Spacer(1, 0.15*inch))
     
     # Footer
