@@ -327,17 +327,15 @@ const TestsSite = () => {
     }
     
     // Si test réalisable : procédure normale
-    {
-      // Si test réalisable : champs techniques obligatoires
-      if (!formData.prix_public || parseFloat(formData.prix_public) <= 0) {
-        toast.error('Le prix public doit être supérieur à 0');
-        return;
-      }
-      
-      if (!formData.prix_remise || parseFloat(formData.prix_remise) < 0) {
-        toast.error('Le prix remisé ne peut pas être négatif');
-        return;
-      }
+    // Champs techniques obligatoires
+    if (!formData.prix_public || parseFloat(formData.prix_public) <= 0) {
+      toast.error('Le prix public doit être supérieur à 0');
+      return;
+    }
+    
+    if (!formData.prix_remise || parseFloat(formData.prix_remise) < 0) {
+      toast.error('Le prix remisé ne peut pas être négatif');
+      return;
     }
 
     // Check if test already exists this month for this partenaire/programme (only for new tests)
