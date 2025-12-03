@@ -2976,13 +2976,15 @@ async def upload_screenshot(
         if upload.filename.lower().endswith('.jpg') or upload.filename.lower().endswith('.jpeg'):
             content_type = "image/jpeg"
         
-        # Stocker dans GridFS
-        file_id = fs.put(
+        # Stocker dans GridFS (Motor async)
+        file_id = await fs.upload_from_stream(
+            upload.filename,
             image_bytes,
-            filename=upload.filename,
-            content_type=content_type,
-            user_id=current_user.id,
-            uploaded_at=datetime.now(timezone.utc)
+            metadata={
+                "content_type": content_type,
+                "user_id": current_user.id,
+                "uploaded_at": datetime.now(timezone.utc).isoformat()
+            }
         )
         
         return {
