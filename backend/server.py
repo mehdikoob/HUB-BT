@@ -852,6 +852,16 @@ async def get_tests_site(
     
     tests = await db.tests_site.find(query, {"_id": 0}).to_list(1000)
     
+    # Optimisation: Récupérer tous les users en une seule requête (évite N+1)
+    user_ids = list(set([t['user_id'] for t in tests if t.get('user_id')]))
+    users_dict = {}
+    if user_ids:
+        users = await db.users.find(
+            {"id": {"$in": user_ids}},
+            {"_id": 0, "password_hash": 0}
+        ).to_list(len(user_ids))
+        users_dict = {u['id']: u for u in users}
+    
     # Enrichir avec les informations de l'utilisateur créateur
     for t in tests:
         if isinstance(t.get('date_test'), str):
@@ -859,17 +869,16 @@ async def get_tests_site(
         if isinstance(t.get('created_at'), str):
             t['created_at'] = datetime.fromisoformat(t['created_at'])
         
-        # Ajouter les infos de l'utilisateur qui a créé le test
-        if t.get('user_id'):
-            user = await db.users.find_one({"id": t['user_id']}, {"_id": 0, "password_hash": 0})
-            if user:
-                t['created_by'] = {
-                    "id": user.get('id'),
-                    "nom": user.get('nom'),
-                    "prenom": user.get('prenom'),
-                    "email": user.get('email'),
-                    "role": user.get('role')
-                }
+        # Ajouter les infos de l'utilisateur qui a créé le test (lookup depuis dict)
+        if t.get('user_id') and t['user_id'] in users_dict:
+            user = users_dict[t['user_id']]
+            t['created_by'] = {
+                "id": user.get('id'),
+                "nom": user.get('nom'),
+                "prenom": user.get('prenom'),
+                "email": user.get('email'),
+                "role": user.get('role')
+            }
     
     return tests
 
