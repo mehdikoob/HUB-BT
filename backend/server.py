@@ -1437,6 +1437,64 @@ async def get_incidents_enriched(statut: Optional[StatutAlerte] = Query(None)):
     
     return alertes
 
+@api_router.post("/alertes", response_model=Alerte)
+async def create_alerte_standalone(
+    alerte: AlerteCreateStandalone,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Créer une alerte directement (sans test associé) - utilisé pour les tests non réalisables"""
+    
+    # Vérifier que le programme et le partenaire existent
+    programme = await db.programmes.find_one({"id": alerte.programme_id}, {"_id": 0})
+    if not programme:
+        raise HTTPException(status_code=404, detail="Programme non trouvé")
+    
+    partenaire = await db.partenaires.find_one({"id": alerte.partenaire_id}, {"_id": 0})
+    if not partenaire:
+        raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+    
+    # Créer le document alerte
+    alerte_doc = {
+        "id": str(uuid.uuid4()),
+        "test_id": None,  # Pas de test associé
+        "type_test": alerte.type_test.value,
+        "description": alerte.description,
+        "statut": alerte.statut.value,
+        "programme_id": alerte.programme_id,
+        "partenaire_id": alerte.partenaire_id,
+        "user_id": current_user.id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "resolved_at": None
+    }
+    
+    await db.alertes.insert_one(alerte_doc)
+    
+    # Créer une notification pour le chef de projet responsable
+    chef_projet = await db.users.find_one({
+        "role": UserRole.chef_projet.value,
+        "programme_id": alerte.programme_id
+    }, {"_id": 0})
+    
+    if chef_projet:
+        notification_doc = {
+            "id": str(uuid.uuid4()),
+            "user_id": chef_projet["id"],
+            "alerte_id": alerte_doc["id"],
+            "programme_id": alerte.programme_id,
+            "partenaire_id": alerte.partenaire_id,
+            "message": f"Test non réalisable signalé pour {partenaire['nom']} sur {programme['nom']}",
+            "read": False,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.notifications.insert_one(notification_doc)
+    
+    # Retourner l'alerte créée
+    created_alerte = await db.alertes.find_one({"id": alerte_doc["id"]}, {"_id": 0})
+    if isinstance(created_alerte.get('created_at'), str):
+        created_alerte['created_at'] = datetime.fromisoformat(created_alerte['created_at'])
+    
+    return created_alerte
+
 @api_router.put("/alertes/{alerte_id}", response_model=Alerte)
 async def resolve_incident(alerte_id: str):
     existing = await db.alertes.find_one({"id": alerte_id})
