@@ -483,7 +483,7 @@ const Parametres = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner un partenaire" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[100]">
                         {partenaires.map((part) => (
                           <SelectItem key={part.id} value={part.id}>
                             {part.nom}
