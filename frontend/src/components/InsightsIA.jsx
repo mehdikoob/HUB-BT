@@ -11,8 +11,8 @@ const InsightsIA = () => {
   const [insights, setInsights] = useState(null);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState('week');
-  const [programmeId, setProgrammeId] = useState('');
-  const [partenaireId, setPartenaireId] = useState('');
+  const [programmeId, setProgrammeId] = useState('all');
+  const [partenaireId, setPartenaireId] = useState('all');
   const [programmes, setProgrammes] = useState([]);
   const [partenaires, setPartenaires] = useState([]);
   const [detailsOpen, setDetailsOpen] = useState(false);
