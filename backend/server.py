@@ -1031,6 +1031,7 @@ async def get_tests_ligne(
     partenaire_id: Optional[str] = Query(None),
     date_debut: Optional[str] = Query(None),
     date_fin: Optional[str] = Query(None),
+    annee: Optional[int] = Query(None),  # Nouveau filtre année
     current_user: User = Depends(get_current_active_user)
 ):
     query = {}
@@ -1051,14 +1052,29 @@ async def get_tests_ligne(
         if partenaire_id:
             query['partenaire_id'] = partenaire_id
     
+    # Gestion des filtres de date
     if date_debut or date_fin:
         query['date_test'] = {}
         if date_debut:
             query['date_test']['$gte'] = date_debut
         if date_fin:
             query['date_test']['$lte'] = date_fin
+    elif annee:
+        # Filtre par année
+        query['date_test'] = {
+            '$gte': datetime(annee, 1, 1).isoformat(),
+            '$lte': datetime(annee, 12, 31, 23, 59, 59).isoformat()
+        }
+    else:
+        # Par défaut : année en cours uniquement
+        current_year = datetime.now().year
+        query['date_test'] = {
+            '$gte': datetime(current_year, 1, 1).isoformat(),
+            '$lte': datetime(current_year, 12, 31, 23, 59, 59).isoformat()
+        }
     
-    tests = await db.tests_ligne.find(query, {"_id": 0}).to_list(1000)
+    # Augmenter limite à 5000 pour supporter une année complète
+    tests = await db.tests_ligne.find(query, {"_id": 0}).to_list(5000)
     
     # Optimisation: Récupérer tous les users en une seule requête (évite N+1)
     user_ids = list(set([t['user_id'] for t in tests if t.get('user_id')]))
