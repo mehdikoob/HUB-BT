@@ -3010,23 +3010,27 @@ async def get_screenshot(
     Retourne l'image pour affichage dans le navigateur
     """
     try:
-        # Récupérer le fichier depuis GridFS
-        grid_out = fs.get(ObjectId(file_id))
+        # Récupérer le fichier depuis GridFS (Motor async)
+        grid_out = await fs.open_download_stream(ObjectId(file_id))
+        contents = await grid_out.read()
+        
+        # Récupérer les métadonnées
+        file_info = await db.fs.files.find_one({"_id": ObjectId(file_id)})
+        content_type = file_info.get("metadata", {}).get("content_type", "image/png") if file_info else "image/png"
+        filename = file_info.get("filename", "screenshot.png") if file_info else "screenshot.png"
         
         # Retourner le fichier comme streaming response
         return StreamingResponse(
-            io.BytesIO(grid_out.read()),
-            media_type=grid_out.content_type or "image/png",
+            io.BytesIO(contents),
+            media_type=content_type,
             headers={
-                "Content-Disposition": f"inline; filename={grid_out.filename}"
+                "Content-Disposition": f"inline; filename={filename}"
             }
         )
     
-    except gridfs.errors.NoFile:
-        raise HTTPException(status_code=404, detail="Screenshot non trouvé")
     except Exception as e:
         logging.error(f"Erreur récupération screenshot: {str(e)}")
-        raise HTTPException(status_code=500, detail="Erreur lors de la récupération")
+        raise HTTPException(status_code=404, detail="Screenshot non trouvé")
 
 @api_router.delete("/screenshots/{file_id}")
 async def delete_screenshot(
