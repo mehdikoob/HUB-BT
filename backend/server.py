@@ -625,9 +625,10 @@ insights_enabled = os.getenv('INSIGHTS_IA_ENABLED', 'false').lower() == 'true'
 if gemini_api_key and insights_enabled:
     genai.configure(api_key=gemini_api_key)
 
-async def generate_insights_with_ai(period: str = "week") -> dict:
+async def generate_insights_with_ai(period: str = "week", programme_id: str = None, partenaire_id: str = None) -> dict:
     """
     Générer des insights intelligents avec Gemini AI
+    Peut être filtré par programme et/ou partenaire
     """
     if not gemini_api_key or not insights_enabled:
         return {
@@ -644,14 +645,17 @@ async def generate_insights_with_ai(period: str = "week") -> dict:
         else:
             date_limit = datetime.now(timezone.utc) - timedelta(days=7)
         
-        # Stats tests
-        tests_site = await db.tests_site.find({
-            'created_at': {'$gte': date_limit.isoformat()}
-        }, {'_id': 0}).to_list(1000)
+        # Construire les filtres
+        test_filter = {'created_at': {'$gte': date_limit.isoformat()}}
+        if programme_id:
+            test_filter['programme_id'] = programme_id
+        if partenaire_id:
+            test_filter['partenaire_id'] = partenaire_id
         
-        tests_ligne = await db.tests_ligne.find({
-            'created_at': {'$gte': date_limit.isoformat()}
-        }, {'_id': 0}).to_list(1000)
+        # Stats tests
+        tests_site = await db.tests_site.find(test_filter, {'_id': 0}).to_list(1000)
+        
+        tests_ligne = await db.tests_ligne.find(test_filter, {'_id': 0}).to_list(1000)
         
         # Stats alertes
         alertes = await db.alertes.find({
