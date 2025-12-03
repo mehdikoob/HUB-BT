@@ -644,8 +644,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Authentication API endpoints"
-    - "User management API endpoints"
+    - "Feature Test non réalisable - Frontend UI"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
