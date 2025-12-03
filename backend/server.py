@@ -618,6 +618,162 @@ def is_admin_or_chef_projet(user: User) -> bool:
     """Vérifier si l'utilisateur a des droits d'admin (admin ou chef de projet)"""
     return user.role in [UserRole.admin, UserRole.chef_projet]
 
+# Configuration Gemini AI
+gemini_api_key = os.getenv('GEMINI_API_KEY')
+insights_enabled = os.getenv('INSIGHTS_IA_ENABLED', 'false').lower() == 'true'
+
+if gemini_api_key and insights_enabled:
+    genai.configure(api_key=gemini_api_key)
+
+async def generate_insights_with_ai(period: str = "week") -> dict:
+    """
+    Générer des insights intelligents avec Gemini AI
+    """
+    if not gemini_api_key or not insights_enabled:
+        return {
+            "enabled": False,
+            "message": "Insights IA non activés"
+        }
+    
+    try:
+        # Récupérer les données de la période
+        if period == "week":
+            date_limit = datetime.now(timezone.utc) - timedelta(days=7)
+        elif period == "month":
+            date_limit = datetime.now(timezone.utc) - timedelta(days=30)
+        else:
+            date_limit = datetime.now(timezone.utc) - timedelta(days=7)
+        
+        # Stats tests
+        tests_site = await db.tests_site.find({
+            'created_at': {'$gte': date_limit.isoformat()}
+        }, {'_id': 0}).to_list(1000)
+        
+        tests_ligne = await db.tests_ligne.find({
+            'created_at': {'$gte': date_limit.isoformat()}
+        }, {'_id': 0}).to_list(1000)
+        
+        # Stats alertes
+        alertes = await db.alertes.find({
+            'created_at': {'$gte': date_limit.isoformat()}
+        }, {'_id': 0}).to_list(1000)
+        
+        # Récupérer programmes et partenaires pour contexte
+        programmes = await db.programmes.find({}, {'_id': 0, 'id': 1, 'nom': 1}).to_list(100)
+        partenaires = await db.partenaires.find({}, {'_id': 0, 'id': 1, 'nom': 1}).to_list(100)
+        
+        # Créer dicts pour lookup
+        programmes_dict = {p['id']: p['nom'] for p in programmes}
+        partenaires_dict = {p['id']: p['nom'] for p in partenaires}
+        
+        # Calculer statistiques
+        total_tests = len(tests_site) + len(tests_ligne)
+        total_alertes = len(alertes)
+        
+        # Alertes par partenaire
+        alertes_by_partner = {}
+        for a in alertes:
+            partner_id = a.get('partenaire_id')
+            if partner_id:
+                partner_name = partenaires_dict.get(partner_id, 'Inconnu')
+                alertes_by_partner[partner_name] = alertes_by_partner.get(partner_name, 0) + 1
+        
+        # Alertes par programme
+        alertes_by_program = {}
+        for a in alertes:
+            program_id = a.get('programme_id')
+            if program_id:
+                program_name = programmes_dict.get(program_id, 'Inconnu')
+                alertes_by_program[program_name] = alertes_by_program.get(program_name, 0) + 1
+        
+        # Top 3 problèmes
+        top_issues = {}
+        for a in alertes:
+            desc = a.get('description', '')[:50]  # Premiers 50 caractères
+            top_issues[desc] = top_issues.get(desc, 0) + 1
+        
+        top_3_issues = sorted(top_issues.items(), key=lambda x: x[1], reverse=True)[:3]
+        
+        # Construire prompt pour Gemini
+        prompt = f"""Tu es un analyste de données pour une plateforme de tests aveugles de partenariats.
+
+Analyse les données suivantes et génère 3-4 insights pertinents et actionnables:
+
+PÉRIODE: {"Dernière semaine" if period == "week" else "Dernier mois"}
+
+DONNÉES:
+- Total tests effectués: {total_tests} (Site: {len(tests_site)}, Ligne: {len(tests_ligne)})
+- Total alertes détectées: {total_alertes}
+
+ALERTES PAR PARTENAIRE (top 5):
+{chr(10).join([f"- {name}: {count} alertes" for name, count in sorted(alertes_by_partner.items(), key=lambda x: x[1], reverse=True)[:5]])}
+
+ALERTES PAR PROGRAMME (top 5):
+{chr(10).join([f"- {name}: {count} alertes" for name, count in sorted(alertes_by_program.items(), key=lambda x: x[1], reverse=True)[:5]])}
+
+TOP 3 PROBLÈMES RÉCURRENTS:
+{chr(10).join([f"- {desc}: {count} fois" for desc, count in top_3_issues])}
+
+CONSIGNES:
+1. Identifie les tendances importantes
+2. Détecte les anomalies ou problèmes récurrents
+3. Propose des recommandations concrètes
+4. Sois concis et actionnable
+
+Format de réponse (JSON):
+{{
+  "insights": [
+    {{
+      "type": "warning|success|info|trend",
+      "title": "Titre court",
+      "description": "Description 1-2 phrases max",
+      "action": "Action recommandée"
+    }}
+  ],
+  "summary": "Résumé global en 1 phrase"
+}}
+
+Réponds UNIQUEMENT en JSON valide, sans markdown ni texte additionnel."""
+
+        # Appeler Gemini
+        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        response = model.generate_content(prompt)
+        
+        # Parser la réponse
+        import json
+        response_text = response.text.strip()
+        
+        # Nettoyer le markdown si présent
+        if response_text.startswith('```'):
+            lines = response_text.split('\n')
+            response_text = '\n'.join(lines[1:-1])
+        if response_text.startswith('json'):
+            response_text = response_text[4:].strip()
+        
+        insights_data = json.loads(response_text)
+        
+        return {
+            "enabled": True,
+            "period": period,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "stats": {
+                "total_tests": total_tests,
+                "total_alertes": total_alertes,
+                "tests_site": len(tests_site),
+                "tests_ligne": len(tests_ligne)
+            },
+            "insights": insights_data.get('insights', []),
+            "summary": insights_data.get('summary', '')
+        }
+        
+    except Exception as e:
+        print(f"❌ Erreur génération insights: {str(e)}")
+        return {
+            "enabled": True,
+            "error": str(e),
+            "message": "Erreur lors de la génération des insights"
+        }
+
 # Routes - Root
 @api_router.get("/")
 async def root():
