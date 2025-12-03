@@ -111,18 +111,23 @@ const Layout = () => {
                     to={item.path}
                     onClick={closeSidebar}
                     data-testid={`nav-${item.label.toLowerCase().replace(/ /g, '-')}`}
+                    title={sidebarCollapsed ? item.label : ''}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                       active
                         ? 'bg-red-50 text-red-600 font-medium scale-105 shadow-sm'
                         : 'text-gray-700 hover:bg-gray-50 hover:scale-105 hover:translate-x-1'
-                    }`}
+                    } ${sidebarCollapsed ? 'justify-center' : ''}`}
                   >
                     <Icon size={20} />
-                    <span className="flex-1">{item.label}</span>
-                    {item.wip && (
-                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-medium">
-                        WIP
-                      </span>
+                    {!sidebarCollapsed && (
+                      <>
+                        <span className="flex-1">{item.label}</span>
+                        {item.wip && (
+                          <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-medium">
+                            WIP
+                          </span>
+                        )}
+                      </>
                     )}
                   </Link>
                 </li>
