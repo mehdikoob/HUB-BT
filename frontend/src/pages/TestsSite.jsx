@@ -899,7 +899,7 @@ const TestsSite = () => {
                 {/* Si test avorté : Raison obligatoire */}
                 {formData.statut_test === 'avorte' && (
                   <div className="border-2 border-red-200 rounded-lg p-4 bg-red-50">
-                    <Label htmlFor="raison_avortement" className="text-base font-semibold text-red-900">Raison de l'avortement *</Label>
+                    <Label htmlFor="raison_avortement" className="text-base font-semibold text-red-900">Raison de l&apos;avortement *</Label>
                     <Select
                       value={formData.raison_avortement}
                       onValueChange={(value) => setFormData({ ...formData, raison_avortement: value })}
