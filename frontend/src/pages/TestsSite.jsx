@@ -1264,10 +1264,18 @@ const TestsSite = () => {
             <tbody className="divide-y">
               {getSortedTests().map((test) => {
                 const alerts = getTestAlerts(test);
+                const isAvorte = test.statut_test === 'avorte';
                 return (
-                <tr key={test.id} className={`hover:bg-gray-50 ${alerts.length > 0 ? 'bg-red-50' : ''}`}>
+                <tr key={test.id} className={`hover:bg-gray-50 ${isAvorte ? 'bg-orange-50 border-l-4 border-orange-500' : alerts.length > 0 ? 'bg-red-50' : ''}`}>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {format(new Date(test.date_test), 'dd/MM/yyyy HH:mm')}
+                    {isAvorte && (
+                      <div className="mt-1">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-800">
+                          🔴 Test avorté
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{getProgrammeName(test.programme_id)}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
