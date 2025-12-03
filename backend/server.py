@@ -63,6 +63,9 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# GridFS pour stocker les screenshots
+fs = gridfs.GridFS(db._database)
+
 # Create the main app without a prefix
 app = FastAPI()
 
