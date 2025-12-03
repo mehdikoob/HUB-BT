@@ -1792,6 +1792,97 @@ async def export_incident_report(
         
         story.append(Spacer(1, 0.15*inch))
     
+    # PIÈCES JOINTES - Section placée EN BAS du rapport
+    test_attachments = test.get('attachments', [])
+    test_screenshots = test.get('screenshots', [])
+    
+    if test_attachments or test_screenshots:
+        # Nouvelle page pour les pièces jointes
+        from reportlab.platypus import PageBreak
+        story.append(PageBreak())
+        
+        story.append(Paragraph("PIÈCES JOINTES DU TEST", heading_style))
+        story.append(Spacer(1, 0.2*inch))
+        
+        # Afficher les screenshots du test - GRANDES IMAGES
+        if test_screenshots:
+            story.append(Paragraph("<b>Captures d'écran jointes au test :</b>", normal_style))
+            story.append(Spacer(1, 0.15*inch))
+            
+            for idx, screenshot_id in enumerate(test_screenshots[:3], 1):
+                try:
+                    # Récupérer l'image depuis GridFS
+                    grid_out = await fs.open_download_stream(ObjectId(screenshot_id))
+                    image_data = await grid_out.read()
+                    
+                    # Créer un objet Image reportlab - GRANDE TAILLE pour lisibilité
+                    img_buffer = io.BytesIO(image_data)
+                    # Taille maximale : 6" largeur x 4.5" hauteur (presque pleine page)
+                    img = Image(img_buffer, width=6*inch, height=4.5*inch)
+                    
+                    # Titre de la capture
+                    story.append(Paragraph(f"<b>Capture #{idx}</b>", normal_style))
+                    story.append(Spacer(1, 0.1*inch))
+                    story.append(img)
+                    story.append(Spacer(1, 0.3*inch))
+                    
+                    # Nouvelle page si ce n'est pas la dernière capture
+                    if idx < len(test_screenshots[:3]):
+                        story.append(PageBreak())
+                        
+                except Exception as e:
+                    logging.error(f"Erreur chargement screenshot test {screenshot_id}: {str(e)}")
+                    story.append(Paragraph(f"<i>Erreur de chargement de la capture #{idx}</i>", normal_style))
+                    story.append(Spacer(1, 0.2*inch))
+                    continue
+        
+        # Afficher les fichiers joints (attachments) - GRANDES IMAGES aussi
+        if test_attachments:
+            if test_screenshots:
+                story.append(PageBreak())
+            
+            story.append(Paragraph("<b>Fichiers joints au test :</b>", normal_style))
+            story.append(Spacer(1, 0.15*inch))
+            
+            for idx, attachment in enumerate(test_attachments[:5], 1):
+                try:
+                    attachment_url = attachment if isinstance(attachment, str) else attachment.get('url', '')
+                    filename = attachment if isinstance(attachment, str) else attachment.get('filename', 'N/A')
+                    
+                    # Extraire le nom du fichier
+                    if '/' in filename:
+                        filename = filename.split('/')[-1]
+                    
+                    # Si c'est une image, l'afficher en GRAND
+                    if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
+                        file_path = UPLOAD_DIR / filename
+                        if file_path.exists():
+                            try:
+                                story.append(Paragraph(f"<b>Fichier #{idx} : {filename}</b>", normal_style))
+                                story.append(Spacer(1, 0.1*inch))
+                                # Grande taille pour lisibilité
+                                img = Image(str(file_path), width=6*inch, height=4.5*inch)
+                                story.append(img)
+                                story.append(Spacer(1, 0.3*inch))
+                                
+                                # Nouvelle page si ce n'est pas le dernier fichier
+                                if idx < len(test_attachments[:5]):
+                                    story.append(PageBreak())
+                            except Exception as e:
+                                story.append(Paragraph(f"📎 {filename} (erreur d'affichage)", normal_style))
+                                story.append(Spacer(1, 0.1*inch))
+                        else:
+                            story.append(Paragraph(f"📎 {filename} (fichier non trouvé)", normal_style))
+                            story.append(Spacer(1, 0.1*inch))
+                    else:
+                        # Pour les PDF et autres, lister seulement
+                        story.append(Paragraph(f"<b>Fichier #{idx}</b> : 📎 {filename}", normal_style))
+                        story.append(Spacer(1, 0.1*inch))
+                        
+                except Exception as e:
+                    logging.error(f"Erreur traitement attachment: {str(e)}")
+                    continue
+    
     # Footer
     story.append(Spacer(1, 0.3*inch))
     footer_text = f"""
