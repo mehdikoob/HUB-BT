@@ -1911,6 +1911,7 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     moyenne_tests_par_jour = tests_effectues / jour_actuel if jour_actuel > 0 else 0
     
     return {
+        "role": current_user.role if current_user else None,
         "total_programmes": total_programmes,
         "total_partenaires": total_partenaires,
         "total_incidents_ouverts": total_incidents_ouverts,
