@@ -735,8 +735,8 @@ Format de réponse (JSON):
 
 Réponds UNIQUEMENT en JSON valide, sans markdown ni texte additionnel."""
 
-        # Appeler Gemini
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        # Appeler Gemini (utiliser 1.5-flash pour quotas gratuits plus généreux)
+        model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         
         # Parser la réponse
