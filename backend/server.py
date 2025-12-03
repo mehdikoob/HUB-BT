@@ -1935,6 +1935,22 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         "moyenne_tests_par_jour": round(moyenne_tests_par_jour, 2)
     }
 
+# Routes - Insights IA
+@api_router.get("/insights/generate")
+async def get_insights(
+    period: str = Query("week", regex="^(week|month)$"),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Générer des insights intelligents avec Gemini AI
+    Disponible pour admin et chef de projet uniquement
+    """
+    if not is_admin_or_chef_projet(current_user):
+        raise HTTPException(status_code=403, detail="Accès réservé aux admins et chefs de projet")
+    
+    insights = await generate_insights_with_ai(period)
+    return insights
+
 # Routes - Export Bilan Partenaire
 @api_router.get("/export/bilan-partenaire")
 async def export_bilan_partenaire(
