@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Sparkles, TrendingUp, AlertTriangle, CheckCircle, Info, Loader2, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, TrendingUp, AlertTriangle, CheckCircle, Info, Loader2, RefreshCw, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import axios from 'axios';
 import { useToast } from '../hooks/use-toast';
 
@@ -10,7 +11,43 @@ const InsightsIA = () => {
   const [insights, setInsights] = useState(null);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState('week');
+  const [programmeId, setProgrammeId] = useState('');
+  const [partenaireId, setPartenaireId] = useState('');
+  const [programmes, setProgrammes] = useState([]);
+  const [partenaires, setPartenaires] = useState([]);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchProgrammes();
+    fetchPartenaires();
+  }, []);
+
+  const fetchProgrammes = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/programmes`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      setProgrammes(response.data);
+    } catch (error) {
+      console.error('Erreur chargement programmes:', error);
+    }
+  };
+
+  const fetchPartenaires = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/partenaires`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      setPartenaires(response.data);
+    } catch (error) {
+      console.error('Erreur chargement partenaires:', error);
+    }
+  };
 
   const generateInsights = async () => {
     setLoading(true);
