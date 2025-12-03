@@ -55,9 +55,11 @@ const Layout = () => {
       {/* Sidebar */}
       <aside className={`
         fixed md:static inset-y-0 left-0 z-50
-        w-64 bg-white border-r border-gray-200 flex flex-col
-        transform transition-transform duration-300 ease-in-out
+        bg-white border-r border-gray-200 flex flex-col
+        transform transition-all duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        ${sidebarCollapsed ? 'md:w-20' : 'md:w-64'}
+        w-64
       `}>
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
