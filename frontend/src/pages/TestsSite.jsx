@@ -921,6 +921,7 @@ const TestsSite = () => {
                 
                 {/* Champs techniques - Conditionnels selon statut */}
                 {formData.statut_test === 'effectue' && (
+                <>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="prix_public">Prix public (€) *</Label>
