@@ -74,8 +74,7 @@ const TestsSite = () => {
     programme_id: '',
     partenaire_id: '',
     date_test: '',
-    statut_test: 'effectue',  // 'effectue' ou 'avorte'
-    raison_avortement: '',
+    test_non_realisable: false,  // Checkbox simple
     application_remise: true,
     prix_public: '',
     prix_remise: '',
