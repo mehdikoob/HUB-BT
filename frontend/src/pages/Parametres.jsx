@@ -461,7 +461,7 @@ const Parametres = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner un programme" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[100]">
                         {programmes.map((prog) => (
                           <SelectItem key={prog.id} value={prog.id}>
                             {prog.nom}
