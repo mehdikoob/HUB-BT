@@ -3041,13 +3041,11 @@ async def delete_screenshot(
     Supprime un screenshot de GridFS
     """
     try:
-        fs.delete(ObjectId(file_id))
+        await fs.delete(ObjectId(file_id))
         return {"message": "Screenshot supprimé avec succès"}
-    except gridfs.errors.NoFile:
-        raise HTTPException(status_code=404, detail="Screenshot non trouvé")
     except Exception as e:
         logging.error(f"Erreur suppression screenshot: {str(e)}")
-        raise HTTPException(status_code=500, detail="Erreur lors de la suppression")
+        raise HTTPException(status_code=404, detail="Screenshot non trouvé")
 
 # =====================
 # User Management Routes
