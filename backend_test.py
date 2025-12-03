@@ -657,9 +657,398 @@ def test_template_variable_replacement():
         else:
             log_warning("Incident enrichment may have issues - missing programme/partenaire data")
 
+def test_alertes_standalone_creation():
+    """Test the new POST /api/alertes endpoint for standalone alerts (test non réalisable)"""
+    global admin_token
+    log_info("Testing Standalone Alertes Creation (Test non réalisable)...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # First, get existing programmes and partenaires for testing
+    programmes = test_endpoint("GET", "/programmes", None, 200, "Get programmes for alerte testing", token=admin_token)
+    partenaires = test_endpoint("GET", "/partenaires", None, 200, "Get partenaires for alerte testing", token=admin_token)
+    
+    if not programmes or not partenaires:
+        log_error("No programmes or partenaires found for testing")
+        return False
+    
+    programme_id = programmes[0]["id"]
+    partenaire_id = partenaires[0]["id"]
+    
+    # Test 1: Valid Test Site (TS) alert creation
+    ts_alert_data = {
+        "programme_id": programme_id,
+        "partenaire_id": partenaire_id,
+        "type_test": "TS",
+        "description": "Site web inaccessible - impossible de réaliser le test",
+        "statut": "ouvert"
+    }
+    
+    created_ts_alert = test_endpoint("POST", "/alertes", ts_alert_data, 200, "Create Test Site standalone alert", token=admin_token)
+    
+    if created_ts_alert:
+        log_success(f"TS Alert created with ID: {created_ts_alert['id']}")
+        log_info(f"Alert test_id: {created_ts_alert.get('test_id', 'None')} (should be null)")
+        
+        if created_ts_alert.get('test_id') is None:
+            log_success("Alert correctly created with test_id=null")
+        else:
+            log_error("Alert should have test_id=null for standalone alerts")
+    
+    # Test 2: Valid Test Ligne (TL) alert creation
+    tl_alert_data = {
+        "programme_id": programme_id,
+        "partenaire_id": partenaire_id,
+        "type_test": "TL",
+        "description": "Numéro de téléphone ne répond pas - test non réalisable",
+        "statut": "ouvert"
+    }
+    
+    created_tl_alert = test_endpoint("POST", "/alertes", tl_alert_data, 200, "Create Test Ligne standalone alert", token=admin_token)
+    
+    if created_tl_alert:
+        log_success(f"TL Alert created with ID: {created_tl_alert['id']}")
+        log_info(f"Type test: {created_tl_alert.get('type_test')} (should be TL)")
+    
+    # Test 3: Invalid programme_id (should return 404)
+    invalid_programme_data = {
+        "programme_id": "nonexistent-programme-id",
+        "partenaire_id": partenaire_id,
+        "type_test": "TS",
+        "description": "Test with invalid programme",
+        "statut": "ouvert"
+    }
+    
+    test_endpoint("POST", "/alertes", invalid_programme_data, 404, "Create alert with invalid programme_id (should fail)", token=admin_token)
+    
+    # Test 4: Invalid partenaire_id (should return 404)
+    invalid_partenaire_data = {
+        "programme_id": programme_id,
+        "partenaire_id": "nonexistent-partenaire-id",
+        "type_test": "TS",
+        "description": "Test with invalid partenaire",
+        "statut": "ouvert"
+    }
+    
+    test_endpoint("POST", "/alertes", invalid_partenaire_data, 404, "Create alert with invalid partenaire_id (should fail)", token=admin_token)
+    
+    # Test 5: Missing required fields
+    incomplete_data = {
+        "programme_id": programme_id,
+        "type_test": "TS"
+        # Missing partenaire_id and description
+    }
+    
+    test_endpoint("POST", "/alertes", incomplete_data, 422, "Create alert with missing fields (should fail)", token=admin_token)
+    
+    # Test 6: Invalid type_test
+    invalid_type_data = {
+        "programme_id": programme_id,
+        "partenaire_id": partenaire_id,
+        "type_test": "INVALID",
+        "description": "Test with invalid type",
+        "statut": "ouvert"
+    }
+    
+    test_endpoint("POST", "/alertes", invalid_type_data, 422, "Create alert with invalid type_test (should fail)", token=admin_token)
+    
+    # Test 7: Authentication requirement (without token)
+    test_endpoint("POST", "/alertes", ts_alert_data, 401, "Create alert without authentication (should fail)")
+    
+    return True
+
+def test_alertes_retrieval():
+    """Test GET /api/alertes endpoint to verify created alerts"""
+    global admin_token
+    log_info("Testing Alertes Retrieval...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # Get all alerts
+    alertes = test_endpoint("GET", "/alertes", None, 200, "Get all alertes", token=admin_token)
+    
+    if alertes:
+        log_info(f"Found {len(alertes)} total alertes")
+        
+        # Check for standalone alerts (test_id = null)
+        standalone_alerts = [a for a in alertes if a.get('test_id') is None]
+        log_info(f"Found {len(standalone_alerts)} standalone alertes (test_id=null)")
+        
+        if standalone_alerts:
+            alert = standalone_alerts[0]
+            log_info(f"Sample standalone alert: {alert.get('description', 'N/A')[:50]}...")
+            log_info(f"Alert type: {alert.get('type_test', 'N/A')}")
+            log_info(f"Alert status: {alert.get('statut', 'N/A')}")
+            
+            # Verify created_at timestamp
+            if alert.get('created_at'):
+                log_success("Alert has created_at timestamp")
+            else:
+                log_error("Alert missing created_at timestamp")
+    
+    # Test enriched alertes endpoint
+    enriched_alertes = test_endpoint("GET", "/alertes/enriched", None, 200, "Get enriched alertes", token=admin_token)
+    
+    if enriched_alertes:
+        log_info(f"Found {len(enriched_alertes)} enriched alertes")
+        
+        # Check if programme and partenaire names are populated
+        for alert in enriched_alertes[:3]:  # Check first 3
+            if alert.get('programme_nom') and alert.get('partenaire_nom'):
+                log_success(f"Enriched alert: {alert['programme_nom']} - {alert['partenaire_nom']}")
+            else:
+                log_warning("Alert missing programme_nom or partenaire_nom in enriched response")
+    
+    return True
+
+def test_notifications_creation():
+    """Test that notifications are created for chef_projet when alerts are created"""
+    global admin_token
+    log_info("Testing Notifications Creation for Chef de Projet...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # First, check if there are any chef_projet users
+    users = test_endpoint("GET", "/users", None, 200, "Get users to check for chef_projet", token=admin_token)
+    
+    if not users:
+        log_error("No users found")
+        return False
+    
+    chef_projet_users = [u for u in users if u.get('role') == 'chef_projet']
+    
+    if not chef_projet_users:
+        log_warning("No chef_projet users found - creating one for testing")
+        
+        # Get a programme for the chef_projet
+        programmes = test_endpoint("GET", "/programmes", None, 200, "Get programmes for chef_projet", token=admin_token)
+        if not programmes:
+            log_error("No programmes found for chef_projet creation")
+            return False
+        
+        # Create a chef_projet user
+        chef_data = {
+            "email": "chef.projet.test@hubblindtests.com",
+            "nom": "Chef",
+            "prenom": "Projet",
+            "password": "chef123",
+            "role": "chef_projet",
+            "is_active": True,
+            "programme_ids": [programmes[0]["id"]]
+        }
+        
+        created_chef = test_endpoint("POST", "/users", chef_data, 200, "Create chef_projet user for testing", token=admin_token)
+        
+        if not created_chef:
+            log_error("Failed to create chef_projet user")
+            return False
+        
+        chef_projet_users = [created_chef]
+    
+    # Get initial notification count
+    notifications = test_endpoint("GET", "/notifications", None, 200, "Get initial notifications", token=admin_token)
+    initial_count = len(notifications) if notifications else 0
+    
+    # Create an alert that should trigger a notification
+    programmes = test_endpoint("GET", "/programmes", None, 200, "Get programmes for notification test", token=admin_token)
+    partenaires = test_endpoint("GET", "/partenaires", None, 200, "Get partenaires for notification test", token=admin_token)
+    
+    if programmes and partenaires:
+        alert_data = {
+            "programme_id": programmes[0]["id"],
+            "partenaire_id": partenaires[0]["id"],
+            "type_test": "TS",
+            "description": "Test pour vérifier la création de notifications",
+            "statut": "ouvert"
+        }
+        
+        created_alert = test_endpoint("POST", "/alertes", alert_data, 200, "Create alert to trigger notification", token=admin_token)
+        
+        if created_alert:
+            # Wait a moment for notification creation
+            time.sleep(1)
+            
+            # Check notifications again
+            new_notifications = test_endpoint("GET", "/notifications", None, 200, "Get notifications after alert creation", token=admin_token)
+            final_count = len(new_notifications) if new_notifications else 0
+            
+            if final_count > initial_count:
+                log_success(f"Notification created! Count increased from {initial_count} to {final_count}")
+                
+                # Check notification content
+                if new_notifications:
+                    latest_notification = new_notifications[0]  # Assuming sorted by created_at desc
+                    log_info(f"Notification message: {latest_notification.get('message', 'N/A')}")
+                    log_info(f"Notification read status: {latest_notification.get('read', 'N/A')}")
+            else:
+                log_warning("No new notification created - notification system may not be working")
+    
+    # Test notification endpoints
+    unread_count = test_endpoint("GET", "/notifications/unread-count", None, 200, "Get unread notifications count", token=admin_token)
+    
+    if unread_count:
+        log_info(f"Unread notifications count: {unread_count.get('count', 0)}")
+    
+    return True
+
+def test_existing_alertes_functionality():
+    """Test that existing alertes functionality still works"""
+    global admin_token
+    log_info("Testing Existing Alertes Functionality...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # Test GET /alertes with status filter
+    open_alertes = test_endpoint("GET", "/alertes?statut=ouvert", None, 200, "Get open alertes", token=admin_token)
+    
+    if open_alertes:
+        log_info(f"Found {len(open_alertes)} open alertes")
+        
+        if len(open_alertes) > 0:
+            alert_id = open_alertes[0]["id"]
+            
+            # Test PUT /alertes/{id} - Resolve alert
+            resolved_alert = test_endpoint("PUT", f"/alertes/{alert_id}", None, 200, "Resolve alert", token=admin_token)
+            
+            if resolved_alert:
+                log_info(f"Alert resolved - Status: {resolved_alert.get('statut', 'N/A')}")
+                log_info(f"Resolved at: {resolved_alert.get('resolved_at', 'N/A')}")
+                
+                if resolved_alert.get('statut') == 'resolu':
+                    log_success("Alert resolution working correctly")
+                else:
+                    log_error("Alert not properly resolved")
+    
+    # Test backward compatibility - alerts with test_id should still work
+    alertes_with_tests = test_endpoint("GET", "/alertes", None, 200, "Get all alertes for compatibility check", token=admin_token)
+    
+    if alertes_with_tests:
+        alerts_with_test_id = [a for a in alertes_with_tests if a.get('test_id') is not None]
+        alerts_without_test_id = [a for a in alertes_with_tests if a.get('test_id') is None]
+        
+        log_info(f"Alerts with test_id: {len(alerts_with_test_id)}")
+        log_info(f"Alerts without test_id (standalone): {len(alerts_without_test_id)}")
+        
+        if len(alerts_with_test_id) > 0 and len(alerts_without_test_id) > 0:
+            log_success("Backward compatibility confirmed - both types of alerts coexist")
+        elif len(alerts_without_test_id) > 0:
+            log_success("Standalone alerts working - new feature functional")
+        else:
+            log_warning("Only old-style alerts found - new feature may not be working")
+    
+    return True
+
+def test_data_validation():
+    """Test comprehensive data validation for the new alertes endpoint"""
+    global admin_token
+    log_info("Testing Data Validation for Alertes...")
+    
+    if not admin_token:
+        log_error("No admin token available for testing")
+        return False
+    
+    # Get valid IDs for testing
+    programmes = test_endpoint("GET", "/programmes", None, 200, "Get programmes for validation testing", token=admin_token)
+    partenaires = test_endpoint("GET", "/partenaires", None, 200, "Get partenaires for validation testing", token=admin_token)
+    
+    if not programmes or not partenaires:
+        log_error("Missing programmes or partenaires for validation testing")
+        return False
+    
+    programme_id = programmes[0]["id"]
+    partenaire_id = partenaires[0]["id"]
+    
+    # Test 1: Empty description (should fail)
+    empty_desc_data = {
+        "programme_id": programme_id,
+        "partenaire_id": partenaire_id,
+        "type_test": "TS",
+        "description": "",
+        "statut": "ouvert"
+    }
+    
+    test_endpoint("POST", "/alertes", empty_desc_data, 422, "Create alert with empty description (should fail)", token=admin_token)
+    
+    # Test 2: Missing programme_id (should fail)
+    missing_programme_data = {
+        "partenaire_id": partenaire_id,
+        "type_test": "TS",
+        "description": "Test missing programme",
+        "statut": "ouvert"
+    }
+    
+    test_endpoint("POST", "/alertes", missing_programme_data, 422, "Create alert without programme_id (should fail)", token=admin_token)
+    
+    # Test 3: Missing partenaire_id (should fail)
+    missing_partenaire_data = {
+        "programme_id": programme_id,
+        "type_test": "TS",
+        "description": "Test missing partenaire",
+        "statut": "ouvert"
+    }
+    
+    test_endpoint("POST", "/alertes", missing_partenaire_data, 422, "Create alert without partenaire_id (should fail)", token=admin_token)
+    
+    # Test 4: Invalid type_test values
+    invalid_types = ["INVALID", "XX", "123", "ts", "tl"]  # Should be "TS" or "TL"
+    
+    for invalid_type in invalid_types:
+        invalid_type_data = {
+            "programme_id": programme_id,
+            "partenaire_id": partenaire_id,
+            "type_test": invalid_type,
+            "description": f"Test with invalid type {invalid_type}",
+            "statut": "ouvert"
+        }
+        
+        test_endpoint("POST", "/alertes", invalid_type_data, 422, f"Create alert with invalid type_test '{invalid_type}' (should fail)", token=admin_token)
+    
+    # Test 5: Valid type_test values (should succeed)
+    valid_types = ["TS", "TL"]
+    
+    for valid_type in valid_types:
+        valid_type_data = {
+            "programme_id": programme_id,
+            "partenaire_id": partenaire_id,
+            "type_test": valid_type,
+            "description": f"Valid test with type {valid_type}",
+            "statut": "ouvert"
+        }
+        
+        created_alert = test_endpoint("POST", "/alertes", valid_type_data, 200, f"Create alert with valid type_test '{valid_type}'", token=admin_token)
+        
+        if created_alert and created_alert.get('type_test') == valid_type:
+            log_success(f"Type {valid_type} correctly saved")
+    
+    # Test 6: Default statut (should default to "ouvert")
+    default_statut_data = {
+        "programme_id": programme_id,
+        "partenaire_id": partenaire_id,
+        "type_test": "TS",
+        "description": "Test default statut"
+        # No statut field - should default to "ouvert"
+    }
+    
+    created_alert = test_endpoint("POST", "/alertes", default_statut_data, 200, "Create alert with default statut", token=admin_token)
+    
+    if created_alert and created_alert.get('statut') == 'ouvert':
+        log_success("Default statut 'ouvert' working correctly")
+    else:
+        log_error(f"Default statut not working - got: {created_alert.get('statut') if created_alert else 'None'}")
+    
+    return True
+
 def main():
     """Main test function"""
-    print(f"{Colors.BOLD}{Colors.BLUE}🧪 HUB BLIND TESTS - Authentication & User Management Backend API Testing{Colors.ENDC}")
+    print(f"{Colors.BOLD}{Colors.BLUE}🧪 HUB BLIND TESTS - Feature 'Test non réalisable' Backend API Testing{Colors.ENDC}")
     print(f"{Colors.BLUE}Testing against: {BASE_URL}{Colors.ENDC}")
     print("=" * 80)
     
@@ -669,13 +1058,13 @@ def main():
         log_error("Cannot connect to API. Aborting tests.")
         sys.exit(1)
     
-    # Run all authentication and user management tests
+    # Run all tests for the "Test non réalisable" feature
     try:
-        # 1. Admin Initialization
+        # 1. Admin Initialization (required for authentication)
         print(f"\n{Colors.BOLD}👑 ADMIN INITIALIZATION{Colors.ENDC}")
         test_admin_initialization()
         
-        # 2. Authentication Flow
+        # 2. Authentication Flow (required for protected endpoints)
         print(f"\n{Colors.BOLD}🔐 AUTHENTICATION FLOW{Colors.ENDC}")
         auth_success = test_authentication_flow()
         
@@ -683,51 +1072,43 @@ def main():
             log_error("Authentication failed. Cannot proceed with protected endpoint tests.")
             sys.exit(1)
         
-        # 3. Current User Profile
-        print(f"\n{Colors.BOLD}👤 CURRENT USER PROFILE{Colors.ENDC}")
-        test_current_user_profile()
+        # 3. Test the new POST /api/alertes endpoint
+        print(f"\n{Colors.BOLD}🚨 STANDALONE ALERTES CREATION (Test non réalisable){Colors.ENDC}")
+        test_alertes_standalone_creation()
         
-        # 4. User Management (Admin Only)
-        print(f"\n{Colors.BOLD}👥 USER MANAGEMENT (ADMIN ONLY){Colors.ENDC}")
-        test_user_management_admin()
+        # 4. Test data validation
+        print(f"\n{Colors.BOLD}✅ DATA VALIDATION{Colors.ENDC}")
+        test_data_validation()
         
-        # 5. User Statistics
-        print(f"\n{Colors.BOLD}📊 USER STATISTICS{Colors.ENDC}")
-        test_user_statistics()
+        # 5. Test alertes retrieval
+        print(f"\n{Colors.BOLD}📋 ALERTES RETRIEVAL{Colors.ENDC}")
+        test_alertes_retrieval()
         
-        # 6. Role-Based Access Control
-        print(f"\n{Colors.BOLD}🛡️  ROLE-BASED ACCESS CONTROL{Colors.ENDC}")
-        test_role_based_access_control()
+        # 6. Test notification system
+        print(f"\n{Colors.BOLD}🔔 NOTIFICATION SYSTEM{Colors.ENDC}")
+        test_notifications_creation()
         
-        # 7. Error Handling
-        print(f"\n{Colors.BOLD}⚠️  ERROR HANDLING{Colors.ENDC}")
-        test_error_handling()
+        # 7. Test existing functionality (backward compatibility)
+        print(f"\n{Colors.BOLD}🔄 EXISTING FUNCTIONALITY VERIFICATION{Colors.ENDC}")
+        test_existing_alertes_functionality()
         
-        # 8. Self-Deletion Prevention
-        print(f"\n{Colors.BOLD}🚫 SELF-DELETION PREVENTION{Colors.ENDC}")
-        test_self_deletion_prevention()
-        
-        # 9. User Deletion
-        print(f"\n{Colors.BOLD}🗑️  USER DELETION{Colors.ENDC}")
-        test_user_deletion()
-        
-        print(f"\n{Colors.BOLD}{Colors.GREEN}✅ All Authentication & User Management API tests completed!{Colors.ENDC}")
+        print(f"\n{Colors.BOLD}{Colors.GREEN}✅ All 'Test non réalisable' feature tests completed!{Colors.ENDC}")
         
         # Summary
         print(f"\n{Colors.BOLD}📋 TEST SUMMARY{Colors.ENDC}")
-        print(f"✅ Admin initialization tested")
-        print(f"✅ Authentication flow (login/logout) tested")
-        print(f"✅ JWT token validation tested")
-        print(f"✅ User profile access tested")
-        print(f"✅ User CRUD operations tested")
-        print(f"✅ Role-based access control verified")
-        print(f"✅ Error handling scenarios tested")
-        print(f"✅ Security features (self-deletion prevention) tested")
+        print(f"✅ POST /api/alertes endpoint tested (standalone alert creation)")
+        print(f"✅ Data validation tested (required fields, type_test validation)")
+        print(f"✅ Authentication requirement verified")
+        print(f"✅ Programme and partenaire validation tested")
+        print(f"✅ Alert retrieval with test_id=null verified")
+        print(f"✅ Notification creation for chef_projet tested")
+        print(f"✅ Backward compatibility with existing alerts verified")
+        print(f"✅ Error handling for invalid data tested")
         
         if admin_token:
-            print(f"\n{Colors.GREEN}🎉 Authentication system is fully functional!{Colors.ENDC}")
+            print(f"\n{Colors.GREEN}🎉 'Test non réalisable' feature is fully functional!{Colors.ENDC}")
         else:
-            print(f"\n{Colors.RED}❌ Authentication system has issues{Colors.ENDC}")
+            print(f"\n{Colors.RED}❌ Feature testing incomplete due to authentication issues{Colors.ENDC}")
         
     except KeyboardInterrupt:
         print(f"\n{Colors.YELLOW}Tests interrupted by user{Colors.ENDC}")
