@@ -84,6 +84,10 @@ async def generate_test_data():
                 
                 # Test Site si requis
                 if prog_assoc['test_site_requis'] and random.random() > 0.05:
+                    prix_public = round(random.uniform(50, 500), 2)
+                    remise = round(random.uniform(5, 50), 2)
+                    prix_remise = round(prix_public - remise, 2)
+                    
                     test_site = {
                         "id": str(uuid4()),
                         "date_test": date_test.isoformat(),
@@ -91,8 +95,11 @@ async def generate_test_data():
                         "partenaire_id": part_id,
                         "type_commande": random.choice(["web", "tel", "web"]),
                         "date_commande": date_test.isoformat(),
-                        "montant_commande": round(random.uniform(50, 500), 2),
-                        "remise_attendue": round(random.uniform(5, 50), 2),
+                        "montant_commande": prix_public,
+                        "prix_public": prix_public,
+                        "prix_remise": prix_remise,
+                        "remise_attendue": remise,
+                        "cumul_codes": random.choice([True, False]),
                         "application_remise": random.choice([True, True, True, False]),  # 75% succès
                         "commentaires": random.choice([
                             "Test effectué sans problème",
