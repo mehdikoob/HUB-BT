@@ -239,7 +239,7 @@ class TestLigne(TestLigneBase):
 
 # Models - Alerte
 class AlerteBase(BaseModel):
-    test_id: str
+    test_id: Optional[str] = None  # Optionnel pour les alertes créées directement
     type_test: TypeTest
     description: str
     statut: StatutAlerte = StatutAlerte.ouvert
@@ -248,6 +248,14 @@ class AlerteBase(BaseModel):
 
 class AlerteCreate(AlerteBase):
     pass
+
+class AlerteCreateStandalone(BaseModel):
+    """Modèle pour créer une alerte sans test associé (test non réalisable)"""
+    programme_id: str
+    partenaire_id: str
+    type_test: TypeTest
+    description: str
+    statut: StatutAlerte = StatutAlerte.ouvert
 
 class Alerte(AlerteBase):
     model_config = ConfigDict(extra="ignore")
