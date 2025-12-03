@@ -297,19 +297,19 @@ const TestsSite = () => {
     
     // Validations conditionnelles
     if (formData.test_non_realisable) {
-      // Si test non réalisable : commentaire obligatoire
+      // Si test non réalisable : commentaire obligatoire, champs techniques optionnels
       if (!formData.commentaire || !formData.commentaire.trim()) {
         toast.error('Le commentaire est obligatoire pour un test non réalisable');
         return;
       }
     } else {
       // Si test réalisable : champs techniques obligatoires
-      if (parseFloat(formData.prix_public) <= 0) {
+      if (!formData.prix_public || parseFloat(formData.prix_public) <= 0) {
         toast.error('Le prix public doit être supérieur à 0');
         return;
       }
       
-      if (parseFloat(formData.prix_remise) < 0) {
+      if (!formData.prix_remise || parseFloat(formData.prix_remise) < 0) {
         toast.error('Le prix remisé ne peut pas être négatif');
         return;
       }
