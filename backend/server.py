@@ -130,13 +130,16 @@ class TestSiteBase(BaseModel):
     programme_id: str
     partenaire_id: str
     date_test: datetime
-    application_remise: bool
-    prix_public: float
-    prix_remise: float
+    statut_test: str = "effectue"  # "effectue" ou "avorte"
+    application_remise: Optional[bool] = None
+    prix_public: Optional[float] = None
+    prix_remise: Optional[float] = None
     naming_constate: Optional[str] = None
-    cumul_codes: bool
+    cumul_codes: Optional[bool] = None
     commentaire: Optional[str] = None
+    raison_avortement: Optional[str] = None  # Si statut_test = "avorte"
     attachments: List[str] = []  # URLs ou chemins des fichiers joints (jpeg, png, pdf)
+    screenshots: List[str] = []  # Captures d'écran (base64)
 
 class TestSiteCreate(TestSiteBase):
     pass
