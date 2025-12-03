@@ -873,32 +873,6 @@ const TestsSite = () => {
                   />
                 </div>
                 
-                {/* Checkbox Test non réalisable */}
-                <div className="border-2 border-orange-200 rounded-lg p-4 bg-orange-50">
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="test_non_realisable"
-                      checked={formData.test_non_realisable}
-                      onChange={(e) => setFormData({ ...formData, test_non_realisable: e.target.checked })}
-                      className="w-5 h-5 mt-0.5 text-orange-600 rounded focus:ring-orange-500"
-                    />
-                    <div className="flex-1">
-                      <Label htmlFor="test_non_realisable" className="text-base font-semibold text-orange-900 cursor-pointer">
-                        Test non réalisable
-                      </Label>
-                      <p className="text-sm text-orange-700 mt-1">
-                        Cocher si le test n&apos;a pas pu être effectué (site inaccessible, ligne injoignable, etc.)
-                        <br />
-                        <span className="font-semibold">Le commentaire devient obligatoire.</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Champs techniques - Optionnels si test non réalisable */}
-                {!formData.test_non_realisable && (
-                <>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="prix_public">Prix public (€) *</Label>
