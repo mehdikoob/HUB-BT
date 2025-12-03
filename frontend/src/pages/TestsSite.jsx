@@ -295,8 +295,15 @@ const TestsSite = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validations conditionnelles selon le statut
-    if (formData.statut_test === 'effectue') {
+    // Validations conditionnelles
+    if (formData.test_non_realisable) {
+      // Si test non réalisable : commentaire obligatoire
+      if (!formData.commentaire || !formData.commentaire.trim()) {
+        toast.error('Le commentaire est obligatoire pour un test non réalisable');
+        return;
+      }
+    } else {
+      // Si test réalisable : champs techniques obligatoires
       if (parseFloat(formData.prix_public) <= 0) {
         toast.error('Le prix public doit être supérieur à 0');
         return;
@@ -304,15 +311,6 @@ const TestsSite = () => {
       
       if (parseFloat(formData.prix_remise) < 0) {
         toast.error('Le prix remisé ne peut pas être négatif');
-        return;
-      }
-    } else if (formData.statut_test === 'avorte') {
-      if (!formData.raison_avortement) {
-        toast.error('La raison de l\'avortement est obligatoire');
-        return;
-      }
-      if (!formData.commentaire || !formData.commentaire.trim()) {
-        toast.error('Le commentaire est obligatoire pour un test avorté');
         return;
       }
     }
