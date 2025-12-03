@@ -409,7 +409,7 @@ const Parametres = () => {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[100]">
                       <SelectItem value="agent">Agent</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="chef_projet">Chef de projet</SelectItem>
