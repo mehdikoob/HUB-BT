@@ -115,49 +115,97 @@ const InsightsIA = () => {
     }
   };
 
+  const getScopeLabel = () => {
+    const parts = [];
+    if (programmeId) {
+      const prog = programmes.find(p => p.id === programmeId);
+      if (prog) parts.push(prog.nom);
+    }
+    if (partenaireId) {
+      const part = partenaires.find(p => p.id === partenaireId);
+      if (part) parts.push(part.nom);
+    }
+    return parts.length > 0 ? ` - ${parts.join(' / ')}` : '';
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="text-purple-500" size={24} />
-            <div>
-              <CardTitle>Insights IA</CardTitle>
-              <CardDescription>Analyse intelligente propulsée par Gemini</CardDescription>
+    <>
+      <Card className="w-full shadow-sm">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-purple-500" size={20} />
+              <div>
+                <CardTitle className="text-lg">Insights IA</CardTitle>
+                <CardDescription className="text-sm">Analyse intelligente par Gemini</CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Période */}
+              <Select value={period} onValueChange={setPeriod}>
+                <SelectTrigger className="w-[140px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="z-[100]">
+                  <SelectItem value="week">📊 Semaine</SelectItem>
+                  <SelectItem value="month">📅 Mois</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* Programme */}
+              <Select value={programmeId} onValueChange={setProgrammeId}>
+                <SelectTrigger className="w-[160px] h-9">
+                  <SelectValue placeholder="Tous programmes" />
+                </SelectTrigger>
+                <SelectContent className="z-[100]">
+                  <SelectItem value="">🌐 Tous programmes</SelectItem>
+                  {programmes.map((prog) => (
+                    <SelectItem key={prog.id} value={prog.id}>
+                      {prog.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {/* Partenaire */}
+              <Select value={partenaireId} onValueChange={setPartenaireId}>
+                <SelectTrigger className="w-[160px] h-9">
+                  <SelectValue placeholder="Tous partenaires" />
+                </SelectTrigger>
+                <SelectContent className="z-[100]">
+                  <SelectItem value="">👥 Tous partenaires</SelectItem>
+                  {partenaires.map((part) => (
+                    <SelectItem key={part.id} value={part.id}>
+                      {part.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {/* Bouton Générer */}
+              <Button 
+                onClick={generateInsights} 
+                disabled={loading}
+                className="gap-2 h-9"
+                size="sm"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={14} />
+                    <span className="hidden sm:inline">Analyse...</span>
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw size={14} />
+                    <span className="hidden sm:inline">Générer</span>
+                  </>
+                )}
+              </Button>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="week">📊 Dernière semaine</SelectItem>
-                <SelectItem value="month">📅 Dernier mois</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button 
-              onClick={generateInsights} 
-              disabled={loading}
-              className="gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="animate-spin" size={16} />
-                  Génération...
-                </>
-              ) : (
-                <>
-                  <RefreshCw size={16} />
-                  Générer
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
 
-      <CardContent>
+        <CardContent className="pt-0">
         {!insights && !loading && (
           <div className="text-center py-12 text-gray-500">
             <Sparkles className="mx-auto mb-4 text-gray-300" size={48} />
