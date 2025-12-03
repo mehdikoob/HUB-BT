@@ -22,7 +22,7 @@ async def generate_test_data():
     
     # Connexion MongoDB
     client = AsyncIOMotorClient(MONGO_URL)
-    db = client['qwertys_db']
+    db = client['test_database']
     
     # Récupérer programmes et partenaires
     programmes = await db.programmes.find({}, {"_id": 0}).to_list(100)
