@@ -143,22 +143,20 @@ class TestSiteBase(BaseModel):
 class TestSiteCreate(TestSiteBase):
     @model_validator(mode='after')
     def validate_test_site(self):
-        if self.statut_test == "effectue":
-            # Si test effectué, les champs techniques sont obligatoires
+        if not self.test_non_realisable:
+            # Si test réalisable, les champs techniques sont obligatoires
             if self.application_remise is None:
-                raise ValueError("application_remise requis pour test effectué")
+                raise ValueError("application_remise requis pour test réalisable")
             if self.prix_public is None:
-                raise ValueError("prix_public requis pour test effectué")
+                raise ValueError("prix_public requis pour test réalisable")
             if self.prix_remise is None:
-                raise ValueError("prix_remise requis pour test effectué")
+                raise ValueError("prix_remise requis pour test réalisable")
             if self.cumul_codes is None:
-                raise ValueError("cumul_codes requis pour test effectué")
-        elif self.statut_test == "avorte":
-            # Si test avorté, commentaire obligatoire
+                raise ValueError("cumul_codes requis pour test réalisable")
+        else:
+            # Si test non réalisable, commentaire obligatoire
             if not self.commentaire or not self.commentaire.strip():
-                raise ValueError("commentaire obligatoire pour test avorté")
-            if not self.raison_avortement:
-                raise ValueError("raison_avortement requise pour test avorté")
+                raise ValueError("commentaire obligatoire pour test non réalisable")
         return self
 
 class CreatedByInfo(BaseModel):
