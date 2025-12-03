@@ -127,8 +127,8 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Stats Cards - VERSION COMPACTE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           const delays = ['animation-delay-200', 'animation-delay-300', 'animation-delay-400', 'animation-delay-500'];
@@ -139,24 +139,24 @@ const Dashboard = () => {
                 stat.alert ? 'ring-2 ring-red-500 animate-pulse' : ''
               }`}
             >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-lg ${stat.bg}`}>
-                    <Icon className={stat.color} size={24} />
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className={`p-2 rounded-lg ${stat.bg}`}>
+                    <Icon className={stat.color} size={20} />
                   </div>
                   {stat.alert && (
-                    <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">
+                    <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded">
                       URGENT
                     </span>
                   )}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                  <p className={`text-3xl font-bold ${stat.alert ? 'text-red-600' : 'text-gray-900'}`}>
+                  <p className="text-xs text-gray-600 mb-1">{stat.title}</p>
+                  <p className={`text-2xl font-bold ${stat.alert ? 'text-red-600' : 'text-gray-900'}`}>
                     {stat.value}{stat.suffix || ''}
                   </p>
                   {stat.badge && (
-                    <span className={`inline-block mt-2 px-2 py-1 text-xs font-semibold rounded ${
+                    <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded ${
                       stat.color === 'text-green-600' ? 'bg-green-100 text-green-700' :
                       stat.color === 'text-yellow-600' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-red-100 text-red-700'
