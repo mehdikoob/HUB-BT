@@ -116,7 +116,7 @@ const Dashboard = () => {
 
   return (
     <div data-testid="dashboard">
-      <div className="mb-8">
+      <div className="mb-8 animate-slide-down">
         <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
           Tableau de bord
         </h1>
@@ -125,7 +125,7 @@ const Dashboard = () => {
 
       {/* AI Insights - Visible pour Admin et Chef de projet uniquement */}
       {(stats?.role === 'admin' || stats?.role === 'chef_projet') && (
-        <div className="mb-8">
+        <div className="mb-8 animate-slide-up animation-delay-100">
           <InsightsIA />
         </div>
       )}
