@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
+import ScreenshotUploader from '../components/ScreenshotUploader';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
