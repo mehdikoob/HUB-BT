@@ -1940,16 +1940,16 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     })
     taux_reussite_tl = (tests_ligne_reussis / total_tests_ligne_mois * 100) if total_tests_ligne_mois > 0 else 0
     
-    # Compter les tests avortés ce mois
-    tests_site_avortes = await db.tests_site.count_documents({
+    # Compter les tests non réalisables ce mois
+    tests_site_non_realisables = await db.tests_site.count_documents({
         "date_test": {"$gte": first_day, "$lte": last_day},
-        "statut_test": "avorte"
+        "test_non_realisable": True
     })
-    tests_ligne_avortes = await db.tests_ligne.count_documents({
+    tests_ligne_non_realisables = await db.tests_ligne.count_documents({
         "date_test": {"$gte": first_day, "$lte": last_day},
-        "statut_test": "avorte"
+        "test_non_realisable": True
     })
-    total_tests_avortes = tests_site_avortes + tests_ligne_avortes
+    total_tests_non_realisables = tests_site_non_realisables + tests_ligne_non_realisables
     
     # Calcul du nombre réel de tests manquants
     tests_manquants_reel = tests_attendus - tests_effectues
