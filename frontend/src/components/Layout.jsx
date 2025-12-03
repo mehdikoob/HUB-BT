@@ -9,6 +9,7 @@ const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user, isAdmin, logout } = useAuth();
 
   const menuItems = [
