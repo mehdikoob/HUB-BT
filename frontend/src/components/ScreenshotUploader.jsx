@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Image as ImageIcon, X, Clipboard } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { Label } from './ui/label';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
