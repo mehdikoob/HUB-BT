@@ -657,10 +657,14 @@ async def generate_insights_with_ai(period: str = "week", programme_id: str = No
         
         tests_ligne = await db.tests_ligne.find(test_filter, {'_id': 0}).to_list(1000)
         
-        # Stats alertes
-        alertes = await db.alertes.find({
-            'created_at': {'$gte': date_limit.isoformat()}
-        }, {'_id': 0}).to_list(1000)
+        # Stats alertes (avec mêmes filtres)
+        alerte_filter = {'created_at': {'$gte': date_limit.isoformat()}}
+        if programme_id:
+            alerte_filter['programme_id'] = programme_id
+        if partenaire_id:
+            alerte_filter['partenaire_id'] = partenaire_id
+        
+        alertes = await db.alertes.find(alerte_filter, {'_id': 0}).to_list(1000)
         
         # Récupérer programmes et partenaires pour contexte
         programmes = await db.programmes.find({}, {'_id': 0, 'id': 1, 'nom': 1}).to_list(100)
