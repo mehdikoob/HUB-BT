@@ -3843,6 +3843,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# GZip compression pour réduire la taille des réponses (gain ~60%)
+from fastapi.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
