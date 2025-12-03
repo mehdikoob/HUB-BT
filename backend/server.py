@@ -772,6 +772,8 @@ Réponds UNIQUEMENT en JSON valide, sans markdown ni texte additionnel."""
         return {
             "enabled": True,
             "period": period,
+            "programme_id": programme_id,
+            "partenaire_id": partenaire_id,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "stats": {
                 "total_tests": total_tests,
