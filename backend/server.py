@@ -165,14 +165,17 @@ class TestLigneBase(BaseModel):
     programme_id: str
     partenaire_id: str
     date_test: datetime
-    numero_telephone: str
-    messagerie_vocale_dediee: bool
-    decroche_dedie: bool
-    delai_attente: str  # Format mm:ss
+    statut_test: str = "effectue"  # "effectue" ou "avorte"
+    numero_telephone: Optional[str] = None
+    messagerie_vocale_dediee: Optional[bool] = None
+    decroche_dedie: Optional[bool] = None
+    delai_attente: Optional[str] = None  # Format mm:ss
     nom_conseiller: Optional[str] = "NC"
-    evaluation_accueil: EvaluationAccueil
-    application_offre: bool
+    evaluation_accueil: Optional[EvaluationAccueil] = None
+    application_offre: Optional[bool] = None
     commentaire: Optional[str] = None
+    raison_avortement: Optional[str] = None  # Si statut_test = "avorte"
+    screenshots: List[str] = []  # Captures d'écran (base64)
 
     @field_validator('delai_attente')
     def validate_delai(cls, v):
