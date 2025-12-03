@@ -282,6 +282,8 @@ const TestsLigne = () => {
       programme_id: '',
       partenaire_id: '',
       date_test: '',
+      statut_test: 'effectue',
+      raison_avortement: '',
       numero_telephone: '',
       messagerie_vocale_dediee: false,
       decroche_dedie: false,
@@ -290,6 +292,7 @@ const TestsLigne = () => {
       evaluation_accueil: 'Bien',
       application_offre: true,
       commentaire: '',
+      screenshots: [],
     });
     setEditingTest(null);
   };
