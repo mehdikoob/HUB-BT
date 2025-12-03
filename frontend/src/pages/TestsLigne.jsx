@@ -741,6 +741,7 @@ const TestsLigne = () => {
                       checked={formData.messagerie_vocale_dediee}
                       onChange={(e) => setFormData({ ...formData, messagerie_vocale_dediee: e.target.checked })}
                       className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                      disabled={formData.test_non_realisable}
                     />
                     <Label htmlFor="messagerie_vocale_dediee" className="mb-0">Messagerie dédiée</Label>
                   </div>
@@ -752,6 +753,7 @@ const TestsLigne = () => {
                       checked={formData.decroche_dedie}
                       onChange={(e) => setFormData({ ...formData, decroche_dedie: e.target.checked })}
                       className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                      disabled={formData.test_non_realisable}
                     />
                     <Label htmlFor="decroche_dedie" className="mb-0">Décroche dédié</Label>
                   </div>
@@ -761,6 +763,7 @@ const TestsLigne = () => {
                       id="application_offre"
                       data-testid="test-ligne-application-offre-checkbox"
                       checked={formData.application_offre}
+                      disabled={formData.test_non_realisable}
                       onChange={(e) => setFormData({ ...formData, application_offre: e.target.checked })}
                       className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
                     />
