@@ -33,6 +33,7 @@ from jose import JWTError, jwt
 from datetime import timedelta
 import calendar
 from reportlab.lib.pagesizes import A4
+import google.generativeai as genai
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
