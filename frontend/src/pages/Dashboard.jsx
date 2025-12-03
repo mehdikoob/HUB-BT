@@ -135,7 +135,7 @@ const Dashboard = () => {
       )}
 
       {/* Stats Cards - VERSION COMPACTE */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           const delays = ['animation-delay-200', 'animation-delay-300', 'animation-delay-400', 'animation-delay-500'];
