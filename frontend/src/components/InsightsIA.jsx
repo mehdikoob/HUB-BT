@@ -277,15 +277,108 @@ const InsightsIA = () => {
             </div>
           )}
 
-        {insights && insights.error && (
-          <div className="text-center py-8">
-            <AlertTriangle className="mx-auto mb-3 text-red-500" size={40} />
-            <p className="text-sm text-red-600 font-medium mb-1">Erreur de génération</p>
-            <p className="text-xs text-gray-600">{insights.message || insights.error}</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          {insights && insights.error && (
+            <div className="text-center py-6">
+              <AlertTriangle className="mx-auto mb-2 text-red-500" size={32} />
+              <p className="text-sm text-red-600 font-medium mb-1">Erreur de génération</p>
+              <p className="text-xs text-gray-600">{insights.message || insights.error}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Dialog pour détails complets */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="text-purple-500" size={24} />
+              Insights IA détaillés
+            </DialogTitle>
+            <DialogDescription>
+              Analyse complète{getScopeLabel()} - {period === 'week' ? 'Dernière semaine' : 'Dernier mois'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {insights && insights.enabled && (
+            <div className="space-y-4 mt-4">
+              {/* Statistiques */}
+              {insights.stats && (
+                <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-gray-900">{insights.stats.total_tests || 0}</p>
+                    <p className="text-xs text-gray-600">Tests effectués</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-orange-600">{insights.stats.total_alertes || 0}</p>
+                    <p className="text-xs text-gray-600">Alertes détectées</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-purple-600">{insights.insights?.length || 0}</p>
+                    <p className="text-xs text-gray-600">Insights générés</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Insights détaillés */}
+              {insights.insights && insights.insights.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900">Insights détaillés</h3>
+                  {insights.insights.map((insight, index) => (
+                    <div 
+                      key={index} 
+                      className={`p-4 rounded-lg border ${getInsightBgColor(insight.type)} transition-all`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-0.5">
+                          {getInsightIcon(insight.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 mb-1">
+                            {insight.title}
+                          </h4>
+                          <p className="text-sm text-gray-700 mb-2">
+                            {insight.description}
+                          </p>
+                          {insight.action && (
+                            <div className="flex items-start gap-2 mt-3 p-3 bg-white/50 rounded border border-gray-200/50">
+                              <span className="text-xs font-medium text-gray-600">💡 Action recommandée :</span>
+                              <p className="text-xs text-gray-700 flex-1">
+                                {insight.action}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Résumé global */}
+              {insights.summary && (
+                <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="text-purple-500 flex-shrink-0 mt-0.5" size={20} />
+                    <div>
+                      <p className="text-sm font-medium text-purple-900 mb-1">Résumé global</p>
+                      <p className="text-sm text-purple-800">{insights.summary}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Timestamp */}
+              {insights.generated_at && (
+                <p className="text-xs text-gray-400 text-right">
+                  Généré le {new Date(insights.generated_at).toLocaleString('fr-FR')}
+                </p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
