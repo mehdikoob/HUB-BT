@@ -210,26 +210,24 @@ class TestLigneBase(BaseModel):
 class TestLigneCreate(TestLigneBase):
     @model_validator(mode='after')
     def validate_test_ligne(self):
-        if self.statut_test == "effectue":
-            # Si test effectué, les champs techniques sont obligatoires
+        if not self.test_non_realisable:
+            # Si test réalisable, les champs techniques sont obligatoires
             if not self.numero_telephone:
-                raise ValueError("numero_telephone requis pour test effectué")
+                raise ValueError("numero_telephone requis pour test réalisable")
             if self.messagerie_vocale_dediee is None:
-                raise ValueError("messagerie_vocale_dediee requis pour test effectué")
+                raise ValueError("messagerie_vocale_dediee requis pour test réalisable")
             if self.decroche_dedie is None:
-                raise ValueError("decroche_dedie requis pour test effectué")
+                raise ValueError("decroche_dedie requis pour test réalisable")
             if not self.delai_attente:
-                raise ValueError("delai_attente requis pour test effectué")
+                raise ValueError("delai_attente requis pour test réalisable")
             if self.evaluation_accueil is None:
-                raise ValueError("evaluation_accueil requis pour test effectué")
+                raise ValueError("evaluation_accueil requis pour test réalisable")
             if self.application_offre is None:
-                raise ValueError("application_offre requis pour test effectué")
-        elif self.statut_test == "avorte":
-            # Si test avorté, commentaire obligatoire
+                raise ValueError("application_offre requis pour test réalisable")
+        else:
+            # Si test non réalisable, commentaire obligatoire
             if not self.commentaire or not self.commentaire.strip():
-                raise ValueError("commentaire obligatoire pour test avorté")
-            if not self.raison_avortement:
-                raise ValueError("raison_avortement requise pour test avorté")
+                raise ValueError("commentaire obligatoire pour test non réalisable")
         return self
 
 class TestLigne(TestLigneBase):
