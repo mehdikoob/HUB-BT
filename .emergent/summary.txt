@@ -1,89 +1,98 @@
 <analysis>**original_problem_statement:**
-The user's initial goal was to rework the Bilan Partenaire (Partner Report) feature. However, throughout the session, the user reprioritized and requested numerous other features and bug fixes:
-1.  **Dashboard Rework:** Modify the dashboard for the Agent role to be less anxiety-inducing and more focused on pending tasks.
-2.  **Login Page UI:** Add a show/hide password toggle (eye icon) to the login page.
-3.  **Partner Page UI/UX:**
-    *   Make the partner logo URL collapsible to save space.
-    *   Add an URL Referer field for each program associated with a partner.
-    *   **Major Refactor:** Move the Test Site/Ligne requis checkboxes from the global partner level to be configurable for each individual program associated with a partner, allowing for more granular control.
-4.  **Program Page:** Add fields for URL Plateforme, Identifiant, and Mot de passe to each program. Make this section collapsible in the edit form.
-5.  **Test Creation Form UI:**
-    *   Display the new program credentials (URL, ID, password) and the URL Referer when creating a new Test Site.
-    *   Make the program credentials section collapsible by default.
-6.  **Test List Pages ( & ):**
-    *   Change the date filters from a precise date picker to month/year dropdowns for simplified range selection.
-    *   Make the Créé par (Created by) column visible to all user roles, not just admins.
-    *   Filter the partner dropdown list to only show partners relevant for that test type (Site or Ligne) based on the new per-program settings.
-7.  **Excel Export:**
-    *   Fix a bug where the exported Excel file was empty.
-    *   Change the button label from Générer un bilan to Export.
-    *   Restructure the export to generate a single file with multiple sheets, one for each program.
-    *   Update the columns and date format in the export as per new requirements.
-8.  **General UI:** Change the application's browser tab title and add a new favicon.
-9.  **Bug Fix:** The user reported that the Créé par column was not being populated with the creator's name.
+The user initially aimed to resolve a bug where the Créé par (Created by) column was empty. However, the scope expanded significantly to include:
+1.  **New Role Chef de projet:** Implement a new user role with admin rights but restricted to specific, assigned programs.
+2.  **Notification System:** Create an in-app notification system (bell icon) to alert Chefs de projet about issues related to their assigned programs.
+3.  **Terminology Change:** Rename Incidents to Alertes (Alerts) throughout the entire application (UI, API, database).
+4.  **UI Polish:**
+    *   Add En travaux (Work in Progress) badges to the Bilan Partenaire and Messagerie menu items.
+    *   Add a show/hide password toggle (eye icon) in the user settings page ().
+    *   Implement general UI/UX polish (e.g., dark mode, animations).
+5.  **Performance & Scalability:**
+    *   Analyze the application's performance and robustness.
+    *   Implement backend optimizations (DB indexing, fixing N+1 queries, Gzip compression).
+    *   Address long-term scalability concerns for handling ~3000 tests per year by filtering lists by the current year by default and increasing query limits.
+6.  **AI Integration:**
+    *   Explore and implement an AI feature for a Dashboard Insights section.
+    *   Use the free tier of a Gemini model to analyze recent alerts and provide actionable insights.
+7.  **Feature Clarification:** The user clarified that the Messagerie feature is intended for sending emails to external partners, not for internal chat.
 
 **User's preferred language**: French. The next agent MUST respond in French.
 
 **what currently exists?**
-The application is a full-stack platform for managing blind tests. It includes a JWT-based authentication system with four user roles (Admin, Agent, Programme, Partenaire) and role-based access control. The dashboard now has a custom, simplified view for the 'Agent' role. The data model has been significantly enhanced to allow granular test requirements (Site/Ligne) and credentials at the per-program level. The Excel export functionality has been completely rewritten to be more robust and user-friendly. Most of the user's recent UI/UX requests, including collapsible sections and new data fields, have been implemented.
+The application is a full-stack platform for managing blind tests. Key functionalities implemented in this session include:
+- A new Chef de projet role with full admin permissions, which can be assigned to multiple programs via a new UI in the Paramètres page.
+- A fully functional in-app notification system with a header bell icon that alerts relevant Chefs de projet when a new Alerte is created for their programs.
+- The term Incident has been systematically renamed to Alerte across the frontend, backend, and database (collection  -> ).
+- The Bilan Partenaire and Messagerie pages now have WIP badges in the menu and a banner on the page itself.
+- A password visibility toggle has been added to the user management form.
+- The backend has been optimized with MongoDB indexes, N+1 query fixes, and Gzip compression.
+- To handle data volume, test lists now default to showing the current year's data and have an increased fetch limit of 5000 records.
+- The backend includes a new, tested endpoint () that uses the Gemini 2.5 Flash model to generate weekly insights based on recent alerts. The frontend component to display these insights has been created but not yet integrated into the dashboard.
 
 **Last working item**:
--   **Last item agent was working:** Investigating a bug where the Créé par (Created by) column in the test lists was not being populated with the user's name. The agent correctly identified that existing tests in the database had  because they were created before the authentication logic was fully integrated with test creation. The backend code to assign  to *new* tests was verified to be correct.
--   **Status:** BLOCKED
--   **Agent Testing Done:** Y (Investigated code and DB, but did not confirm the fix with a new test).
--   **Which testing method agent to use?** backend testing agent
+-   **Last item agent was working:** Integrating the AI-powered insights feature into the frontend. The agent successfully created and tested the backend endpoint with the Gemini API. It then created the frontend component  and was about to add it to the main  page.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** Y (Backend endpoint was tested via curl and successfully returned AI-generated text).
+-   **Which testing method agent to use?** screenshot tool
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1:** Créé par column is empty for existing tests. (Priority: P0)
+-   **Issue 1:** Créé par column is empty for old tests. (Priority: P1)
 -   **Issue 2:** Minor UI dropdown  issue in . (Priority: P2)
 
 **Issues Detail:**
 -   **Issue 1:**
-    -   **Description:** The Créé par column in  and  is empty for all tests created before the  field was added to the creation process. The backend correctly adds  for new tests, but the agent did not confirm this with a live test.
-    -   **Attempted fixes:** The agent reviewed  and confirmed the logic  is present in the test creation endpoints. It also checked the database and found  was  for old records.
+    -   **Description:** The Créé par column is empty for all tests created before the  association was implemented. The agent fixed the issue for all *new* tests by adding the  field to the Pydantic response models, but never consulted the user about a strategy for backfilling the historical data.
+    -   **Attempted fixes:** The root cause was correctly identified and fixed for new data. No action was taken for old data.
     -   **Next debug checklist:**
-        1.  Log in as an 'agent' user.
-        2.  Create a new test (either Site or Ligne).
-        3.  Use  or  to query the  or  collection in MongoDB and verify the  is populated for the new test.
-        4.  Take a screenshot of the  page to visually confirm the agent's name appears in the Créé par column for the newly created test.
-        5.  Inform the user that the fix only works for new tests and ask if old tests should be backfilled (e.g., assigned to the admin user).
-    -   **Status:** BLOCKED
-    -   **Is recurring issue?** Y
-    -   **Should Test frontend/backend/both after fix?** Both
+        1.  Propose a strategy to the user for handling old tests (e.g., leave as is, or run a script to assign them to a default user like 'admin').
+        2.  If approved, write and execute a one-time script to update the  field for old tests in the  and  collections.
+    -   **Status:** BLOCKED (Pending user decision)
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Backend
     -   **Blocked on other issue:** None
 -   **Issue 2:**
-    -   **Description:** When creating a new user on the  page, the role selection dropdown renders behind the dialog overlay due to a  conflict.
-    -   **Attempted fixes:** None. Deferred as a minor issue.
-    -   **Next debug checklist:** Inspect the CSS of  and  in  and apply a higher z-index to .
+    -   **Description:** On the  page, the role selection dropdown renders behind the dialog overlay. This is a minor visual bug that has been carried over.
+    -   **Attempted fixes:** None. Deferred as a low-priority issue.
+    -   **Next debug checklist:** Inspect the CSS of the  and  shadcn components and apply a higher z-index (e.g., ) to the .
     -   **Status:** NOT STARTED
     -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Frontend
     -   **Blocked on other issue:** None
 
 **In progress Task List**:
-None.
+-   **Task 1:** Complete Frontend Integration for AI Insights (Priority: P0)
+    -   **Where to resume:**
+        1.  Modify .
+        2.  Import the newly created  component.
+        3.  Add state to fetch data from the  endpoint.
+        4.  Conditionally render the  component on the dashboard, likely at the top, for Admin and Chef de projet roles.
+        5.  Add loading and error states for the component.
+    -   **What will be achieved with this?** A wow feature that provides users with actionable, AI-generated insights directly on their dashboard.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Frontend
+    -   **Blocked on something:** None
 
 **Upcoming and Future Tasks**
--   **Upcoming Tasks (Paused by user):**
-    -   **(P0) Rework Bilan Partenaire Generation:** The original high-priority task to replace the report generation with a user-provided PowerPoint template. This is blocked until the user provides the template file.
-    -   **(P1) Email Notification System:** Implement a system to email Chefs de projet when an incident is detected. The user analyzed the proposal and asked to put it on hold.
--   **Future Tasks:**
-    -   **(P2) To-Do List Test Indicator:** Add a real-time indicator in the test creation form to show if a test has already been done for the selected partner/program that month. The user deferred this.
-    -   **(P2) Remove Made with Emergent Badge:** The user asked if this was possible. The agent advised checking with support first, and the user did not proceed.
+-   **Upcoming Tasks:**
+    -   **(P1) UI/UX Polish:** Implement further UI improvements as requested by the user, such as a dark mode toggle, smoother loading states, and subtle animations.
+-   **Future Tasks (User-paused or long-term):**
+    -   **(P2) Implement API Pagination:** The current solution of filtering by year and increasing the limit to 5000 is a temporary fix. A proper pagination system should be implemented on all list endpoints (, , , etc.) to ensure long-term performance.
+    -   **(P2) Rework Bilan Partenaire Generation:** The original task to replace report generation with a PowerPoint template. This is blocked until the user provides the template file.
+    -   **(P3) Implement Messagerie Feature:** Develop the functionality to send emails to external partners directly from the application, based on the user's clarification. This would likely involve integrating an email service provider like SendGrid.
+    -   **(P3) To-Do List Test Indicator:** Add a real-time indicator in the test creation form to show if a test has already been done for the selected partner/program that month.
 
 **Completed work in this session**
 -   **Recently completed:**
-    -   Dashboard for Agent role was redesigned.
-    -   Password visibility toggle was added to the Login page.
-    -   **Major Refactor:** Test requirements (, ) were moved from the Partner level to the Program level, allowing for granular control. This involved backend model changes, a data migration, and frontend UI updates in .
-    -   An URL Referer field was added per program and displayed in the Test Site form.
-    -   Program-specific credentials (URL, ID, password) were added and displayed in a new collapsible section in the Test Site form.
-    -   The forms for editing Programs and creating Site Tests now have collapsible sections to improve UX and reduce vertical space.
-    -   Date filters on  and  pages were changed to Month/Year dropdowns.
-    -   The Créé par column was made visible to all roles.
-    -   **Excel Export Rework:** Fixed a bug causing empty files and completely rewrote the logic to generate a single  file with multiple sheets (one per program), with corrected columns and date formatting.
-    -   The application title and favicon were updated.
+    -   **Bug Fix:** Resolved the Créé par column bug for all newly created tests by fixing the backend Pydantic models.
+    -   **Core Feature:** Implemented the Chef de projet role with program-specific affiliations.
+    -   **Core Feature:** Created a real-time, in-app notification system for Chefs de projet.
+    -   **Major Refactor:** Renamed all instances of Incident to Alerte across the entire stack.
+    -   **UI:** Added WIP badges and banners to the Bilan Partenaire and Messagerie pages.
+    -   **UI:** Added a password visibility toggle to the user creation/edit form in .
+    -   **Performance:** Implemented critical backend optimizations: MongoDB indexing, N+1 query fixes, and Gzip compression.
+    -   **Scalability:** Implemented a short-term fix for data growth by filtering test lists by the current year and increasing the fetch limit to 5000.
+    -   **AI Integration (Backend):** Successfully integrated the Gemini 2.5 Flash model to create a new  endpoint that generates actionable insights from recent alert data.
 
 **Earlier issues found/mentioned but not fixed**
 -   **Issue 1:** UI dropdown  issue in  (as detailed in All Pending/In progress Issue list).
@@ -95,82 +104,91 @@ None.
 
 
 **Key Technical Concepts**
--   **Backend:** FastAPI, Pydantic, MongoDB (motor),  for Excel generation.
+-   **Backend:** FastAPI, Pydantic, MongoDB (motor), .
 -   **Frontend:** React, Shadcn UI, Tailwind CSS, axios, React Context API.
 -   **Authentication:** JWT with role-based access control.
+-   **3rd Party AI:**  SDK for connecting to the Gemini API.
 
 **key DB schema**
--   ****:  and  fields have been **removed**.
--   ****: The following fields have been **added** to this sub-document:
-    -   
-    -   
-    -   
--   ****: The following fields have been **added**:
-    -   
-    -   
-    -   
--   ** / **: The  field is now correctly populated upon creation.
+-   ****:
+    -   : Enum now includes .
+    -    field added to associate Chefs de projet with programs.
+-   ** collection**: Renamed to ****.
+-   ** collection (New)**:
+    -   uid=0(root) gid=0(root) groups=0(root),  (recipient), , ,  (boolean), .
 
 **changes in tech stack**
--    is now used on the backend for Excel file generation.
+-    library added to the backend.
 
 **All files of reference**
--   **Updated:**
-    -   : Major changes to support new data models, refactor dashboard logic, and completely rewrite the two Excel export endpoints (, ).
-    -   : UI heavily refactored to move test requirement checkboxes into the per-program configuration section.
-    -   : Form updated to include new credential fields and a collapsible UI section.
-    -    / : Updated with new month/year date filters, logic for displaying new program/partner data, and making the Créé par column always visible.
-    -   : Logic added to render a different component for the agent role.
-    -   : Page title and favicon link were updated.
 -   **Created:**
-    -   : The new icon file for the browser tab.
+    -   : Renamed from  and updated.
+    -   : The UI for the in-app notification panel.
+    -   : The UI component to display AI-generated insights (not yet integrated).
+    -   : Centralized axios instance for API calls.
+    -   , , , : Analysis documents created for the user.
+-   **Updated:**
+    -   : Major changes for the new role, notifications, Alerte rename, performance optimizations, scalability fix, and the new AI insights endpoint.
+    -   : Heavily refactored to support creating/editing the Chef de projet role with program assignments and adding a password toggle.
+    -   : Updated to add the  and WIP badges.
+    -   : Updated routes for Alertes.
+    -   : Added .
+    -   : Added .
 
 **Areas that need refactoring**:
-None noted.
+- The  file is now over 3900 lines long. While the agent correctly proposed breaking it down, the user did not prioritize it. It should be considered for future refactoring to improve maintainability.
 
 **key api endpoints**
--   : Returns different payloads based on user role ('agent' vs. others).
--    (POST, PUT): Logic updated to handle the new data structure where test requirements are defined per-program.
--    (POST, PUT): Logic updated to save the new credential fields.
--   , : Completely rewritten to generate multi-sheet Excel files with corrected data and formatting.
+-    (GET, POST, etc.): Renamed from .
+-    (GET): Fetches notifications for the logged-in user.
+-    (GET): Gets the count of unread notifications.
+-    (PUT): Marks a notification as read.
+-    (POST, PUT): Endpoints updated to handle the  field for the new role.
+-    (GET): **New endpoint** that returns AI-generated insights.
+-   , : Now filter by the current year by default and have a limit of 5000.
 
 **Critical Info for New Agent**
--   The immediate priority is to resolve the Créé par bug. You must **create a new test** to verify that the  is being correctly associated and that the creator's name appears in the UI. Then, you must inform the user that this fix only applies to new tests and discuss how to handle old data.
--   The data model for  has fundamentally changed. The choice of  or  is no longer at the partner level but is now configured for **each program** within a partner's settings. All dashboard and filtering logic has been updated to reflect this.
--   Several large features (Bilan Partenaire rework, Email Notifications) have been discussed in detail but were **explicitly paused** by the user. Do not work on them unless the user brings them up again.
+-   **Priority 1:** Your immediate task is to integrate the  component into the  page to display the AI-generated insights. The backend is complete and working.
+-   **User-Provided Key:** The Gemini integration uses a key provided by the user. Do not ask for it again; it is stored in . The model in use is .
+-   **Scalability:** The app is temporarily secured for ~1 year of data. The next major step for scalability will be to implement proper API pagination, which is a future task.
+-   **Pending User Decision:** The issue of backfilling the Créé par field for old tests is unresolved. You will need to present options to the user and get a decision before acting.
 
 **documents created in this job**
-None.
+-   /app/ANALYSE_ROBUSTESSE_PERFORMANCE.md
+-   /app/CAPACITE_ET_LIMITES.md
+-   /app/STRATEGIE_3000_TESTS_AN.md
+-   /app/INTEGRATION_TEAMS_NOTIFICATIONS.md
 
 **Last 10 User Messages and any pending user messages**
-1.  **User:** Requested adding program-specific credentials (URL/ID/Pass) to be shown in the Test Site form. (COMPLETED)
-2.  **User:** Confirmed implementation details for the above request. (COMPLETED)
-3.  **User:** Reported that the Excel export is generating empty files and requested several formatting changes (label, multi-sheet structure). (COMPLETED)
-4.  **User:** Provided detailed column specifications for the new Excel export. (COMPLETED)
-5.  **User:** Requested that the Informations de connexion section in the Test Site form be collapsible. (COMPLETED)
-6.  **User:** Requested a Créé par column to see who created a test. (COMPLETED - column made visible, but data is missing for old tests).
-7.  **User:** Requested that the Informations de connexion section in the Program edit dialog be collapsible to reduce its height. (COMPLETED)
-8.  **User:** Proposed a new feature for email notifications based on incidents. (ANALYZED, PAUSED)
-9.  **User:** Paused the email notification feature and reported a bug: the Créé par column is not being populated. (PENDING FIX VERIFICATION)
-10. **Agent:** Identified the cause of the Créé par bug (old data has ) and concluded the session. (PENDING FIX VERIFICATION)
+1.  **User:** Asks to connect notifications to a Teams channel. (SUPERSEDED)
+2.  **User:** Abandons the Teams integration and asks to explore AI integration and next steps for development. (ACKNOWLEDGED)
+3.  **User:** Clarifies Messagerie is for external partners and approves a new plan: 1. Scalability fix, 2. AI Dashboard Insights, 3. UI Polish. (IN PROGRESS)
+4.  **Agent:** Starts implementing the scalability fix. (COMPLETED)
+5.  **Agent:** Asks for a Gemini API key to proceed with AI integration. (COMPLETED)
+6.  **User:** Provides the Gemini API key. (ACKNOWLEDGED)
+7.  **Agent:** Implements the full backend for AI insights, debugging model availability issues along the way. (COMPLETED)
+8.  **Agent:** Confirms backend AI success and proposes to continue with the frontend integration. (PENDING)
+9.  **User:** Approves continuing with the frontend. (ACKNOWLEDGED)
+10. **Agent:** Starts creating the frontend component . (IN PROGRESS)
 
 **Project Health Check:**
--   **Broken:** The population of the Créé par column for *existing* tests is broken because their  is null. The functionality is expected to work for newly created tests but needs verification.
+-   **Broken:** None.
 -   **Mocked:** None.
 
 **3rd Party Integrations**:
--   None added in this session.
+-   **Google Gemini 2.5 Flash** — requires User LLM Key (already provided and stored in ). Used for generating dashboard insights.
 
 **Testing status**
 -   **Testing agent used after significant changes:** NO
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None
--   **Known regressions:** The Créé par column appears empty for old tests, which might be perceived as a regression by the user, although it's due to missing historical data.
+-   **Known regressions:** None.
 
 **Credentials to test flow:**
 -   **Admin:**  / 
--   **Agent:**  /  (password was reset during the session)
+-   **Agent:**  / 
+-   **Chef de projet (created during session):**  / 
 
 **What agent forgot to execute**
--   The agent did not perform the final verification step for the Créé par bug fix: creating a new test as a logged-in user to confirm that the  is populated and the name appears in the UI.
--   The minor  UI bug in , carried over from the previous fork, remains unfixed.</analysis>
+-   The agent never circled back to the user to ask for a decision on backfilling the  for old tests after fixing the Créé par bug. This remains an open and unresolved point.
+-   The minor  UI bug in , carried over from the previous fork, was never addressed despite being in the initial plan.</analysis>
