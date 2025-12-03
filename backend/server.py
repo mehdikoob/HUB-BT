@@ -1482,6 +1482,7 @@ async def create_alerte_standalone(
         "statut": alerte.statut.value,
         "programme_id": alerte.programme_id,
         "partenaire_id": alerte.partenaire_id,
+        "screenshots": alerte.screenshots,  # IDs des screenshots
         "user_id": current_user.id,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "resolved_at": None
