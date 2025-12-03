@@ -256,6 +256,12 @@ class AlerteCreateStandalone(BaseModel):
     type_test: TypeTest
     description: str
     statut: StatutAlerte = StatutAlerte.ouvert
+    
+    @field_validator('description')
+    def validate_description(cls, v):
+        if not v or not v.strip():
+            raise ValueError('Description ne peut pas être vide')
+        return v
 
 class Alerte(AlerteBase):
     model_config = ConfigDict(extra="ignore")
