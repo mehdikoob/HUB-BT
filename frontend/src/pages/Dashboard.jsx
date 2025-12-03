@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle, BarChart3, CheckCircle2, ListTodo } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
+import InsightsIA from '../components/InsightsIA';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
