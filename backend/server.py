@@ -2936,6 +2936,112 @@ async def init_admin():
     return {"message": "Administrateur créé avec succès", "email": "admin@hubblindtests.com", "password": "admin123"}
 
 # =====================
+# Screenshot Management Routes
+# =====================
+
+class ScreenshotUpload(BaseModel):
+    """Modèle pour upload de screenshot en base64"""
+    image_data: str  # Image en base64
+    filename: Optional[str] = "screenshot.png"
+
+@api_router.post("/upload-screenshot")
+async def upload_screenshot(
+    upload: ScreenshotUpload,
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Upload un screenshot en base64 et le stocke dans GridFS
+    Retourne l'ID du fichier pour référence future
+    Limite: 5MB par image
+    """
+    try:
+        # Décoder le base64
+        if ',' in upload.image_data:
+            # Format: data:image/png;base64,iVBORw0KG...
+            header, encoded = upload.image_data.split(',', 1)
+        else:
+            encoded = upload.image_data
+        
+        image_bytes = base64.b64decode(encoded)
+        
+        # Vérifier la taille (5MB max)
+        size_mb = len(image_bytes) / (1024 * 1024)
+        if size_mb > 5:
+            raise HTTPException(status_code=413, detail=f"Image trop volumineuse ({size_mb:.2f}MB). Maximum 5MB.")
+        
+        # Déterminer le content type
+        content_type = "image/png"
+        if upload.filename.lower().endswith('.jpg') or upload.filename.lower().endswith('.jpeg'):
+            content_type = "image/jpeg"
+        
+        # Stocker dans GridFS
+        file_id = fs.put(
+            image_bytes,
+            filename=upload.filename,
+            content_type=content_type,
+            user_id=current_user.id,
+            uploaded_at=datetime.now(timezone.utc)
+        )
+        
+        return {
+            "file_id": str(file_id),
+            "filename": upload.filename,
+            "size_mb": round(size_mb, 2),
+            "content_type": content_type
+        }
+    
+    except base64.binascii.Error:
+        raise HTTPException(status_code=400, detail="Format base64 invalide")
+    except Exception as e:
+        logging.error(f"Erreur upload screenshot: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'upload: {str(e)}")
+
+@api_router.get("/screenshots/{file_id}")
+async def get_screenshot(
+    file_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Récupère un screenshot depuis GridFS par son ID
+    Retourne l'image pour affichage dans le navigateur
+    """
+    try:
+        # Récupérer le fichier depuis GridFS
+        grid_out = fs.get(ObjectId(file_id))
+        
+        # Retourner le fichier comme streaming response
+        return StreamingResponse(
+            io.BytesIO(grid_out.read()),
+            media_type=grid_out.content_type or "image/png",
+            headers={
+                "Content-Disposition": f"inline; filename={grid_out.filename}"
+            }
+        )
+    
+    except gridfs.errors.NoFile:
+        raise HTTPException(status_code=404, detail="Screenshot non trouvé")
+    except Exception as e:
+        logging.error(f"Erreur récupération screenshot: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erreur lors de la récupération")
+
+@api_router.delete("/screenshots/{file_id}")
+async def delete_screenshot(
+    file_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Supprime un screenshot de GridFS
+    """
+    try:
+        fs.delete(ObjectId(file_id))
+        return {"message": "Screenshot supprimé avec succès"}
+    except gridfs.errors.NoFile:
+        raise HTTPException(status_code=404, detail="Screenshot non trouvé")
+    except Exception as e:
+        logging.error(f"Erreur suppression screenshot: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erreur lors de la suppression")
+
+# =====================
 # User Management Routes
 # =====================
 
