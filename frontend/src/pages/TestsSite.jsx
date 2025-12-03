@@ -875,7 +875,9 @@ const TestsSite = () => {
                 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="prix_public">Prix public (€) *</Label>
+                    <Label htmlFor="prix_public">
+                      Prix public (€) {!formData.test_non_realisable && '*'}
+                    </Label>
                     <Input
                       id="prix_public"
                       type="number"
@@ -883,11 +885,14 @@ const TestsSite = () => {
                       data-testid="test-site-prix-public-input"
                       value={formData.prix_public}
                       onChange={(e) => setFormData({ ...formData, prix_public: e.target.value })}
-                      required
+                      required={!formData.test_non_realisable}
+                      disabled={formData.test_non_realisable}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="prix_remise">Prix remisé (€) *</Label>
+                    <Label htmlFor="prix_remise">
+                      Prix remisé (€) {!formData.test_non_realisable && '*'}
+                    </Label>
                     <Input
                       id="prix_remise"
                       type="number"
@@ -895,7 +900,8 @@ const TestsSite = () => {
                       data-testid="test-site-prix-remise-input"
                       value={formData.prix_remise}
                       onChange={(e) => setFormData({ ...formData, prix_remise: e.target.value })}
-                      required
+                      required={!formData.test_non_realisable}
+                      disabled={formData.test_non_realisable}
                     />
                   </div>
                   <div>
