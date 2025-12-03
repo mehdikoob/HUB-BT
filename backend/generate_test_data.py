@@ -14,7 +14,7 @@ from uuid import uuid4
 import random
 
 # Configuration MongoDB
-MONGO_URL = os.getenv('MONGO_URL', 'mongodb://localhost:27017')
+MONGO_URL = "mongodb://localhost:27017"
 
 async def generate_test_data():
     print("🚀 Génération de données de test...")
@@ -22,7 +22,7 @@ async def generate_test_data():
     
     # Connexion MongoDB
     client = AsyncIOMotorClient(MONGO_URL)
-    db = client.qwertys_db
+    db = client['qwertys_db']
     
     # Récupérer programmes et partenaires
     programmes = await db.programmes.find({}, {"_id": 0}).to_list(100)
