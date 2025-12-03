@@ -712,11 +712,14 @@ const TestsLigne = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="evaluation_accueil">Évaluation de l'accueil *</Label>
+                  <Label htmlFor="evaluation_accueil">
+                    Évaluation de l'accueil {!formData.test_non_realisable && '*'}
+                  </Label>
                   <Select
                     value={formData.evaluation_accueil}
                     onValueChange={(value) => setFormData({ ...formData, evaluation_accueil: value })}
-                    required
+                    required={!formData.test_non_realisable}
+                    disabled={formData.test_non_realisable}
                   >
                     <SelectTrigger data-testid="test-ligne-evaluation-select">
                       <SelectValue />
