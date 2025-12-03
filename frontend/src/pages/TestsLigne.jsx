@@ -216,19 +216,28 @@ const TestsLigne = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate delai_attente format
-    const delaiParts = formData.delai_attente.split(':');
-    if (delaiParts.length !== 2) {
-      toast.error('Format de délai invalide. Utilisez mm:ss');
-      return;
-    }
-    
-    const minutes = parseInt(delaiParts[0]);
-    const seconds = parseInt(delaiParts[1]);
-    
-    if (isNaN(minutes) || isNaN(seconds) || seconds > 59 || minutes >= 10) {
-      toast.error('Délai invalide. Les minutes doivent être < 10 et les secondes < 60');
-      return;
+    // Validations conditionnelles
+    if (formData.test_non_realisable) {
+      // Si test non réalisable : commentaire obligatoire
+      if (!formData.commentaire || !formData.commentaire.trim()) {
+        toast.error('Le commentaire est obligatoire pour un test non réalisable');
+        return;
+      }
+    } else {
+      // Si test réalisable : validation des champs techniques
+      const delaiParts = formData.delai_attente.split(':');
+      if (delaiParts.length !== 2) {
+        toast.error('Format de délai invalide. Utilisez mm:ss');
+        return;
+      }
+      
+      const minutes = parseInt(delaiParts[0]);
+      const seconds = parseInt(delaiParts[1]);
+      
+      if (isNaN(minutes) || isNaN(seconds) || seconds > 59 || minutes >= 10) {
+        toast.error('Délai invalide. Les minutes doivent être < 10 et les secondes < 60');
+        return;
+      }
     }
 
     // Check if test already exists this month for this partenaire/programme (only for new tests)
