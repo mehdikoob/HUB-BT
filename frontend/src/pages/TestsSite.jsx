@@ -380,13 +380,16 @@ const TestsSite = () => {
       programme_id: test.programme_id,
       partenaire_id: test.partenaire_id,
       date_test: format(new Date(test.date_test), "yyyy-MM-dd'T'HH:mm"),
-      application_remise: test.application_remise,
-      prix_public: test.prix_public.toString(),
-      prix_remise: test.prix_remise.toString(),
+      statut_test: test.statut_test || 'effectue',
+      raison_avortement: test.raison_avortement || '',
+      application_remise: test.application_remise !== undefined ? test.application_remise : true,
+      prix_public: test.prix_public ? test.prix_public.toString() : '',
+      prix_remise: test.prix_remise ? test.prix_remise.toString() : '',
       naming_constate: test.naming_constate || '',
-      cumul_codes: test.cumul_codes,
+      cumul_codes: test.cumul_codes !== undefined ? test.cumul_codes : false,
       commentaire: test.commentaire || '',
       attachments: test.attachments || [],
+      screenshots: test.screenshots || [],
     });
     setDialogOpen(true);
   };
