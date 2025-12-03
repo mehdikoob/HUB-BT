@@ -310,6 +310,7 @@ const TestsSite = () => {
           type_test: 'TS',
           description: `Test site non réalisable - ${formData.commentaire}`,
           statut: 'ouvert',
+          screenshots: formData.screenshots,
         }, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
