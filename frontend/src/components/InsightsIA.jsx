@@ -222,86 +222,60 @@ const InsightsIA = () => {
             </div>
           )}
 
-        {insights && insights.enabled && (
-          <div className="space-y-4">
-            {/* Statistiques */}
-            {insights.stats && (
-              <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">{insights.stats.total_tests || 0}</p>
-                  <p className="text-xs text-gray-600">Tests effectués</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-orange-600">{insights.stats.total_alertes || 0}</p>
-                  <p className="text-xs text-gray-600">Alertes détectées</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-purple-600">{insights.insights?.length || 0}</p>
-                  <p className="text-xs text-gray-600">Insights IA</p>
-                </div>
-              </div>
-            )}
-
-            {/* Insights générés */}
-            {insights.insights && insights.insights.length > 0 ? (
-              <div className="space-y-3">
-                {insights.insights.map((insight, index) => (
-                  <div 
-                    key={index} 
-                    className={`p-4 rounded-lg border ${getInsightBgColor(insight.type)} transition-all hover:shadow-md`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-0.5">
-                        {getInsightIcon(insight.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 mb-1">
-                          {insight.title}
-                        </h3>
-                        <p className="text-sm text-gray-700 mb-2">
-                          {insight.description}
-                        </p>
-                        {insight.action && (
-                          <div className="flex items-start gap-2 mt-3 p-3 bg-white/50 rounded border border-gray-200/50">
-                            <span className="text-xs font-medium text-gray-600">💡 Action recommandée :</span>
-                            <p className="text-xs text-gray-700 flex-1">
-                              {insight.action}
-                            </p>
-                          </div>
-                        )}
-                      </div>
+          {insights && insights.enabled && (
+            <div className="space-y-3">
+              {/* Résumé global - VERSION COMPACTE */}
+              {insights.summary && (
+                <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="text-purple-500 flex-shrink-0 mt-0.5" size={18} />
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-purple-900 mb-1">
+                        Résumé IA{getScopeLabel()}
+                      </p>
+                      <p className="text-sm text-purple-800 leading-relaxed">{insights.summary}</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Info className="mx-auto mb-2 text-gray-300" size={32} />
-                <p className="text-sm">Aucun insight significatif trouvé pour cette période</p>
-              </div>
-            )}
-
-            {/* Résumé global */}
-            {insights.summary && (
-              <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <Sparkles className="text-purple-500 flex-shrink-0 mt-0.5" size={20} />
-                  <div>
-                    <p className="text-sm font-medium text-purple-900 mb-1">Résumé global</p>
-                    <p className="text-sm text-purple-800">{insights.summary}</p>
-                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Timestamp */}
-            {insights.generated_at && (
-              <p className="text-xs text-gray-400 text-right mt-4">
-                Généré le {new Date(insights.generated_at).toLocaleString('fr-FR')}
-              </p>
-            )}
-          </div>
-        )}
+              {/* Stats + Bouton Voir détails */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 text-xs text-gray-600">
+                  <span>📊 {insights.stats?.total_tests || 0} tests</span>
+                  <span>🔔 {insights.stats?.total_alertes || 0} alertes</span>
+                  <span>✨ {insights.insights?.length || 0} insights</span>
+                </div>
+                
+                {insights.insights && insights.insights.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setDetailsOpen(true)}
+                    className="gap-2 h-8 text-xs"
+                  >
+                    <Eye size={14} />
+                    Voir détails
+                  </Button>
+                )}
+              </div>
+
+              {/* Message si aucun insight */}
+              {(!insights.insights || insights.insights.length === 0) && (
+                <div className="text-center py-4 text-gray-500">
+                  <Info className="mx-auto mb-2 text-gray-300" size={24} />
+                  <p className="text-xs">Aucun insight significatif pour cette sélection</p>
+                </div>
+              )}
+
+              {/* Timestamp */}
+              {insights.generated_at && (
+                <p className="text-xs text-gray-400 text-right">
+                  Généré le {new Date(insights.generated_at).toLocaleString('fr-FR')}
+                </p>
+              )}
+            </div>
+          )}
 
         {insights && insights.error && (
           <div className="text-center py-8">
