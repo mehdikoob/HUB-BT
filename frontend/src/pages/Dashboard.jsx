@@ -102,6 +102,13 @@ const Dashboard = () => {
       bg: 'bg-purple-50',
     },
     {
+      title: 'Tests non réalisables',
+      value: stats?.tests_non_realisables || 0,
+      icon: AlertTriangle,
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+    },
+    {
       title: 'Moyenne tests / jour',
       value: stats?.moyenne_tests_par_jour || 0,
       icon: BarChart3,
