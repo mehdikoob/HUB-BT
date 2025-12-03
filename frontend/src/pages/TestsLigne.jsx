@@ -829,6 +829,14 @@ const TestsLigne = () => {
                     placeholder={formData.test_non_realisable ? "Décrivez pourquoi le test n'a pas pu être réalisé (obligatoire)" : "Commentaire optionnel"}
                   />
                 </div>
+                
+                {/* Screenshot Uploader - CTRL+V */}
+                <ScreenshotUploader
+                  screenshots={formData.screenshots}
+                  onScreenshotsChange={(newScreenshots) => setFormData({ ...formData, screenshots: newScreenshots })}
+                  maxScreenshots={3}
+                />
+                
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                     Annuler
