@@ -1013,6 +1013,13 @@ const TestsSite = () => {
                   />
                 </div>
                 
+                {/* Screenshot Uploader - CTRL+V */}
+                <ScreenshotUploader
+                  screenshots={formData.screenshots}
+                  onScreenshotsChange={(newScreenshots) => setFormData({ ...formData, screenshots: newScreenshots })}
+                  maxScreenshots={3}
+                />
+                
                 {/* File attachments section */}
                 <div>
                   <Label>Pièces jointes (jpeg, png, pdf)</Label>
