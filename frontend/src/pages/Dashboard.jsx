@@ -123,6 +123,13 @@ const Dashboard = () => {
         <p className="text-gray-600">Vue d'ensemble des blind tests QWERTYS</p>
       </div>
 
+      {/* AI Insights - Visible pour Admin et Chef de projet uniquement */}
+      {(stats?.role === 'admin' || stats?.role === 'chef_projet') && (
+        <div className="mb-8">
+          <InsightsIA />
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((stat, index) => {
