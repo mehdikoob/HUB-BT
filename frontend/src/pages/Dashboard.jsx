@@ -210,7 +210,7 @@ const Dashboard = () => {
 
       {/* Success Rates - Moved up for better visibility */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm hover-lift animate-slide-up animation-delay-400">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="text-red-600" size={20} />
