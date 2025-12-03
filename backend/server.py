@@ -142,7 +142,25 @@ class TestSiteBase(BaseModel):
     screenshots: List[str] = []  # Captures d'écran (base64)
 
 class TestSiteCreate(TestSiteBase):
-    pass
+    @model_validator(mode='after')
+    def validate_test_site(self):
+        if self.statut_test == "effectue":
+            # Si test effectué, les champs techniques sont obligatoires
+            if self.application_remise is None:
+                raise ValueError("application_remise requis pour test effectué")
+            if self.prix_public is None:
+                raise ValueError("prix_public requis pour test effectué")
+            if self.prix_remise is None:
+                raise ValueError("prix_remise requis pour test effectué")
+            if self.cumul_codes is None:
+                raise ValueError("cumul_codes requis pour test effectué")
+        elif self.statut_test == "avorte":
+            # Si test avorté, commentaire obligatoire
+            if not self.commentaire or not self.commentaire.strip():
+                raise ValueError("commentaire obligatoire pour test avorté")
+            if not self.raison_avortement:
+                raise ValueError("raison_avortement requise pour test avorté")
+        return self
 
 class CreatedByInfo(BaseModel):
     """Informations sur l'utilisateur créateur"""
