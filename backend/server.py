@@ -1534,10 +1534,10 @@ async def export_incident_report(
     # Contenu du PDF
     story = []
     
-    # Logo
+    # Logo (dimensions ajustées pour respecter le ratio 4.47:1)
     logo_path = ROOT_DIR / "logo-qwertys.png"
     if logo_path.exists():
-        logo = Image(str(logo_path), width=1.5*inch, height=0.6*inch)
+        logo = Image(str(logo_path), width=2*inch, height=0.45*inch)
         logo.hAlign = 'CENTER'
         story.append(logo)
         story.append(Spacer(1, 0.3*inch))
