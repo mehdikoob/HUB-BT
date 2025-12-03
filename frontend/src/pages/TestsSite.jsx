@@ -974,10 +974,10 @@ const TestsSite = () => {
                 </>
                 )}
                 
-                {/* Commentaires - Obligatoire si test avorté */}
+                {/* Commentaires - Obligatoire si test non réalisable */}
                 <div>
                   <Label htmlFor="commentaire">
-                    Commentaire {formData.statut_test === 'avorte' && <span className="text-red-600">*</span>}
+                    Commentaire {formData.test_non_realisable && <span className="text-red-600">*</span>}
                   </Label>
                   <Textarea
                     id="commentaire"
@@ -985,8 +985,8 @@ const TestsSite = () => {
                     value={formData.commentaire}
                     onChange={(e) => setFormData({ ...formData, commentaire: e.target.value })}
                     rows={3}
-                    required={formData.statut_test === 'avorte'}
-                    placeholder={formData.statut_test === 'avorte' ? "Décrivez le problème rencontré (obligatoire)" : "Commentaire optionnel"}
+                    required={formData.test_non_realisable}
+                    placeholder={formData.test_non_realisable ? "Décrivez pourquoi le test n'a pas pu être réalisé (obligatoire)" : "Commentaire optionnel"}
                   />
                 </div>
                 
