@@ -1469,24 +1469,13 @@ async def create_alerte_standalone(
     
     await db.alertes.insert_one(alerte_doc)
     
-    # Créer une notification pour le chef de projet responsable
-    chef_projet = await db.users.find_one({
-        "role": UserRole.chef_projet.value,
-        "programme_id": alerte.programme_id
-    }, {"_id": 0})
-    
-    if chef_projet:
-        notification_doc = {
-            "id": str(uuid.uuid4()),
-            "user_id": chef_projet["id"],
-            "alerte_id": alerte_doc["id"],
-            "programme_id": alerte.programme_id,
-            "partenaire_id": alerte.partenaire_id,
-            "message": f"Test non réalisable signalé pour {partenaire['nom']} sur {programme['nom']}",
-            "read": False,
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        await db.notifications.insert_one(notification_doc)
+    # Créer des notifications pour les chefs de projet concernés
+    await create_notifications_for_chefs_projet(
+        alerte_doc["id"], 
+        alerte.programme_id, 
+        alerte.partenaire_id, 
+        alerte.description
+    )
     
     # Retourner l'alerte créée
     created_alerte = await db.alertes.find_one({"id": alerte_doc["id"]}, {"_id": 0})
