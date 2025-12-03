@@ -117,11 +117,11 @@ const InsightsIA = () => {
 
   const getScopeLabel = () => {
     const parts = [];
-    if (programmeId) {
+    if (programmeId && programmeId !== 'all') {
       const prog = programmes.find(p => p.id === programmeId);
       if (prog) parts.push(prog.nom);
     }
-    if (partenaireId) {
+    if (partenaireId && partenaireId !== 'all') {
       const part = partenaires.find(p => p.id === partenaireId);
       if (part) parts.push(part.nom);
     }
