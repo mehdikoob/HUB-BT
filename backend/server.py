@@ -212,7 +212,29 @@ class TestLigneBase(BaseModel):
         return v
 
 class TestLigneCreate(TestLigneBase):
-    pass
+    @model_validator(mode='after')
+    def validate_test_ligne(self):
+        if self.statut_test == "effectue":
+            # Si test effectué, les champs techniques sont obligatoires
+            if not self.numero_telephone:
+                raise ValueError("numero_telephone requis pour test effectué")
+            if self.messagerie_vocale_dediee is None:
+                raise ValueError("messagerie_vocale_dediee requis pour test effectué")
+            if self.decroche_dedie is None:
+                raise ValueError("decroche_dedie requis pour test effectué")
+            if not self.delai_attente:
+                raise ValueError("delai_attente requis pour test effectué")
+            if self.evaluation_accueil is None:
+                raise ValueError("evaluation_accueil requis pour test effectué")
+            if self.application_offre is None:
+                raise ValueError("application_offre requis pour test effectué")
+        elif self.statut_test == "avorte":
+            # Si test avorté, commentaire obligatoire
+            if not self.commentaire or not self.commentaire.strip():
+                raise ValueError("commentaire obligatoire pour test avorté")
+            if not self.raison_avortement:
+                raise ValueError("raison_avortement requise pour test avorté")
+        return self
 
 class TestLigne(TestLigneBase):
     model_config = ConfigDict(extra="ignore")
