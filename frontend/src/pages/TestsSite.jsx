@@ -82,10 +82,8 @@ const TestsSite = () => {
     naming_constate: '',
     cumul_codes: false,
     commentaire: '',
-    attachments: [],
     screenshots: [],
   });
-  const [uploadingFile, setUploadingFile] = useState(false);
   const [partenaireUrl, setPartenaireUrl] = useState('');
   const [partenaireReferer, setPartenaireReferer] = useState('');
   const [programmeInfo, setProgrammeInfo] = useState(null);
