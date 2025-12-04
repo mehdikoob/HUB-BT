@@ -1252,17 +1252,9 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
             current_user.id
         )
     
-    # Ne créer une alerte QUE si messagerie dédiée est absente
-    # (Le décroche dédié non disponible n'est pas considéré comme un incident)
-    if not input.messagerie_vocale_dediee:
-        await check_and_create_alerte(
-            test.id,
-            TypeTest.TL,
-            "Messagerie vocale dédiée non détectée",
-            input.programme_id,
-            input.partenaire_id,
-            current_user.id
-        )
+    # Note: Le décroche dédié non disponible n'est pas considéré comme un incident
+    # Il sera simplement mentionné dans le rapport comme information
+    # Aucune alerte n'est créée automatiquement pour les tests ligne basés sur ces critères
     
     # Save test
     doc = test.model_dump()
