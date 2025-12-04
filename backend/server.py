@@ -1890,11 +1890,57 @@ async def export_incident_report(
     """
     story.append(Paragraph(footer_text, normal_style))
     
-    # Build PDF
+    # Build PDF principal
     doc.build(story)
     buffer.seek(0)
     
-    # Return as downloadable file
+    # Fusionner avec les PDFs joints
+    pdf_attachments = [att for att in test_attachments if isinstance(att, str) and att.lower().endswith('.pdf')]
+    
+    if pdf_attachments:
+        try:
+            # Créer un writer pour fusionner les PDFs
+            pdf_writer = PdfWriter()
+            
+            # Ajouter le rapport principal
+            main_pdf = PdfReader(buffer)
+            for page in main_pdf.pages:
+                pdf_writer.add_page(page)
+            
+            # Ajouter chaque PDF joint
+            for pdf_filename in pdf_attachments:
+                # Extraire le nom du fichier
+                if '/' in pdf_filename:
+                    pdf_filename = pdf_filename.split('/')[-1]
+                
+                file_path = UPLOAD_DIR / pdf_filename
+                if file_path.exists():
+                    try:
+                        attached_pdf = PdfReader(str(file_path))
+                        for page in attached_pdf.pages:
+                            pdf_writer.add_page(page)
+                    except Exception as e:
+                        logging.error(f"Erreur fusion PDF {pdf_filename}: {str(e)}")
+                        continue
+            
+            # Écrire le PDF fusionné dans un nouveau buffer
+            merged_buffer = io.BytesIO()
+            pdf_writer.write(merged_buffer)
+            merged_buffer.seek(0)
+            
+            filename = f"rapport_incident_{test_type}_{test_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            
+            return StreamingResponse(
+                merged_buffer,
+                media_type="application/pdf",
+                headers={"Content-Disposition": f"attachment; filename={filename}"}
+            )
+        except Exception as e:
+            logging.error(f"Erreur fusion PDFs: {str(e)}")
+            # En cas d'erreur, retourner le rapport principal sans fusion
+            buffer.seek(0)
+    
+    # Return as downloadable file (sans PDFs fusionnés)
     filename = f"rapport_incident_{test_type}_{test_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     
     return StreamingResponse(
