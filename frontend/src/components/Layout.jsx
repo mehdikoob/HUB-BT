@@ -65,9 +65,14 @@ const Layout = () => {
           <div className="flex items-center justify-between">
             {!sidebarCollapsed ? (
               <div className="flex items-center gap-2">
-                <div className="bg-red-600 p-2 rounded-lg">
-                  <Glasses className="text-white" size={24} />
-                </div>
+                {/* Logo cliquable pour replier/déplier */}
+                <button
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  className="bg-red-600 p-2 rounded-lg hover:bg-red-700 transition-all hover:scale-110 active:scale-95 cursor-pointer group"
+                  title="Replier le menu"
+                >
+                  <Glasses className="text-white transition-transform group-hover:rotate-12" size={24} />
+                </button>
                 <div>
                   <h1 className="text-xl font-bold text-red-600" style={{ fontFamily: 'Work Sans' }}>
                     QWERTYS
@@ -76,26 +81,22 @@ const Layout = () => {
                 </div>
               </div>
             ) : (
-              <div className="bg-red-600 p-2 rounded-lg mx-auto">
-                <Glasses className="text-white" size={24} />
-              </div>
+              /* Logo cliquable en mode replié */
+              <button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="bg-red-600 p-2 rounded-lg mx-auto hover:bg-red-700 transition-all hover:scale-110 active:scale-95 cursor-pointer group"
+                title="Déplier le menu"
+              >
+                <Glasses className="text-white transition-transform group-hover:rotate-12" size={24} />
+              </button>
             )}
             
-            {/* Bouton fermer (mobile) */}
+            {/* Bouton fermer (mobile uniquement) */}
             <button
               onClick={() => setSidebarOpen(false)}
               className="md:hidden text-gray-500 hover:text-gray-700"
             >
               <X size={24} />
-            </button>
-            
-            {/* Bouton toggle collapse (desktop) */}
-            <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="hidden md:block text-gray-500 hover:text-gray-700 transition-transform"
-              title={sidebarCollapsed ? "Déplier le menu" : "Replier le menu"}
-            >
-              <Menu size={20} className={`transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
             </button>
           </div>
         </div>
