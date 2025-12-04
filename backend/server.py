@@ -1802,31 +1802,31 @@ async def export_incident_report(
         story.append(Spacer(1, 0.15*inch))
         
         for idx, screenshot_id in enumerate(test_screenshots[:3], 1):
-                try:
-                    # Récupérer l'image depuis GridFS
-                    grid_out = await fs.open_download_stream(ObjectId(screenshot_id))
-                    image_data = await grid_out.read()
+            try:
+                # Récupérer l'image depuis GridFS
+                grid_out = await fs.open_download_stream(ObjectId(screenshot_id))
+                image_data = await grid_out.read()
+                
+                # Créer un objet Image reportlab - GRANDE TAILLE pour lisibilité
+                img_buffer = io.BytesIO(image_data)
+                # Taille maximale : 6" largeur x 4.5" hauteur (presque pleine page)
+                img = Image(img_buffer, width=6*inch, height=4.5*inch)
+                
+                # Titre de la capture
+                story.append(Paragraph(f"<b>Capture #{idx}</b>", normal_style))
+                story.append(Spacer(1, 0.1*inch))
+                story.append(img)
+                story.append(Spacer(1, 0.3*inch))
+                
+                # Nouvelle page si ce n'est pas la dernière capture
+                if idx < len(test_screenshots[:3]):
+                    story.append(PageBreak())
                     
-                    # Créer un objet Image reportlab - GRANDE TAILLE pour lisibilité
-                    img_buffer = io.BytesIO(image_data)
-                    # Taille maximale : 6" largeur x 4.5" hauteur (presque pleine page)
-                    img = Image(img_buffer, width=6*inch, height=4.5*inch)
-                    
-                    # Titre de la capture
-                    story.append(Paragraph(f"<b>Capture #{idx}</b>", normal_style))
-                    story.append(Spacer(1, 0.1*inch))
-                    story.append(img)
-                    story.append(Spacer(1, 0.3*inch))
-                    
-                    # Nouvelle page si ce n'est pas la dernière capture
-                    if idx < len(test_screenshots[:3]):
-                        story.append(PageBreak())
-                        
-                except Exception as e:
-                    logging.error(f"Erreur chargement screenshot test {screenshot_id}: {str(e)}")
-                    story.append(Paragraph(f"<i>Erreur de chargement de la capture #{idx}</i>", normal_style))
-                    story.append(Spacer(1, 0.2*inch))
-                    continue
+            except Exception as e:
+                logging.error(f"Erreur chargement screenshot test {screenshot_id}: {str(e)}")
+                story.append(Paragraph(f"<i>Erreur de chargement de la capture #{idx}</i>", normal_style))
+                story.append(Spacer(1, 0.2*inch))
+                continue
     
     # Footer
     story.append(Spacer(1, 0.3*inch))
