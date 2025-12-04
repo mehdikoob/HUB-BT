@@ -1124,6 +1124,14 @@ const TestsLigne = () => {
                 const isNonRealisable = test.test_non_realisable === true;
                 return (
                 <tr key={test.id} className={`hover:bg-gray-50 ${isNonRealisable ? 'bg-orange-50 border-l-4 border-orange-500' : alerts.length > 0 ? 'bg-red-50' : ''}`}>
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedTests.includes(test.id)}
+                      onChange={() => handleSelectTest(test.id)}
+                      className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                    />
+                  </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {format(new Date(test.date_test), 'dd/MM/yyyy HH:mm')}
                     {isNonRealisable && (
