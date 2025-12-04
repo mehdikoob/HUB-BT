@@ -1686,6 +1686,10 @@ async def export_incident_report(
             ["Décroché dédié", "Oui" if test.get('decroche_dedie') else "Non"],
         ])
     
+    # Ajouter le commentaire s'il existe
+    if test.get('commentaire'):
+        test_data.append(["Commentaire", test.get('commentaire')])
+    
     test_table = Table(test_data, colWidths=[2.5*inch, 4*inch])
     test_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e5e7eb')),
