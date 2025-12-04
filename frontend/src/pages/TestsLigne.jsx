@@ -684,17 +684,29 @@ const TestsLigne = () => {
             </DialogContent>
           </Dialog>
           
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
+          <div className="flex gap-2">
+            {selectedTests.length > 0 && (
               <Button
-                onClick={resetForm}
-                data-testid="add-test-ligne-btn"
-                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleDeleteSelected}
+                variant="destructive"
+                className="flex items-center gap-2"
               >
-                <Plus size={20} className="mr-2" />
-                Nouveau test
+                <Trash2 size={16} />
+                Supprimer {selectedTests.length} test(s)
               </Button>
-            </DialogTrigger>
+            )}
+            
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={resetForm}
+                  data-testid="add-test-ligne-btn"
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <Plus size={20} className="mr-2" />
+                  Nouveau test
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingTest ? 'Modifier le test ligne' : 'Nouveau test ligne'}</DialogTitle>
