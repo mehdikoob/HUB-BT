@@ -190,52 +190,7 @@ const TestsSite = () => {
     updatePartenaireUrl(formData.programme_id, value);
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error('Format non autorisé. Utilisez jpeg, png ou pdf');
-      return;
-    }
-
-    // Validate file size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Fichier trop volumineux (max 10MB)');
-      return;
-    }
-
-    setUploadingFile(true);
-    const formDataUpload = new FormData();
-    formDataUpload.append('file', file);
-
-    try {
-      const response = await axios.post(`${API}/upload-attachment`, formDataUpload, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      setFormData({
-        ...formData,
-        attachments: [...formData.attachments, response.data],
-      });
-      toast.success('Fichier ajouté');
-      e.target.value = ''; // Reset input
-    } catch (error) {
-      console.error('Erreur upload:', error);
-      toast.error(error.response?.data?.detail || 'Erreur lors de l\'upload');
-    } finally {
-      setUploadingFile(false);
-    }
-  };
-
-  const removeAttachment = (index) => {
-    setFormData({
-      ...formData,
-      attachments: formData.attachments.filter((_, i) => i !== index),
-    });
-  };
+  // File upload removed - Using only CTRL+V screenshots now
 
   useEffect(() => {
     fetchData();
