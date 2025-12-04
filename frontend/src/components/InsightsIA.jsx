@@ -205,20 +205,20 @@ const InsightsIA = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 pb-3">
           {!insights && !loading && (
-            <div className="text-center py-6 text-gray-500">
-              <Sparkles className="mx-auto mb-3 text-gray-300" size={36} />
-              <p className="text-sm font-medium mb-1">Aucun insight généré</p>
-              <p className="text-xs">Sélectionnez vos filtres et cliquez sur "Générer"</p>
+            <div className="text-center py-4 text-gray-500">
+              <Sparkles className="mx-auto mb-2 text-gray-300" size={28} />
+              <p className="text-xs font-medium mb-0.5">Aucun insight généré</p>
+              <p className="text-xs">Cliquez sur "Générer"</p>
             </div>
           )}
 
           {loading && (
-            <div className="text-center py-6">
-              <Loader2 className="mx-auto mb-3 animate-spin text-purple-500" size={36} />
-              <p className="text-sm font-medium text-gray-700">Analyse IA en cours...</p>
-              <p className="text-xs text-gray-500 mt-1">Patientez quelques secondes</p>
+            <div className="text-center py-4">
+              <Loader2 className="mx-auto mb-2 animate-spin text-purple-500" size={28} />
+              <p className="text-xs font-medium text-gray-700">Analyse IA en cours...</p>
+              <p className="text-xs text-gray-500 mt-0.5">Patientez...</p>
             </div>
           )}
 
