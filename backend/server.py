@@ -4480,8 +4480,8 @@ async def export_bilan_partenaire_ppt(
 # Include the router in the main app
 app.include_router(api_router)
 
-# Mount static files for uploads
-app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+# Mount static files for uploads (sous /api pour passer par l'ingress)
+app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
