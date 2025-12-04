@@ -1827,53 +1827,6 @@ async def export_incident_report(
                     story.append(Paragraph(f"<i>Erreur de chargement de la capture #{idx}</i>", normal_style))
                     story.append(Spacer(1, 0.2*inch))
                     continue
-        
-        # Afficher les fichiers joints (attachments) - GRANDES IMAGES aussi
-        if test_attachments:
-            if test_screenshots:
-                story.append(PageBreak())
-            
-            story.append(Paragraph("<b>Fichiers joints au test :</b>", normal_style))
-            story.append(Spacer(1, 0.15*inch))
-            
-            for idx, attachment in enumerate(test_attachments[:5], 1):
-                try:
-                    attachment_url = attachment if isinstance(attachment, str) else attachment.get('url', '')
-                    filename = attachment if isinstance(attachment, str) else attachment.get('filename', 'N/A')
-                    
-                    # Extraire le nom du fichier
-                    if '/' in filename:
-                        filename = filename.split('/')[-1]
-                    
-                    # Si c'est une image, l'afficher en GRAND
-                    if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
-                        file_path = UPLOAD_DIR / filename
-                        if file_path.exists():
-                            try:
-                                story.append(Paragraph(f"<b>Fichier #{idx} : {filename}</b>", normal_style))
-                                story.append(Spacer(1, 0.1*inch))
-                                # Grande taille pour lisibilité
-                                img = Image(str(file_path), width=6*inch, height=4.5*inch)
-                                story.append(img)
-                                story.append(Spacer(1, 0.3*inch))
-                                
-                                # Nouvelle page si ce n'est pas le dernier fichier
-                                if idx < len(test_attachments[:5]):
-                                    story.append(PageBreak())
-                            except Exception as e:
-                                story.append(Paragraph(f"📎 {filename} (erreur d'affichage)", normal_style))
-                                story.append(Spacer(1, 0.1*inch))
-                        else:
-                            story.append(Paragraph(f"📎 {filename} (fichier non trouvé)", normal_style))
-                            story.append(Spacer(1, 0.1*inch))
-                    else:
-                        # Pour les PDF et autres, lister seulement
-                        story.append(Paragraph(f"<b>Fichier #{idx}</b> : 📎 {filename}", normal_style))
-                        story.append(Spacer(1, 0.1*inch))
-                        
-                except Exception as e:
-                    logging.error(f"Erreur traitement attachment: {str(e)}")
-                    continue
     
     # Footer
     story.append(Spacer(1, 0.3*inch))
