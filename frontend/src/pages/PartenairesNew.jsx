@@ -19,6 +19,7 @@ const PartenairesNew = () => {
   const [expandedId, setExpandedId] = useState(null);
   const [expandedLogoId, setExpandedLogoId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedProgrammes, setExpandedProgrammes] = useState({}); // { programmeId: true/false }
   const [formData, setFormData] = useState({
     nom: '',
     programmes_ids: [],
