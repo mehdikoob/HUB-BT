@@ -392,7 +392,6 @@ const TestsSite = () => {
       naming_constate: test.naming_constate || '',
       cumul_codes: test.cumul_codes !== undefined ? test.cumul_codes : false,
       commentaire: test.commentaire || '',
-      attachments: test.attachments || [],
       screenshots: test.screenshots || [],
     });
     setDialogOpen(true);
