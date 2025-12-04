@@ -223,17 +223,17 @@ const InsightsIA = () => {
           )}
 
           {insights && insights.enabled && (
-            <div className="space-y-3">
-              {/* Résumé global - VERSION COMPACTE */}
+            <div className="space-y-2">
+              {/* Résumé global - VERSION ULTRA COMPACTE */}
               {insights.summary && (
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg animate-scale-in transition-smooth hover:shadow-md">
-                  <div className="flex items-start gap-3">
-                    <Sparkles className="text-purple-500 flex-shrink-0 mt-0.5" size={18} />
+                <div className="p-2 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg animate-scale-in transition-smooth hover:shadow-md">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="text-purple-500 flex-shrink-0 mt-0.5" size={16} />
                     <div className="flex-1">
-                      <p className="text-xs font-medium text-purple-900 mb-1">
+                      <p className="text-xs font-medium text-purple-900 mb-0.5">
                         Résumé IA{getScopeLabel()}
                       </p>
-                      <p className="text-sm text-purple-800 leading-relaxed">{insights.summary}</p>
+                      <p className="text-xs text-purple-800 leading-snug">{insights.summary}</p>
                     </div>
                   </div>
                 </div>
