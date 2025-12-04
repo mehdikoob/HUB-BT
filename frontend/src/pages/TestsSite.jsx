@@ -1172,7 +1172,6 @@ const TestsSite = () => {
                     <SortIcon columnKey="cumul_codes" />
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Pièces jointes</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Alertes</th>
                 {/* Colonne "Créé par" - discrète et visible pour tous */}
                 <th className="px-2 py-3 text-left text-xs font-medium text-gray-500">Créé par</th>
