@@ -1794,12 +1794,11 @@ async def export_incident_report(
         from reportlab.platypus import PageBreak
         story.append(PageBreak())
         
-        story.append(Paragraph("PIÈCES JOINTES DU TEST", heading_style))
+        story.append(Paragraph("CAPTURES D'ÉCRAN", heading_style))
         story.append(Spacer(1, 0.2*inch))
         
         # Afficher les screenshots du test - GRANDES IMAGES
-        if test_screenshots:
-            story.append(Paragraph("<b>Captures d'écran jointes au test :</b>", normal_style))
+        story.append(Paragraph("<b>Captures d'écran jointes au test :</b>", normal_style))
             story.append(Spacer(1, 0.15*inch))
             
             for idx, screenshot_id in enumerate(test_screenshots[:3], 1):
