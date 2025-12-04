@@ -1229,7 +1229,7 @@ async def upload_attachment(file: UploadFile = File(...)):
     # Return the URL
     return {
         "filename": file.filename,
-        "url": f"/uploads/{unique_filename}",
+        "url": f"/api/uploads/{unique_filename}",
         "size": file_size
     }
 
