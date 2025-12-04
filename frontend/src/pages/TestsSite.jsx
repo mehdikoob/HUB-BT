@@ -296,7 +296,7 @@ const TestsSite = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Si test non réalisable : créer une alerte au lieu d'un test
+    // Si test non réalisable : créer un test minimal ET une alerte
     if (formData.test_non_realisable) {
       if (!formData.commentaire || !formData.commentaire.trim()) {
         toast.error('Le commentaire est obligatoire pour un test non réalisable');
@@ -304,6 +304,28 @@ const TestsSite = () => {
       }
       
       try {
+        // Créer d'abord un test minimal
+        const testData = {
+          programme_id: formData.programme_id,
+          partenaire_id: formData.partenaire_id,
+          date_test: formData.date_test,
+          test_non_realisable: true,
+          commentaire: formData.commentaire,
+          screenshots: formData.screenshots,
+          attachments: formData.attachments,
+          // Champs techniques optionnels avec valeurs par défaut
+          application_remise: false,
+          prix_public: 0,
+          prix_remise: 0,
+          naming_constate: "N/A - Test non réalisable",
+          cumul_codes: false,
+        };
+        
+        const testResponse = await axios.post(`${API}/tests-site`, testData, {
+          headers: getAuthHeader()
+        });
+        
+        // Puis créer l'alerte associée au test
         await axios.post(`${API}/alertes`, {
           programme_id: formData.programme_id,
           partenaire_id: formData.partenaire_id,
@@ -311,19 +333,20 @@ const TestsSite = () => {
           description: `Test site non réalisable - ${formData.commentaire}`,
           statut: 'ouvert',
           screenshots: formData.screenshots,
+          test_id: testResponse.data.id,
         }, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
         
-        toast.success('Alerte créée avec succès');
+        toast.success('Test non réalisable enregistré avec alerte créée');
         resetForm();
         setDialogOpen(false);
         fetchTests();
       } catch (error) {
-        console.error('Erreur création alerte:', error);
-        toast.error(error.response?.data?.detail || 'Erreur lors de la création de l\'alerte');
+        console.error('Erreur création test non réalisable:', error);
+        toast.error(error.response?.data?.detail || 'Erreur lors de la création');
       }
       return;
     }
