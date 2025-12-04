@@ -1063,6 +1063,7 @@ const TestsSite = () => {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
       </div>
 
