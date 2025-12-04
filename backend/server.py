@@ -1381,8 +1381,7 @@ async def update_test_ligne(test_id: str, input: TestLigneCreate):
         updated['date_test'] = datetime.fromisoformat(updated['date_test'])
     if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
-    if isinstance(updated.get('delai_attente'), str):
-        updated['delai_attente'] = datetime.strptime(updated['delai_attente'], '%H:%M:%S').time()
+    # delai_attente reste une string au format mm:ss (validé par le modèle Pydantic)
     
     return updated
 
