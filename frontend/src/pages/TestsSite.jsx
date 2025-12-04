@@ -265,7 +265,6 @@ const TestsSite = () => {
           test_non_realisable: true,
           commentaire: formData.commentaire,
           screenshots: formData.screenshots,
-          attachments: formData.attachments,
           // Champs techniques optionnels avec valeurs par défaut
           application_remise: false,
           prix_public: 0,
