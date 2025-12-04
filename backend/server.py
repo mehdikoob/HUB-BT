@@ -42,6 +42,7 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 import base64
 import gridfs
 from bson import ObjectId
+from PyPDF2 import PdfReader, PdfWriter
 
 ROOT_DIR = Path(__file__).parent
 UPLOAD_DIR = ROOT_DIR / "uploads"
