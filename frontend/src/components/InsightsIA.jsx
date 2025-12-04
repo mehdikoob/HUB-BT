@@ -240,11 +240,11 @@ const InsightsIA = () => {
               )}
 
               {/* Stats + Bouton Voir détails */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 text-xs text-gray-600">
-                  <span>📊 {insights.stats?.total_tests || 0} tests</span>
-                  <span>🔔 {insights.stats?.total_alertes || 0} alertes</span>
-                  <span>✨ {insights.insights?.length || 0} insights</span>
+              <div className="flex items-center justify-between py-1">
+                <div className="flex items-center gap-3 text-xs text-gray-600">
+                  <span>📊 {insights.stats?.total_tests || 0}</span>
+                  <span>🔔 {insights.stats?.total_alertes || 0}</span>
+                  <span>✨ {insights.insights?.length || 0}</span>
                 </div>
                 
                 {insights.insights && insights.insights.length > 0 && (
@@ -252,19 +252,19 @@ const InsightsIA = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => setDetailsOpen(true)}
-                    className="gap-2 h-8 text-xs"
+                    className="gap-1 h-7 text-xs px-2"
                   >
-                    <Eye size={14} />
-                    Voir détails
+                    <Eye size={12} />
+                    Détails
                   </Button>
                 )}
               </div>
 
               {/* Message si aucun insight */}
               {(!insights.insights || insights.insights.length === 0) && (
-                <div className="text-center py-4 text-gray-500">
-                  <Info className="mx-auto mb-2 text-gray-300" size={24} />
-                  <p className="text-xs">Aucun insight significatif pour cette sélection</p>
+                <div className="text-center py-3 text-gray-500">
+                  <Info className="mx-auto mb-1 text-gray-300" size={20} />
+                  <p className="text-xs">Aucun insight significatif</p>
                 </div>
               )}
 
