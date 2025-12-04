@@ -86,6 +86,14 @@ const PartenairesNew = () => {
       contact_email: '',
     });
     setEditingPartenaire(null);
+    setExpandedProgrammes({}); // Reset l'état replié au reset du formulaire
+  };
+
+  const toggleProgrammeExpanded = (programmeId) => {
+    setExpandedProgrammes(prev => ({
+      ...prev,
+      [programmeId]: !prev[programmeId]
+    }));
   };
 
   const handleEdit = (partenaire) => {
