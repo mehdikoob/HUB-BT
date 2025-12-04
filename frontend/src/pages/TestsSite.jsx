@@ -390,7 +390,14 @@ const TestsSite = () => {
         prix_public: formData.prix_public ? parseFloat(formData.prix_public) : null,
         prix_remise: formData.prix_remise ? parseFloat(formData.prix_remise) : null,
         date_test: new Date(formData.date_test).toISOString(),
-        attachments: formData.attachments.map(att => typeof att === 'string' ? att : att.url), // Handle both string URLs and objects
+        attachments: formData.attachments
+          .map(att => {
+            if (typeof att === 'string') return att;
+            if (att && att.url) return att.url;
+            console.error('Invalid attachment:', att);
+            return null;
+          })
+          .filter(Boolean), // Remove null values
       };
       
       if (editingTest) {
