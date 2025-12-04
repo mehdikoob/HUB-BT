@@ -1786,11 +1786,10 @@ async def export_incident_report(
         
         story.append(Spacer(1, 0.15*inch))
     
-    # PIÈCES JOINTES - Section placée EN BAS du rapport
-    test_attachments = test.get('attachments', [])
+    # CAPTURES D'ÉCRAN - Section placée EN BAS du rapport
     test_screenshots = test.get('screenshots', [])
     
-    if test_attachments or test_screenshots:
+    if test_screenshots:
         # Nouvelle page pour les pièces jointes
         from reportlab.platypus import PageBreak
         story.append(PageBreak())
