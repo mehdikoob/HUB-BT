@@ -1716,6 +1716,10 @@ async def export_incident_report(
             ["Date de création", alerte.get('created_at', 'N/A')[:10] if alerte.get('created_at') else 'N/A'],
         ]
         
+        # Ajouter le commentaire du test s'il existe
+        if test.get('commentaire'):
+            incident_data.append(["Commentaire", test.get('commentaire')])
+        
         incident_table = Table(incident_data, colWidths=[2.5*inch, 4*inch])
         incident_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#fee2e2')),
