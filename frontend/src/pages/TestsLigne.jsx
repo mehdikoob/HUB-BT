@@ -928,6 +928,7 @@ const TestsLigne = () => {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
       </div>
 
