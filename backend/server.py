@@ -1799,9 +1799,9 @@ async def export_incident_report(
         
         # Afficher les screenshots du test - GRANDES IMAGES
         story.append(Paragraph("<b>Captures d'écran jointes au test :</b>", normal_style))
-            story.append(Spacer(1, 0.15*inch))
-            
-            for idx, screenshot_id in enumerate(test_screenshots[:3], 1):
+        story.append(Spacer(1, 0.15*inch))
+        
+        for idx, screenshot_id in enumerate(test_screenshots[:3], 1):
                 try:
                     # Récupérer l'image depuis GridFS
                     grid_out = await fs.open_download_stream(ObjectId(screenshot_id))
