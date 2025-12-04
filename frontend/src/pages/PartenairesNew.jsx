@@ -314,21 +314,39 @@ const PartenairesNew = () => {
                       
                       return (
                         <div key={prog.id} className="border rounded-lg p-4 bg-white">
-                          <div className="flex items-center gap-3 mb-3">
-                            <input
-                              type="checkbox"
-                              id={`prog-${prog.id}`}
-                              data-testid={`programme-checkbox-${prog.id}`}
-                              checked={isSelected}
-                              onChange={() => handleProgrammeToggle(prog.id)}
-                              className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
-                            />
-                            <Label htmlFor={`prog-${prog.id}`} className="mb-0 cursor-pointer font-medium text-lg">
-                              {prog.nom}
-                            </Label>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="checkbox"
+                                id={`prog-${prog.id}`}
+                                data-testid={`programme-checkbox-${prog.id}`}
+                                checked={isSelected}
+                                onChange={() => handleProgrammeToggle(prog.id)}
+                                className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                              />
+                              <Label htmlFor={`prog-${prog.id}`} className="mb-0 cursor-pointer font-medium text-lg">
+                                {prog.nom}
+                              </Label>
+                            </div>
+                            
+                            {isSelected && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleProgrammeExpanded(prog.id)}
+                                className="h-8 w-8 p-0"
+                              >
+                                {expandedProgrammes[prog.id] ? (
+                                  <ChevronUp size={20} className="text-gray-600" />
+                                ) : (
+                                  <ChevronDown size={20} className="text-gray-600" />
+                                )}
+                              </Button>
+                            )}
                           </div>
                           
-                          {isSelected && (
+                          {isSelected && expandedProgrammes[prog.id] && (
                             <div className="ml-8 space-y-3 mt-3 pt-3 border-t">
                               {/* Types de tests requis pour ce programme */}
                               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
