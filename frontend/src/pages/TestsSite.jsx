@@ -364,6 +364,49 @@ const TestsSite = () => {
     }
   };
 
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedTests([]);
+    } else {
+      setSelectedTests(tests.map(test => test.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleSelectTest = (testId) => {
+    if (selectedTests.includes(testId)) {
+      setSelectedTests(selectedTests.filter(id => id !== testId));
+      setSelectAll(false);
+    } else {
+      setSelectedTests([...selectedTests, testId]);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedTests.length === 0) return;
+    
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${selectedTests.length} test(s) ?`)) return;
+    
+    try {
+      // Supprimer chaque test sélectionné
+      const deletePromises = selectedTests.map(testId =>
+        axios.delete(`${API}/tests-site/${testId}`, {
+          headers: getAuthHeader()
+        })
+      );
+      
+      await Promise.all(deletePromises);
+      
+      toast.success(`${selectedTests.length} test(s) supprimé(s) avec succès`);
+      setSelectedTests([]);
+      setSelectAll(false);
+      fetchTests();
+    } catch (error) {
+      console.error('Erreur suppression multiple:', error);
+      toast.error('Erreur lors de la suppression');
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       programme_id: '',
