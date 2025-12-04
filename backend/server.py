@@ -145,8 +145,7 @@ class TestSiteBase(BaseModel):
     naming_constate: Optional[str] = None
     cumul_codes: Optional[bool] = None
     commentaire: Optional[str] = None
-    attachments: List[str] = []  # URLs ou chemins des fichiers joints (jpeg, png, pdf)
-    screenshots: List[str] = []  # Captures d'écran (base64)
+    screenshots: List[str] = []  # IDs GridFS des captures d'écran (CTRL+V)
 
 class TestSiteCreate(TestSiteBase):
     @model_validator(mode='after')
