@@ -57,6 +57,8 @@ const TestsSite = () => {
   const [editingTest, setEditingTest] = useState(null);
   const [bilanDialogOpen, setBilanDialogOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [selectedTests, setSelectedTests] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
   
   // Initialiser avec le mois en cours
   const currentMonthYear = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
