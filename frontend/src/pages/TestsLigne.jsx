@@ -107,7 +107,8 @@ const TestsLigne = () => {
       const filtered = partenaires.filter(p => {
         if (!p.contacts_programmes) return false;
         const contact = p.contacts_programmes.find(c => c.programme_id === formData.programme_id);
-        return contact && contact.test_ligne_requis !== false;
+        // Afficher SEULEMENT si test_ligne_requis est explicitement true
+        return contact && contact.test_ligne_requis === true;
       });
       setFilteredPartenaires(filtered);
     } else {
