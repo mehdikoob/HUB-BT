@@ -4118,14 +4118,14 @@ async def export_bilan_partenaire_ppt(
         if len(tests_site) == 0 and len(tests_ligne) == 0:
             logging.warning("PERIOD_FALLBACK: No data for requested period, searching last complete month")
             
-            # Find last test date
+            # Find last test date (tous programmes)
             last_test_site = await db.tests_site.find({
-                "programme_id": programme['id'],
+                "programme_id": {"$in": programme_ids},
                 "partenaire_id": partenaire_id
             }).sort("date_test", -1).to_list(length=1)
             
             last_test_ligne = await db.tests_ligne.find({
-                "programme_id": programme['id'],
+                "programme_id": {"$in": programme_ids},
                 "partenaire_id": partenaire_id
             }).sort("date_test", -1).to_list(length=1)
             
