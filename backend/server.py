@@ -4069,8 +4069,10 @@ async def export_bilan_partenaire_ppt(
         if not programmes:
             raise HTTPException(status_code=404, detail="No programmes found")
         
-        programme = programmes[0]
-        program_name = programme.get('nom', '')
+        # Use all programmes for this partenaire, not just the first one
+        # For display purposes, we'll use all programme names
+        program_names = [p.get('nom', '') for p in programmes]
+        program_name = ', '.join(program_names) if program_names else ''
         if not program_name:
             raise HTTPException(status_code=400, detail="ASSERTION FAIL: program.name is empty")
         
