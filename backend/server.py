@@ -4101,14 +4101,15 @@ async def export_bilan_partenaire_ppt(
             period_label = f"{format_french_month(date_debut_obj)} {date_debut_obj.year} - {format_french_month(date_fin_obj)} {date_fin_obj.year}"
         
         # Check if period is in future or has no data
+        # Récupérer les tests pour TOUS les programmes du partenaire
         tests_site = await db.tests_site.find({
-            "programme_id": programme['id'],
+            "programme_id": {"$in": programme_ids},
             "partenaire_id": partenaire_id,
             "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
         }).to_list(length=None)
         
         tests_ligne = await db.tests_ligne.find({
-            "programme_id": programme['id'],
+            "programme_id": {"$in": programme_ids},
             "partenaire_id": partenaire_id,
             "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
         }).to_list(length=None)
