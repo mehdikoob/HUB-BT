@@ -123,7 +123,8 @@ const TestsLigne = () => {
       if (partenaire && partenaire.contacts_programmes) {
         const filtered = programmes.filter(prog => {
           const contact = partenaire.contacts_programmes.find(c => c.programme_id === prog.id);
-          return contact && contact.test_ligne_requis !== false;
+          // Afficher SEULEMENT si test_ligne_requis est explicitement true
+          return contact && contact.test_ligne_requis === true;
         });
         setFilteredProgrammes(filtered);
       } else {
