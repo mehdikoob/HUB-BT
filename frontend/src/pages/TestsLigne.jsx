@@ -1049,7 +1049,7 @@ const TestsLigne = () => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-4 py-3 w-12">
+                <th className="px-2 py-2">
                   <input
                     type="checkbox"
                     checked={selectAll}
@@ -1058,7 +1058,7 @@ const TestsLigne = () => {
                   />
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('date_test')}
                 >
                   <div className="flex items-center">
@@ -1066,67 +1066,67 @@ const TestsLigne = () => {
                     <SortIcon columnKey="date_test" />
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Programme</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Partenaire</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">N° de tél</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Programme</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Partenaire</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">N° de tél</th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('messagerie_vocale_dediee')}
                 >
                   <div className="flex items-center">
-                    Messagerie vocale dédiée
+                    Msg vocale
                     <SortIcon columnKey="messagerie_vocale_dediee" />
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('delai_attente')}
                 >
                   <div className="flex items-center">
-                    Délai d'attente
+                    Délai
                     <SortIcon columnKey="delai_attente" />
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('nom_conseiller')}
                 >
                   <div className="flex items-center">
-                    Nom du conseiller
+                    Conseiller
                     <SortIcon columnKey="nom_conseiller" />
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('decroche_dedie')}
                 >
                   <div className="flex items-center">
-                    Décroche dédiée
+                    Décroche
                     <SortIcon columnKey="decroche_dedie" />
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('evaluation_accueil')}
                 >
                   <div className="flex items-center">
-                    Évaluation de l'accueil
+                    Éval. accueil
                     <SortIcon columnKey="evaluation_accueil" />
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('application_offre')}
                 >
                   <div className="flex items-center">
-                    Application de l'offre
+                    App. offre
                     <SortIcon columnKey="application_offre" />
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Alertes</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Alertes</th>
                 {/* Colonne "Créé par" - discrète et visible pour tous */}
-                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500">Créé par</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                <th className="px-1 py-2 text-left text-xs font-medium text-gray-500">Créé par</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
