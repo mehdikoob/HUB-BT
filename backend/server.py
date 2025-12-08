@@ -3720,31 +3720,6 @@ async def export_bilan_partenaire_ppt(
                 "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
             }).sort("date_test", -1).to_list(length=None)
         
-        # === CREATE PRESENTATION FROM SCRATCH ===
-        prs = Presentation()
-        prs.slide_width = Inches(10)
-        prs.slide_height = Inches(7.5)
-        
-        slide_number = 0
-        total_slides = len(programmes) * 3  # 3 slides per programme
-        
-        # === GENERATE SLIDES FOR EACH PROGRAMME ===
-        for programme in programmes:
-            program_name = programme.get('nom', '')
-            
-            # Get tests data for THIS programme
-            tests_site = await db.tests_site.find({
-                "programme_id": programme['id'],
-                "partenaire_id": partenaire_id,
-                "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
-            }).sort("date_test", -1).to_list(length=None)
-            
-            tests_ligne = await db.tests_ligne.find({
-                "programme_id": programme['id'],
-                "partenaire_id": partenaire_id,
-                "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
-            }).sort("date_test", -1).to_list(length=None)
-        
         # === CALCULATE STATISTICS ===
         # Sites
         total_tests_site = len(tests_site)
