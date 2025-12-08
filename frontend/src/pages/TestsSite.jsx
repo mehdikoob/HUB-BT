@@ -1252,7 +1252,7 @@ const TestsSite = () => {
                 const isNonRealisable = test.test_non_realisable === true;
                 return (
                 <tr key={test.id} className={`hover:bg-gray-50 ${isNonRealisable ? 'bg-orange-50 border-l-4 border-orange-500' : alerts.length > 0 ? 'bg-red-50' : ''}`}>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2">
                     <input
                       type="checkbox"
                       checked={selectedTests.includes(test.id)}
@@ -1260,21 +1260,21 @@ const TestsSite = () => {
                       className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
                     />
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
+                  <td className="px-2 py-2 text-xs text-gray-900">
                     {format(new Date(test.date_test), 'dd/MM/yyyy HH:mm')}
                     {isNonRealisable && (
                       <div className="mt-1">
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-orange-100 text-orange-800">
-                          ⚠️ Test non réalisable
+                          ⚠️ Non réalisable
                         </span>
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{getProgrammeName(test.programme_id)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs text-gray-900">{getProgrammeName(test.programme_id)}</td>
+                  <td className="px-2 py-2 text-xs text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
+                  <td className="px-2 py-2 text-xs">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         test.application_remise
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
@@ -1283,15 +1283,15 @@ const TestsSite = () => {
                       {test.application_remise ? 'OUI' : 'NON'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{test.prix_public.toFixed(2)} €</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{test.prix_remise.toFixed(2)} €</td>
-                  <td className="px-4 py-3 text-sm font-medium text-red-600">{test.pct_remise_calcule}%</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-2 py-2 text-xs text-gray-900">{test.prix_public.toFixed(2)} €</td>
+                  <td className="px-2 py-2 text-xs text-gray-900">{test.prix_remise.toFixed(2)} €</td>
+                  <td className="px-2 py-2 text-xs font-medium text-red-600">{test.pct_remise_calcule}%</td>
+                  <td className="px-2 py-2 text-xs text-gray-700">
                     {test.naming_constate || <span className="text-gray-400 italic">Non renseigné</span>}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         test.cumul_codes
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-gray-100 text-gray-600'
@@ -1300,12 +1300,12 @@ const TestsSite = () => {
                       {test.cumul_codes ? 'OUI' : 'NON'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs">
                     {alerts.length > 0 ? (
                       <div className="space-y-1">
                         {alerts.map((alert, idx) => (
                           <div key={idx} className="flex items-center gap-1 text-xs text-red-700">
-                            <AlertTriangle size={14} className="flex-shrink-0" />
+                            <AlertTriangle size={12} className="flex-shrink-0" />
                             <span>{alert}</span>
                           </div>
                         ))}
@@ -1315,9 +1315,9 @@ const TestsSite = () => {
                     )}
                   </td>
                   {/* Colonne "Créé par" - discrète et visible pour tous */}
-                  <td className="px-2 py-3 text-xs text-gray-500">
+                  <td className="px-1 py-2 text-xs text-gray-500">
                     {test.created_by ? (
-                      <div className="max-w-[100px]">
+                      <div className="max-w-[80px]">
                         <div className="truncate" title={`${test.created_by.prenom} ${test.created_by.nom}`}>
                           {test.created_by.prenom} {test.created_by.nom?.charAt(0)}.
                         </div>
@@ -1326,7 +1326,7 @@ const TestsSite = () => {
                       <span className="text-gray-400 italic">-</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs">
                     <div className="flex gap-1">
                       <Button
                         size="sm"
