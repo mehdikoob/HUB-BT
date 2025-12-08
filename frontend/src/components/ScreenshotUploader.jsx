@@ -82,6 +82,71 @@ const ScreenshotUploader = ({ screenshots = [], onScreenshotsChange, maxScreensh
     };
   }, [screenshots, maxScreenshots, onScreenshotsChange]);
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Vérifier la limite
+    if (screenshots.length >= maxScreenshots) {
+      toast.error(`Maximum ${maxScreenshots} fichiers autorisés`);
+      return;
+    }
+
+    // Valider le type de fichier
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Type de fichier non autorisé. Formats : JPG, PNG, PDF');
+      return;
+    }
+
+    // Valider la taille (5MB max pour rester cohérent avec CTRL+V)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Fichier trop volumineux (max 5MB)');
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      // Convertir en base64 pour utiliser le même endpoint
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64Data = event.target.result;
+        
+        try {
+          const response = await axios.post(
+            `${API}/upload-screenshot`,
+            {
+              image_data: base64Data,
+              filename: file.name
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+              }
+            }
+          );
+
+          const newScreenshots = [...screenshots, response.data.file_id];
+          onScreenshotsChange(newScreenshots);
+          
+          toast.success('Fichier ajouté');
+          e.target.value = ''; // Reset input
+        } catch (error) {
+          console.error('Erreur upload fichier:', error);
+          toast.error(error.response?.data?.detail || 'Erreur lors de l\'upload');
+        } finally {
+          setUploading(false);
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      setUploading(false);
+      toast.error('Erreur lors de la lecture du fichier');
+    }
+  };
+
   const removeScreenshot = async (index) => {
     const fileId = screenshots[index];
     
@@ -96,7 +161,7 @@ const ScreenshotUploader = ({ screenshots = [], onScreenshotsChange, maxScreensh
       const newScreenshots = screenshots.filter((_, i) => i !== index);
       onScreenshotsChange(newScreenshots);
       
-      toast.success('Capture supprimée');
+      toast.success('Fichier supprimé');
     } catch (error) {
       console.error('Erreur suppression screenshot:', error);
       // Supprimer quand même de la liste locale
