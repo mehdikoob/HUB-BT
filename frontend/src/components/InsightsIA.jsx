@@ -238,8 +238,8 @@ const InsightsIA = () => {
               )}
 
               {/* Stats + Bouton Voir détails */}
-              <div className="flex items-center justify-between py-1">
-                <div className="flex items-center gap-3 text-xs text-gray-600">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs text-gray-600">
                   <span>📊 {insights.stats?.total_tests || 0}</span>
                   <span>🔔 {insights.stats?.total_alertes || 0}</span>
                   <span>✨ {insights.insights?.length || 0}</span>
@@ -250,9 +250,9 @@ const InsightsIA = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => setDetailsOpen(true)}
-                    className="gap-1 h-7 text-xs px-2"
+                    className="gap-1 h-6 text-xs px-2 py-0"
                   >
-                    <Eye size={12} />
+                    <Eye size={10} />
                     Détails
                   </Button>
                 )}
@@ -260,9 +260,9 @@ const InsightsIA = () => {
 
               {/* Message si aucun insight */}
               {(!insights.insights || insights.insights.length === 0) && (
-                <div className="text-center py-3 text-gray-500">
-                  <Info className="mx-auto mb-1 text-gray-300" size={20} />
-                  <p className="text-xs">Aucun insight significatif</p>
+                <div className="text-center py-2 text-gray-500">
+                  <Info className="mx-auto mb-0.5 text-gray-300" size={16} />
+                  <p className="text-xs">Aucun insight</p>
                 </div>
               )}
 
