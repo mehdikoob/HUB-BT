@@ -1,148 +1,134 @@
 <analysis>**original_problem_statement:**
-The user's initial goal was to integrate an AI-powered Dashboard Insights feature. This was successfully completed, but user feedback led to significant UX improvements, including making the component compact and adding filters. The scope then expanded to include:
-1.  **UI/UX Polish:** Implement animations, transitions, and hover effects across the application to give it a more modern feel. The user also requested to make the dashboard stat cards more compact to improve information density.
-2.  **Performance Stress Test:** Generate approximately 3000-4000 fake tests to simulate a full year of data and verify the application's performance and robustness under load.
-3.  **New Core Feature - Test non réalisable (Unrealizable Test):** Implement a workflow for agents to report when a test cannot be performed (e.g., due to an invalid URL or an unresponsive phone line). This evolved from a Test avorté status to a simpler, more logical approach of creating an Alerte directly.
-4.  **New Core Feature - Paste Screenshot:** Allow users to paste a screenshot directly from the clipboard (CTRL+V) into the test form, especially when reporting an issue. The capture should be attached to the downloadable PDF report.
+The user's initial goal was to integrate an AI-powered Dashboard Insights feature. This was successfully completed, but user feedback led to a long and iterative series of UX improvements, bug fixes, and new feature requests. The scope expanded significantly to include:
+1.  **UI/UX Polish:** Implementing a collapsible sidebar, compacting UI elements, improving PDF report layouts, and changing default sort orders.
+2.  **Core Feature - Test non réalisable:** Implementing a workflow for reporting unrealizable tests. This was refactored to create both a test record and an alert to ensure visibility in test lists.
+3.  **Core Feature - Screenshot & File Upload:** Implementing a way for users to paste screenshots (CTRL+V), which was later expanded into a unified component that also handles file uploads (, , ).
+4.  **Core Feature - Bulk Deletion:** Adding the ability to select and delete multiple tests at once from list views.
+5.  **Bug Fixes & Logic Improvements:** Correcting numerous bugs related to data filtering (e.g., partners in test dropdowns), report generation (Bilan Partenaire), data validation (time formats), and broken file links.
 
 **User's preferred language**: French. The next agent MUST respond in French.
 
 **what currently exists?**
-- **AI Insights:** The AI feature is fully integrated into the dashboard for  and  roles. It was refactored into a compact view that shows a summary, with a Voir détails button opening a modal for the full analysis. The backend supports filtering insights by time period, program, and partner.
-- **UI/UX Polish:** The application has been enhanced with CSS animations (fade-in, slide-up), smoother transitions, and improved hover effects on cards, buttons, and menu items. The dashboard stat cards have been made significantly more compact, and the layout was changed to a 3-column grid, allowing all key metrics to be visible without scrolling.
-- **Performance:** The application has been successfully stress-tested with over 4500 test records generated via a script (). The dashboard and list pages load efficiently with this data volume after several bugs in the data generation script and Pydantic models were fixed.
-- **Test non réalisable (Frontend):** The UI for both  and  has been updated. A checkbox Test non réalisable is placed at the bottom of the form. When checked, it makes the comment field mandatory and other technical fields optional. The  function was modified to send a  request to  instead of creating a test.
-- **Minor Bug Fix:** The  issue with the dropdown in  has been fixed.
+A full-stack React/FastAPI application that has undergone significant evolution. Key functionalities include:
+-   **Dashboard:** Features a compact, filterable AI insights component and optimized stat cards.
+-   **Core Test Workflow:** Users can create, edit, and list Tests Site and Tests Ligne. A Test non réalisable option creates both a test entry and a corresponding alert.
+-   **File & Screenshot Upload:** A single, unified component in test forms allows users to attach evidence via CTRL+V paste or a traditional file selector. These are stored using GridFS.
+-   **PDF Reporting:** A robust PDF generation system for incidents, which includes test details, incident tables (with comments), and embeds all attached screenshots as large, readable images on subsequent pages. It also merges any attached PDF documents into the final report.
+-   **UX/UI Enhancements:** The main sidebar is now collapsible using the glasses logo as an intuitive toggle. Test lists default to showing the most recent entries first.
+-   **Bulk Management:** Users can select multiple tests on list pages to delete them in a single action.
+-   **Partner Management:** The partner creation/editing form features program sections that are collapsed by default for better usability. Dropdowns for selecting partners/programs are now strictly filtered based on whether the required test type is enabled.
+-   **Bilan Partenaire:** The PowerPoint report generation for partner bilans has been fixed to correctly include data from all of a partner's programs.
 
 **Last working item**:
--   **Last item agent was working:** The agent was implementing the Test non réalisable feature. After updating the frontend to call  when the checkbox is checked, the test failed with a 405 Method Not Allowed error. The agent correctly identified that the backend endpoint for creating alerts does not support the  method and was about to investigate  to fix this.
--   **Status:** IN PROGRESS
--   **Agent Testing Done:** Y (via screenshot tool, which revealed the Method Not Allowed error in the UI)
--   **Which testing method agent to use?** backend testing agent
+-   **Last item agent was working:** The agent was implementing the user's request to reduce the vertical height of the Insights IA component on the dashboard to make it more compact and allow content below it to be more visible.
+-   **Status:** FINISHED
+-   **Agent Testing Done:** N (Only a frontend compilation check was performed).
+-   **Which testing method agent to use?** screenshot tool (to visually verify the new, more compact layout of the Insights IA component on the dashboard).
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1:** The  endpoint returns a 405 Method Not Allowed error. (Priority: P0)
--   **Issue 2:** The Créé par (Created by) column is empty for tests created before the feature was implemented. (Priority: P2)
-
-**Issues Detail:**
--   **Issue 1:**
-    -   **Attempted fixes:** The agent modified the frontend  functions to call . This failed because the endpoint does not exist or is not configured to handle POST requests for creating new, standalone alerts.
-    -   **Next debug checklist:**
-        1.  Open .
-        2.  Locate the router for .
-        3.  Implement a new  route on  that accepts a simplified payload (e.g., , , , ) and creates a new document in the  collection. Ensure it does *not* require a .
-        4.  Use  to test the new endpoint directly.
-        5.  Once the backend is fixed, re-test the full flow from the frontend using the  tool.
-    -   **Why fix this issue and what will be achieved with the fix?** This is the final step to complete the Test non réalisable feature. Fixing it will allow users to report issues without being blocked by required fields, creating a direct alert instead of a malformed test.
-    -   **Status:** IN PROGRESS
-    -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** Both
-    -   **Blocked on other issue:** None
--   **Issue 2:**
-    -   **Description:** Historical tests do not have a Créé par user associated. The user commented, on laisse les anciens tests tel quel pas grave ! il sagit que tout fonctionne à lavenir (let's leave the old tests as they are, it's not a big deal! The important thing is that everything works going forward).
-    -   **Next debug checklist:** This issue is now considered closed based on user feedback. No action is required.
-    -   **Status:** RESOLVED (by user decision)
+There are no outstanding issues. The agent has addressed all recent user requests. The next step is user verification of the latest batch of changes.
 
 **In progress Task List**:
--   **Task 1:** Finalize the Test non réalisable feature (Priority: P0)
-    -   **Where to resume:** . Implement the  endpoint as described in Issue 1 above.
-    -   **What will be achieved with this?** A complete, working feature allowing users to signal an impossible test, which correctly generates an alert in the system.
-    -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** Both
-    -   **Blocked on something:** Blocked on itself (Issue 1).
+None.
 
 **Upcoming and Future Tasks**
--   **Upcoming Tasks:**
-    -   **(P0) Phase 2: Implement CTRL+V Screenshot Pasting:**
-        -   Allow pasting an image from the clipboard into the  and  forms.
-        -   Store the image using MongoDB GridFS.
-        -   Associate the image with the created test/alert.
-        -   Maximum of 3 captures per test.
-    -   **(P1) Phase 3: Attach Screenshot to PDF Report:**
-        -   Modify the PDF generation logic in  to embed the captured screenshot (if one exists) into the downloadable alert report.
--   **Future Tasks:**
-    -   **(P2) Implement API Pagination:** Implement proper pagination on all list endpoints (, , ) to ensure long-term performance.
-    -   **(P2) Rework Bilan Partenaire Generation:** Blocked until the user provides a PowerPoint template.
-    -   **(P3) Implement Messagerie Feature:** Develop functionality to send emails to external partners.
-    -   **(P3) To-Do List Test Indicator:** Add a real-time indicator in the test creation form.
+-   **(P0) User Verification:** The user needs to verify the latest set of implemented features and fixes, including:
+    -   The more compact  component.
+    -   The unified file/screenshot upload component.
+    -   The default sort order of test lists.
+-   **(P1) Implement API Pagination:** Implement pagination on all list endpoints (, , ) to ensure long-term performance as data grows. This was identified early on but has not been addressed.
+-   **(P2) Rework Bilan Partenaire Generation:** The original task was blocked pending a PowerPoint template from the user. While a major bug was fixed, this task may become active again if the user provides the template.
+-   **(P3) Implement Messagerie Feature:** Develop functionality to send emails to external partners.
+-   **(P3) To-Do List Test Indicator:** Add a real-time indicator in the test creation form.
 
 **Completed work in this session**
--   **Recently completed:**
-    -   **AI Feature:** Successfully integrated and refined the AI Insights feature on the dashboard, including a compact view and filtering capabilities.
-    -   **UI/UX Polish:** Implemented application-wide animations, transitions, and hover effects.
-    -   **Dashboard Optimization:** Redesigned the dashboard stat cards to be more compact, improving information density and visibility.
-    -   **Performance Testing:** Created a data generation script () and successfully stress-tested the application with ~4500 records.
-    -   **Bug Fix:** Fixed multiple data validation and serialization bugs related to the generated test data.
-    -   **Bug Fix:** Resolved the  dropdown issue on the  page.
-    -   **Feature Refactor:** Re-architected the Test avorté concept into a much simpler and more logical Test non réalisable checkbox that aims to create an alert directly.
+-   **Feature: Unified File/Screenshot Upload:** Merged CTRL+V paste and file selection into a single  component.
+-   **Feature: Bulk Test Deletion:** Implemented multi-select checkboxes and a Delete Selected button for both  and .
+-   **Feature: Collapsible UI Elements:** Made the main sidebar and the program sections in the partner form collapsible.
+-   **Refactor: File Upload Logic:** Completely removed the old, separate file attachment system in favor of the new unified uploader. This included cleaning up backend models and PDF generation logic.
+-   **Enhancement: PDF Reports:**
+    -   Added the test's main  to each incident table.
+    -   Re-ordered the PDF layout to place attachments at the end with larger images.
+    -   Implemented logic using  to merge user-uploaded PDFs into the final report.
+-   **Enhancement: Default Sorting:** Changed the default sort order on  and  to show newest tests first.
+-   **Enhancement: UI Compactness:** Reduced the vertical height of the  component.
+-   **Bug Fix: Test non réalisable Workflow:** Fixed the backend  endpoint and later refactored the frontend to create both a test and an alert.
+-   **Bug Fix: Partner/Program Filtering:** Corrected the filtering logic to strictly check if a test type is enabled () for a partner/program.
+-   **Bug Fix: Bilan Partenaire:** Fixed the report generation to include data from all of a partner's programs, not just the first one.
+-   **Bug Fix: Test Modification:** Resolved a  related to time format () that was preventing  from being edited.
+-   **Bug Fix: Attachment Links:** Corrected broken attachment URLs by adding the  prefix.
+-   **Bug Fix: Décroche dédié Logic:** Removed the logic that incorrectly created an alert for décroche dédié non disponible.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Backend:** FastAPI, Pydantic (with conditional validation), MongoDB (motor).
--   **Frontend:** React (with conditional rendering and hooks), Shadcn UI, Tailwind CSS, axios.
--   **Error Handling:** Debugging focused on Pydantic validation errors, JSX syntax errors, and API Method Not Allowed errors.
--   **UX-Driven Development:** The agent demonstrated strong ability to pivot and refactor based on iterative user feedback (e.g., AI component size, Test avorté logic).
+-   **Backend:** FastAPI, Pydantic, Motor (async MongoDB), **GridFS** (for screenshots/files), **ReportLab** (for PDF creation), **PyPDF2** (for PDF merging).
+-   **Frontend:** React, Shadcn UI, Tailwind CSS, , React Hooks.
+-   **Development Pattern:** Highly iterative, UX-driven development based on frequent user feedback. Features are often refactored multiple times (e.g., file uploads, test non réalisable logic).
 
 **key DB schema**
--   ** & :** The agent attempted to add  and , but this was reverted. The current approach adds a  field.
--   **:** The plan is to create alerts directly in this collection when a test is not realizable. This requires a new API endpoint.
+-   ** & :**  ( of GridFS file IDs),  (). The  field has been removed.
+-   **:**  ( of GridFS file IDs).
+-   **:** Contains  array, with each object having  and .
 
 **All files of reference**
 -   **Created:**
     -   
-    -   
-    -   
--   **Updated:**
-    -   : Major changes for AI insight filtering, PDF logo dimensions, and adding the  logic.
-    -   : Major changes for layout, card compactness, and adding the Tests non réalisables stat.
-    -   : Complete refactor for compact view, modal, and filtering.
-    -   : Complete refactor from Test avorté dropdown to Test non réalisable checkbox and submission logic.
-    -   : Same refactor as .
-    -   : Added custom keyframe animations.
-    -   , , : Modified for UI polish.
+-   **Updated (Major):**
+    -   : Major changes for PDF generation (PyPDF2), bug fixes (Bilan Partenaire, TestLigne edit), and removal of old attachment logic.
+    -   : Added bulk delete, unified uploader, stricter filtering, default sorting, and removed old attachment UI.
+    -   : Added bulk delete, stricter filtering, default sorting, and fixed edit bug.
+    -   : Implemented the collapsible sidebar with the new logo-button.
+    -   : Added logic for collapsible program sections.
+    -   : Modified multiple times for compactness.
 
 **key api endpoints**
--    (GET): Modified to accept  and  query parameters.
--    (POST): **This is the failing endpoint.** The frontend now attempts to  to it, but the backend doesn't support this method for creating standalone alerts yet. This needs to be implemented.
--    /  (POST, PUT): Backend logic modified to handle the  boolean field and adjust validation accordingly.
+-   : Creates a standalone alert (used for test non réalisable).
+-   , : New endpoints for mass deletion.
+-   : Uploads a file/screenshot to GridFS.
+-   : Retrieves a file from GridFS.
+-   : Generates a complex PDF report, embedding screenshots and merging other PDFs.
+-   : Generates PPTX bilan (bug fixed).
+-   : Endpoint for editing a test line (bug fixed).
+-   : Static file serving path was corrected to use this prefix.
 
 **Critical Info for New Agent**
--   **Your immediate task is to fix the 405 Method Not Allowed error.** You need to implement a  endpoint on  in . This endpoint should create a new alert from a simple payload, it should NOT create a test.
--   The Test non réalisable feature has pivoted several times. The current and final approach is the simplest one: a checkbox that, when checked, makes the form submission create an **alerte**, not a *test*. Do not re-introduce the statut_test or Test avorté concepts.
--   The user has approved a phased approach for the screenshot feature. Complete the Test non réalisable feature first, then move on to Phase 2 (implementing CTRL+V paste).
--   The issue with backfilling old Créé par data is considered closed by the user. Do not work on it.
+-   The user is highly engaged and provides frequent, iterative feedback. Always confirm your plan before implementing and summarize your work upon completion.
+-   Pay close attention to UX details (layout, spacing, intuitive controls), as the user often provides feedback on these aspects.
+-   Several features have been significantly refactored. The File Upload feature was removed and then re-integrated into the  component. Do not try to re-implement the old, separate system.
+-   Your first task should be to ask the user to verify the latest changes, especially the new compact AI Insights bar, the unified uploader, and the default sort order on test pages. Be prepared for a new list of 3-4 requests.
 
 **Last 10 User Messages and any pending user messages**
-1.  **User:** Asks for  help to find the preview link. (Resolved)
-2.  **User:** Sees the old Test avorté UI and is confused about the progress. (Acknowledged)
-3.  **User:** Confirms the agent should proceed with simplifying the UI to a checkbox for both test types. (In Progress)
-4.  **User:** Provides new UX feedback: move the Test non réalisable checkbox to the bottom of the form, just above the comments. (In Progress)
-5.  **User:** Approves moving forward (go). (Acknowledged)
-6.  **User:** Reports that even with the checkbox, the form still requires filling out technical fields, which is illogical. (Acknowledged)
-7.  **User:** When presented with two alternative solutions, chooses Option 1: create an alert directly instead of a test. (Acknowledged)
-8.  **User:** The user did not reply, agent summarized and finished the task, so the user created a new fork with a new instruction to continue with the implementation by changing the approach. (Acknowledged)
-9.  **User:** Changes the approach to creating alerts directly for non-realizable tests instead of using a 'test avorté' status. The alert should be triggerable from the nouveau test window. (Acknowledged)
-10. **User:** Clarifies the implementation should be a simple test non réalisable checkbox that makes the comment field mandatory and other fields optional, leading to an automatic alert. (Acknowledged)
+The user's recent requests have driven all the latest developments. Here is a summary of the last 10 feature requests/bug reports that were acted upon:
+1.  **Bulk Deletion:** Requested a feature to multi-select and delete tests. (COMPLETED)
+2.  **Collapsible Partner Programs:** Requested that program details in the partner form be collapsed by default. (COMPLETED)
+3.  **Stricter Partner Filtering:** Reported a bug where partners wrongly appeared in test dropdowns. (COMPLETED)
+4.  **Bilan Partenaire Bug:** Reported that the PPTX bilan generated data for the wrong program. (COMPLETED)
+5.  **Unified File Upload:** Requested re-adding file uploads (, ) but merging them into the compact CTRL+V screenshot component. (COMPLETED)
+6.  **Default Sort Order:** Requested that test lists show the newest tests first by default. (COMPLETED)
+7.  **Compact AI Insights:** Requested to reduce the height of the AI Insights component. (COMPLETED)
+8.  **PDF Report Content:** Requested that the test comment be included in the incident table of the PDF report. (COMPLETED)
+9.  **PDF Report Layout:** Requested that attachments in the PDF be moved to the bottom and made larger. (COMPLETED)
+10. **Sidebar UX:** Suggested using the glasses logo as a 2-in-1 button to toggle the collapsible sidebar. (COMPLETED)
 
 **Project Health Check:**
--   **Broken:** The form submission for Test non réalisable is currently broken due to the 405 Method Not Allowed error on the backend.
+-   **Broken:** No features are known to be broken. The last user-reported bugs have been addressed.
 -   **Mocked:** None.
 
-**3rd Party Integrations**:
--   **Google Gemini 2.5 Flash** — requires User LLM Key (already provided and stored in ).
+**3rd Party Integrations**
+-   **Google Gemini 2.5 Flash** — requires User LLM Key (used for AI Insights).
 
 **Testing status**
--   **Testing agent used after significant changes:** NO
--   **Troubleshoot agent used after agent stuck in loop:** NO
--   **Test files created:** []
--   **Known regressions:** The submission of non-realizable tests is currently not working.
+-   **Testing agent used after significant changes:** YES (for the Test non réalisable feature early on).
+-   **Troubleshoot agent used after agent stuck in loop:** YES (to debug a frontend attachment mapping error).
+-   **Test files created:** None in this session.
+-   **Known regressions:** None currently known.
 
 **Credentials to test flow:**
 -   **Admin:**  / 
 -   **Agent:**  / 
 
 **What agent forgot to execute**
--   The agent correctly identified the final logic for the Test non réalisable feature (creating an alert directly) but did not fully implement the required backend endpoint before testing the frontend, leading to the current 405 Method Not Allowed blocker.</analysis>
+-   The agent has not implemented the **API pagination** that was listed as a future task in the initial handoff. This remains a key piece of technical debt for ensuring long-term application performance.</analysis>
