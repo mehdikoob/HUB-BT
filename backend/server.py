@@ -3949,11 +3949,7 @@ async def export_bilan_partenaire_ppt(
 # Duplicate function removed - keeping only the first implementation
 
 # Include the router in the main app
-    partenaire_id: str = Query(...),
-    date_debut: str = Query(...),
-    date_fin: str = Query(...)
-):
-    """Generate PowerPoint report - STRICT MODE with full validation"""
+app.include_router(api_router)
     try:
         # Logs collection
         logs = {
