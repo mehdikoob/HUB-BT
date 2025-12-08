@@ -1175,7 +1175,7 @@ const TestsSite = () => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-4 py-3 w-12">
+                <th className="px-2 py-2">
                   <input
                     type="checkbox"
                     checked={selectAll}
@@ -1184,7 +1184,7 @@ const TestsSite = () => {
                   />
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('date_test')}
                 >
                   <div className="flex items-center">
@@ -1192,10 +1192,10 @@ const TestsSite = () => {
                     <SortIcon columnKey="date_test" />
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Programme</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Partenaire</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Programme</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Partenaire</th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('application_remise')}
                 >
                   <div className="flex items-center">
@@ -1204,7 +1204,7 @@ const TestsSite = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('prix_public')}
                 >
                   <div className="flex items-center">
@@ -1213,7 +1213,7 @@ const TestsSite = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('prix_remise')}
                 >
                   <div className="flex items-center">
@@ -1222,7 +1222,7 @@ const TestsSite = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('pct_remise_calcule')}
                 >
                   <div className="flex items-center">
@@ -1230,20 +1230,20 @@ const TestsSite = () => {
                     <SortIcon columnKey="pct_remise_calcule" />
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Naming de la remise</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Naming remise</th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('cumul_codes')}
                 >
                   <div className="flex items-center">
-                    Cumul codes promos
+                    Cumul codes
                     <SortIcon columnKey="cumul_codes" />
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Alertes</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Alertes</th>
                 {/* Colonne "Créé par" - discrète et visible pour tous */}
-                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500">Créé par</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                <th className="px-1 py-2 text-left text-xs font-medium text-gray-500">Créé par</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
