@@ -3704,66 +3704,6 @@ async def export_bilan_partenaire_ppt(
         total_slides = len(programmes) * 3  # 3 slides per programme
         
         # === GENERATE SLIDES FOR EACH PROGRAMME ===
-        for programme in programmes:
-            program_name = programme.get('nom', '')
-            
-            # Get tests data for THIS programme
-            tests_site = await db.tests_site.find({
-                "programme_id": programme['id'],
-                "partenaire_id": partenaire_id,
-                "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
-            }).sort("date_test", -1).to_list(length=None)
-            
-            tests_ligne = await db.tests_ligne.find({
-                "programme_id": programme['id'],
-                "partenaire_id": partenaire_id,
-                "date_test": {"$gte": date_debut_obj.isoformat(), "$lt": date_fin_obj.isoformat()}
-            }).sort("date_test", -1).to_list(length=None)
-        
-        # === CALCULATE STATISTICS ===
-        # Sites
-        total_tests_site = len(tests_site)
-        tests_site_reussis = len([t for t in tests_site if t.get('application_remise', False)])
-        pct_site = round((tests_site_reussis / total_tests_site * 100), 1) if total_tests_site > 0 else 0
-        
-        # Lignes
-        total_tests_ligne = len(tests_ligne)
-        tests_ligne_reussis = len([t for t in tests_ligne if t.get('application_offre', False)])
-        pct_ligne = round((tests_ligne_reussis / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
-        
-        # Average waiting time
-        delais = []
-        for t in tests_ligne:
-            if t.get('delai_attente'):
-                try:
-                    parts = t['delai_attente'].split(':')
-                    if len(parts) == 2:
-                        delais.append(int(parts[0]) * 60 + int(parts[1]))
-                except:
-                    pass
-        avg_delai = sum(delais) / len(delais) if delais else 0
-        avg_delai_str = f"{int(avg_delai // 60):02d}:{int(avg_delai % 60):02d}"
-        
-        # Average accueil
-        accueils = [t.get('evaluation_accueil', '') for t in tests_ligne if t.get('evaluation_accueil')]
-        accueil_counts = {}
-        for acc in accueils:
-            accueil_counts[acc] = accueil_counts.get(acc, 0) + 1
-        commentaire_accueil = max(accueil_counts, key=accueil_counts.get) if accueil_counts else "—"
-        
-        # Messagerie/Decroche stats
-        md_count = len([t for t in tests_ligne if t.get('messagerie_vocale_dediee')])
-        dd_count = len([t for t in tests_ligne if t.get('decroche_dedie')])
-        pct_md = round((md_count / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
-        pct_dd = round((dd_count / total_tests_ligne * 100), 1) if total_tests_ligne > 0 else 0
-        
-        # === CREATE PRESENTATION FROM SCRATCH ===
-        prs = Presentation()
-        prs.slide_width = Inches(10)
-        prs.slide_height = Inches(7.5)
-        
-        slide_number = 0
-        total_slides = len(programmes) * 3  # 3 slides per programme
         
         # === GENERATE SLIDES FOR EACH PROGRAMME ===
         for programme in programmes:
