@@ -56,7 +56,7 @@ const TestsLigne = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTest, setEditingTest] = useState(null);
   const [bilanDialogOpen, setBilanDialogOpen] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'date_test', direction: 'desc' });
   const [selectedTests, setSelectedTests] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   
