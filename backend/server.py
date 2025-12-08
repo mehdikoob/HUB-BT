@@ -3950,17 +3950,6 @@ async def export_bilan_partenaire_ppt(
 
 # Include the router in the main app
 app.include_router(api_router)
-    try:
-        # Logs collection
-        logs = {
-            "placeholdersReplaced": 0,
-            "placeholdersRestants": [],
-            "periodUsed": "",
-            "periodFallbackApplied": False,
-            "rowsSites": 0,
-            "rowsLignes": 0,
-            "incidentsSynthese": ""
-        }
         
         # === GET DATA ===
         partenaire = await db.partenaires.find_one({"id": partenaire_id})
