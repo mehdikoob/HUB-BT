@@ -3704,8 +3704,6 @@ async def export_bilan_partenaire_ppt(
         total_slides = len(programmes) * 3  # 3 slides per programme
         
         # === GENERATE SLIDES FOR EACH PROGRAMME ===
-        
-        # === GENERATE SLIDES FOR EACH PROGRAMME ===
         for programme in programmes:
             program_name = programme.get('nom', '')
             
