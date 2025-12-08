@@ -47,6 +47,15 @@ const monthYearToDateRange = (monthYear) => {
   };
 };
 
+// Formater le numéro de téléphone avec espaces (xx xx xx xx xx)
+const formatPhoneNumber = (phone) => {
+  if (!phone) return '';
+  // Retirer tous les caractères non numériques
+  const cleaned = phone.replace(/\D/g, '');
+  // Ajouter des espaces tous les 2 chiffres
+  return cleaned.match(/.{1,2}/g)?.join(' ') || cleaned;
+};
+
 const TestsLigne = () => {
   const { getAuthHeader } = useAuth();
   const [tests, setTests] = useState([]);
