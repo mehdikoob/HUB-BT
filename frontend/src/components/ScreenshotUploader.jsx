@@ -8,6 +8,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const ScreenshotUploader = ({ screenshots = [], onScreenshotsChange, maxScreenshots = 3 }) => {
   const formRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
