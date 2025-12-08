@@ -3946,8 +3946,9 @@ async def export_bilan_partenaire_ppt(
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
+# Duplicate function removed - keeping only the first implementation
+
 # Include the router in the main app
-async def export_bilan_partenaire_ppt(
     partenaire_id: str = Query(...),
     date_debut: str = Query(...),
     date_fin: str = Query(...)
