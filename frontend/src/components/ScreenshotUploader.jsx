@@ -174,13 +174,39 @@ const ScreenshotUploader = ({ screenshots = [], onScreenshotsChange, maxScreensh
     <div className="space-y-2" ref={formRef}>
       <Label className="flex items-center gap-2">
         <Clipboard className="h-4 w-4" />
-        Captures d'écran {screenshots.length > 0 && `(${screenshots.length}/${maxScreenshots})`}
+        Pièces jointes {screenshots.length > 0 && `(${screenshots.length}/${maxScreenshots})`}
       </Label>
       
       <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-          <ImageIcon className="h-4 w-4" />
-          <span>Collez votre capture d'écran avec <kbd className="px-2 py-1 bg-white border rounded text-xs font-mono">CTRL+V</kbd></span>
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <ImageIcon className="h-4 w-4" />
+            <span>
+              <kbd className="px-2 py-1 bg-white border rounded text-xs font-mono">CTRL+V</kbd> ou
+            </span>
+          </div>
+          
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/jpg,application/pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading || screenshots.length >= maxScreenshots}
+              className="px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              📎 Parcourir
+            </button>
+          </div>
+        </div>
+        
+        <div className="text-xs text-gray-500 mb-2">
+          Formats acceptés : JPG, PNG, PDF (max 5MB)
         </div>
         
         {uploading && (
