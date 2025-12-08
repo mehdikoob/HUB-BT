@@ -1155,9 +1155,9 @@ const TestsLigne = () => {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{getProgrammeName(test.programme_id)}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
+                  <td className="px-4 py-3 text-xs text-gray-900">
                     <a href={`tel:${test.numero_telephone}`} className="text-blue-600 hover:underline">
-                      {test.numero_telephone}
+                      {formatPhoneNumber(test.numero_telephone)}
                     </a>
                   </td>
                   <td className="px-4 py-3 text-sm">
