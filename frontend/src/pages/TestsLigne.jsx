@@ -1135,7 +1135,7 @@ const TestsLigne = () => {
                 const isNonRealisable = test.test_non_realisable === true;
                 return (
                 <tr key={test.id} className={`hover:bg-gray-50 ${isNonRealisable ? 'bg-orange-50 border-l-4 border-orange-500' : alerts.length > 0 ? 'bg-red-50' : ''}`}>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2">
                     <input
                       type="checkbox"
                       checked={selectedTests.includes(test.id)}
@@ -1143,26 +1143,26 @@ const TestsLigne = () => {
                       className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
                     />
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
+                  <td className="px-2 py-2 text-xs text-gray-900">
                     {format(new Date(test.date_test), 'dd/MM/yyyy HH:mm')}
                     {isNonRealisable && (
                       <div className="mt-1">
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-orange-100 text-orange-800">
-                          ⚠️ Test non réalisable
+                          ⚠️ Non réalisable
                         </span>
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{getProgrammeName(test.programme_id)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
-                  <td className="px-4 py-3 text-xs text-gray-900">
+                  <td className="px-2 py-2 text-xs text-gray-900">{getProgrammeName(test.programme_id)}</td>
+                  <td className="px-2 py-2 text-xs text-gray-900">{getPartenaireName(test.partenaire_id)}</td>
+                  <td className="px-2 py-2 text-xs text-gray-900 whitespace-nowrap">
                     <a href={`tel:${test.numero_telephone}`} className="text-blue-600 hover:underline">
                       {formatPhoneNumber(test.numero_telephone)}
                     </a>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         test.messagerie_vocale_dediee
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-600'
@@ -1171,13 +1171,13 @@ const TestsLigne = () => {
                       {test.messagerie_vocale_dediee ? 'OUI' : 'NON'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 font-mono">{test.delai_attente}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
+                  <td className="px-2 py-2 text-xs text-gray-900 font-mono">{test.delai_attente}</td>
+                  <td className="px-2 py-2 text-xs text-gray-900">
                     {test.nom_conseiller || <span className="text-gray-400 italic">NC</span>}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         test.decroche_dedie
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-600'
@@ -1186,9 +1186,9 @@ const TestsLigne = () => {
                       {test.decroche_dedie ? 'OUI' : 'NON'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-1.5 py-0.5 rounded-full text-xs font-medium ${
                         test.evaluation_accueil === 'Excellent'
                           ? 'bg-green-100 text-green-800'
                           : test.evaluation_accueil === 'Bien'
@@ -1201,9 +1201,9 @@ const TestsLigne = () => {
                       {test.evaluation_accueil}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         test.application_offre
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
@@ -1212,12 +1212,12 @@ const TestsLigne = () => {
                       {test.application_offre ? 'OUI' : 'NON'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-2 py-2 text-xs">
                     {alerts.length > 0 ? (
                       <div className="space-y-1">
                         {alerts.map((alert, idx) => (
                           <div key={idx} className="flex items-center gap-1 text-xs text-red-700">
-                            <AlertTriangle size={14} className="flex-shrink-0" />
+                            <AlertTriangle size={12} className="flex-shrink-0" />
                             <span>{alert}</span>
                           </div>
                         ))}
