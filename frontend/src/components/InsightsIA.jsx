@@ -131,12 +131,12 @@ const InsightsIA = () => {
   return (
     <>
       <Card className="w-full shadow-sm hover-lift transition-smooth">
-        <CardHeader className="pb-2 pt-3">
+        <CardHeader className="pb-1 pt-2 px-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="text-purple-500" size={18} />
+              <Sparkles className="text-purple-500" size={16} />
               <div>
-                <CardTitle className="text-base">Insights IA</CardTitle>
+                <CardTitle className="text-sm">Insights IA</CardTitle>
                 <CardDescription className="text-xs">Analyse par Gemini</CardDescription>
               </div>
             </div>
