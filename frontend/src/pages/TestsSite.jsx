@@ -885,9 +885,9 @@ const TestsSite = () => {
                 
                 {/* Display URL if available */}
                 {partenaireUrl && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <Label className="text-sm text-blue-800 font-semibold mb-1 flex items-center gap-2">
-                      <Globe size={16} />
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                    <Label className="text-xs text-blue-800 font-semibold mb-1 flex items-center gap-1.5">
+                      <Globe size={14} />
                       Site web du partenaire pour ce programme :
                     </Label>
                     <a 
