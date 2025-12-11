@@ -766,12 +766,12 @@ const TestsLigne = () => {
                 
                 {/* Display telephone if available */}
                 {partenaireTelephone && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                    <Label className="text-sm text-purple-800 font-semibold mb-1 flex items-center gap-2">
-                      <Phone size={16} />
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
+                    <Label className="text-xs text-purple-800 font-semibold mb-0.5 flex items-center gap-1.5">
+                      <Phone size={14} />
                       Numéro de téléphone du partenaire pour ce programme :
                     </Label>
-                    <p className="text-purple-900 font-medium text-lg">
+                    <p className="text-purple-900 font-medium text-base">
                       {partenaireTelephone}
                     </p>
                   </div>
