@@ -903,9 +903,9 @@ const TestsSite = () => {
                 
                 {/* Display Referer if available */}
                 {partenaireReferer && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                    <Label className="text-sm text-purple-800 font-semibold mb-1 flex items-center gap-2">
-                      <Globe size={16} />
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
+                    <Label className="text-xs text-purple-800 font-semibold mb-0.5 flex items-center gap-1.5">
+                      <Globe size={14} />
                       URL Referer :
                     </Label>
                     <p className="text-purple-700 font-medium text-sm break-all">
