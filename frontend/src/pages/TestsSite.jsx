@@ -736,12 +736,12 @@ const TestsSite = () => {
                   Nouveau test
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingTest ? 'Modifier le test site' : 'Nouveau test site'}</DialogTitle>
+                <DialogTitle className="text-lg">{editingTest ? 'Modifier le test site' : 'Nouveau test site'}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="space-y-2 py-2">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="programme_id">Programme *</Label>
                     <Select
