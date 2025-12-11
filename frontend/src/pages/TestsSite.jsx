@@ -784,21 +784,21 @@ const TestsSite = () => {
                 
                 {/* Display Programme Info if available - Accordéon replié par défaut */}
                 {programmeInfo && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-2">
                     <button
                       type="button"
                       onClick={() => setProgrammeInfoExpanded(!programmeInfoExpanded)}
-                      className="w-full flex items-center justify-between text-left hover:bg-green-100 rounded p-2 transition-colors"
+                      className="w-full flex items-center justify-between text-left hover:bg-green-100 rounded p-1.5 transition-colors"
                     >
-                      <Label className="text-sm text-green-800 font-semibold flex items-center gap-2 cursor-pointer mb-0">
-                        <Globe size={16} />
+                      <Label className="text-xs text-green-800 font-semibold flex items-center gap-1.5 cursor-pointer mb-0">
+                        <Globe size={14} />
                         Informations de connexion - {programmeInfo.nom}
                       </Label>
-                      {programmeInfoExpanded ? <ChevronUp size={18} className="text-green-700" /> : <ChevronDown size={18} className="text-green-700" />}
+                      {programmeInfoExpanded ? <ChevronUp size={16} className="text-green-700" /> : <ChevronDown size={16} className="text-green-700" />}
                     </button>
                     
                     {programmeInfoExpanded && (
-                      <div className="space-y-3 mt-3 pt-3 border-t border-green-300">
+                      <div className="space-y-2 mt-2 pt-2 border-t border-green-300">
                       {programmeInfo.url_plateforme && (
                         <div>
                           <p className="text-xs text-green-700 font-medium mb-1">URL de la plateforme :</p>
