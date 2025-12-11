@@ -1009,20 +1009,20 @@ const TestsSite = () => {
                 </div>
                 
                 {/* Checkbox Test non réalisable - Positionné juste avant commentaire */}
-                <div className="border-l-4 border-orange-400 pl-4 py-2 bg-orange-50">
-                  <div className="flex items-start gap-3">
+                <div className="border-l-4 border-orange-400 pl-3 py-1.5 bg-orange-50">
+                  <div className="flex items-start gap-2">
                     <input
                       type="checkbox"
                       id="test_non_realisable"
                       checked={formData.test_non_realisable}
                       onChange={(e) => setFormData({ ...formData, test_non_realisable: e.target.checked })}
-                      className="w-4 h-4 mt-1 text-orange-600 rounded focus:ring-orange-500"
+                      className="w-4 h-4 mt-0.5 text-orange-600 rounded focus:ring-orange-500"
                     />
                     <div className="flex-1">
-                      <Label htmlFor="test_non_realisable" className="text-sm font-medium text-orange-900 cursor-pointer">
+                      <Label htmlFor="test_non_realisable" className="text-xs font-medium text-orange-900 cursor-pointer">
                         Test non réalisable
                       </Label>
-                      <p className="text-xs text-orange-700 mt-0.5">
+                      <p className="text-xs text-orange-700 mt-0">
                         Cocher uniquement si le test n&apos;a pas pu être effectué
                       </p>
                     </div>
@@ -1031,7 +1031,7 @@ const TestsSite = () => {
                 
                 {/* Commentaires - Obligatoire si test non réalisable */}
                 <div>
-                  <Label htmlFor="commentaire">
+                  <Label htmlFor="commentaire" className="text-sm">
                     Commentaire {formData.test_non_realisable && <span className="text-red-600">*</span>}
                   </Label>
                   <Textarea
@@ -1039,7 +1039,7 @@ const TestsSite = () => {
                     data-testid="test-site-commentaire-input"
                     value={formData.commentaire}
                     onChange={(e) => setFormData({ ...formData, commentaire: e.target.value })}
-                    rows={3}
+                    rows={2}
                     required={formData.test_non_realisable}
                     placeholder={formData.test_non_realisable ? "Décrivez pourquoi le test n'a pas pu être réalisé (obligatoire)" : "Commentaire optionnel"}
                   />
