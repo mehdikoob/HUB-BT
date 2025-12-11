@@ -929,9 +929,9 @@ const TestsSite = () => {
                   />
                 </div>
                 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <Label htmlFor="prix_public">
+                    <Label htmlFor="prix_public" className="text-sm">
                       Prix public (€) {!formData.test_non_realisable && '*'}
                     </Label>
                     <Input
