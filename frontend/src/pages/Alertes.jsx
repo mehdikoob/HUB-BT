@@ -140,24 +140,54 @@ const Alertes = () => {
         <p className="text-gray-600">Suivi et résolution des alertes détectés</p>
       </div>
 
-      {/* Filter & Sort */}
+      {/* Filters & Sort */}
       <Card className="mb-6 p-4 border-0 shadow-sm">
-        <div className="flex items-center gap-6 flex-wrap">
+        <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Filter size={20} className="text-gray-600" />
-            <Select value={filter || undefined} onValueChange={(value) => setFilter(value === 'all' ? '' : value)}>
-              <SelectTrigger data-testid="filter-statut-select" className="w-48">
-                <SelectValue placeholder="Filtrer par statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les alertes</SelectItem>
-                <SelectItem value="ouvert">Ouverts</SelectItem>
-                <SelectItem value="resolu">Résolus</SelectItem>
-              </SelectContent>
-            </Select>
+            <span className="text-sm text-gray-600 font-medium">Filtres :</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <Select value={filter || undefined} onValueChange={(value) => setFilter(value === 'all' ? '' : value)}>
+            <SelectTrigger data-testid="filter-statut-select" className="w-40">
+              <SelectValue placeholder="Statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous</SelectItem>
+              <SelectItem value="ouvert">Ouverts</SelectItem>
+              <SelectItem value="resolu">Résolus</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={programmeFilter || undefined} onValueChange={(value) => setProgrammeFilter(value === 'all' ? '' : value)}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Programme" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les programmes</SelectItem>
+              {programmes.map((prog) => (
+                <SelectItem key={prog.id} value={prog.nom}>
+                  {prog.nom}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={partenaireFilter || undefined} onValueChange={(value) => setPartenaireFilter(value === 'all' ? '' : value)}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Partenaire" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les partenaires</SelectItem>
+              {partenaires.map((part) => (
+                <SelectItem key={part.id} value={part.nom}>
+                  {part.nom}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="flex items-center gap-2 ml-auto">
             <span className="text-sm text-gray-600 font-medium">Trier par :</span>
             <Button
               variant="outline"
@@ -168,31 +198,13 @@ const Alertes = () => {
               Date
               <SortIcon columnKey="created_at" />
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleSort('programme_nom')}
-              className="flex items-center gap-1 text-xs"
-            >
-              Programme
-              <SortIcon columnKey="programme_nom" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleSort('partenaire_nom')}
-              className="flex items-center gap-1 text-xs"
-            >
-              Partenaire
-              <SortIcon columnKey="partenaire_nom" />
-            </Button>
           </div>
         </div>
       </Card>
 
       {/* Alertes List */}
       <div className="space-y-4">
-        {getSortedAlertes().map((alerte) => (
+        {getFilteredAndSortedAlertes().map((alerte) => (
           <Card 
             key={alerte.id} 
             className="border-0 shadow-sm"
