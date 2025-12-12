@@ -310,6 +310,16 @@ const Alertes = () => {
         ))}
       </div>
 
+      {getFilteredAndSortedAlertes().length === 0 && alertes.length > 0 && (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="py-12 text-center">
+            <Filter className="mx-auto mb-4 text-gray-400" size={48} />
+            <p className="text-gray-500 text-lg">Aucune alerte ne correspond aux filtres sélectionnés</p>
+            <p className="text-sm text-gray-400 mt-2">Essayez de modifier vos critères de filtrage</p>
+          </CardContent>
+        </Card>
+      )}
+
       {alertes.length === 0 && (
         <Card className="border-0 shadow-sm">
           <CardContent className="py-12 text-center">
