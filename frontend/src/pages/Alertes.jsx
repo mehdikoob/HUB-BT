@@ -90,31 +90,32 @@ const Alertes = () => {
     setSortConfig({ key, direction });
   };
 
-  const getSortedAlertes = () => {
-    if (!sortConfig.key) return alertes;
+  const getFilteredAndSortedAlertes = () => {
+    let filtered = [...alertes];
 
-    const sortedAlertes = [...alertes].sort((a, b) => {
-      let aVal = a[sortConfig.key];
-      let bVal = b[sortConfig.key];
+    // Apply programme filter
+    if (programmeFilter) {
+      filtered = filtered.filter(a => a.programme_nom === programmeFilter);
+    }
 
-      // Handle date sorting
-      if (sortConfig.key === 'created_at' || sortConfig.key === 'resolved_at') {
-        aVal = new Date(aVal);
-        bVal = new Date(bVal);
-      }
+    // Apply partenaire filter
+    if (partenaireFilter) {
+      filtered = filtered.filter(a => a.partenaire_nom === partenaireFilter);
+    }
 
-      // Handle string sorting (case insensitive)
-      if (typeof aVal === 'string') {
-        aVal = aVal.toLowerCase();
-        bVal = bVal?.toLowerCase() || '';
-      }
+    // Apply sorting (only by date)
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        const aVal = new Date(a[sortConfig.key]);
+        const bVal = new Date(b[sortConfig.key]);
 
-      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
 
-    return sortedAlertes;
+    return filtered;
   };
 
   const SortIcon = ({ columnKey }) => {
