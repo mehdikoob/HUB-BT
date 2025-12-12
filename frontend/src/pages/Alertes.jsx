@@ -58,6 +58,50 @@ const Alertes = () => {
     }
   };
 
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedAlertes = () => {
+    if (!sortConfig.key) return alertes;
+
+    const sortedAlertes = [...alertes].sort((a, b) => {
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
+
+      // Handle date sorting
+      if (sortConfig.key === 'created_at' || sortConfig.key === 'resolved_at') {
+        aVal = new Date(aVal);
+        bVal = new Date(bVal);
+      }
+
+      // Handle string sorting (case insensitive)
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = bVal?.toLowerCase() || '';
+      }
+
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return sortedAlertes;
+  };
+
+  const SortIcon = ({ columnKey }) => {
+    if (sortConfig.key !== columnKey) {
+      return <ArrowUpDown size={14} className="ml-1 text-gray-400" />;
+    }
+    return sortConfig.direction === 'asc' ? 
+      <ArrowUp size={14} className="ml-1 text-blue-600" /> : 
+      <ArrowDown size={14} className="ml-1 text-blue-600" />;
+  };
+
   if (loading) {
     return <div className="text-center py-8">Chargement...</div>;
   }
