@@ -115,26 +115,59 @@ const Alertes = () => {
         <p className="text-gray-600">Suivi et résolution des alertes détectés</p>
       </div>
 
-      {/* Filter */}
+      {/* Filter & Sort */}
       <Card className="mb-6 p-4 border-0 shadow-sm">
-        <div className="flex items-center gap-4">
-          <Filter size={20} className="text-gray-600" />
-          <Select value={filter || undefined} onValueChange={(value) => setFilter(value === 'all' ? '' : value)}>
-            <SelectTrigger data-testid="filter-statut-select" className="w-64">
-              <SelectValue placeholder="Filtrer par statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les alertes</SelectItem>
-              <SelectItem value="ouvert">Ouverts</SelectItem>
-              <SelectItem value="resolu">Résolus</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex items-center gap-6 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Filter size={20} className="text-gray-600" />
+            <Select value={filter || undefined} onValueChange={(value) => setFilter(value === 'all' ? '' : value)}>
+              <SelectTrigger data-testid="filter-statut-select" className="w-48">
+                <SelectValue placeholder="Filtrer par statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les alertes</SelectItem>
+                <SelectItem value="ouvert">Ouverts</SelectItem>
+                <SelectItem value="resolu">Résolus</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600 font-medium">Trier par :</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSort('created_at')}
+              className="flex items-center gap-1 text-xs"
+            >
+              Date
+              <SortIcon columnKey="created_at" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSort('programme_nom')}
+              className="flex items-center gap-1 text-xs"
+            >
+              Programme
+              <SortIcon columnKey="programme_nom" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSort('partenaire_nom')}
+              className="flex items-center gap-1 text-xs"
+            >
+              Partenaire
+              <SortIcon columnKey="partenaire_nom" />
+            </Button>
+          </div>
         </div>
       </Card>
 
       {/* Alertes List */}
       <div className="space-y-4">
-        {alertes.map((alerte) => (
+        {getSortedAlertes().map((alerte) => (
           <Card 
             key={alerte.id} 
             className="border-0 shadow-sm"
