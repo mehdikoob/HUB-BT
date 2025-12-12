@@ -13,7 +13,11 @@ const Alertes = () => {
   const [alertes, setAlertes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
+  const [programmeFilter, setProgrammeFilter] = useState('');
+  const [partenaireFilter, setPartenaireFilter] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+  const [programmes, setProgrammes] = useState([]);
+  const [partenaires, setPartenaires] = useState([]);
 
   useEffect(() => {
     fetchAlertes();
