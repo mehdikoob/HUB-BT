@@ -21,6 +21,8 @@ const Alertes = () => {
 
   useEffect(() => {
     fetchAlertes();
+    fetchProgrammes();
+    fetchPartenaires();
   }, [filter]);
 
   const fetchAlertes = async () => {
@@ -35,6 +37,24 @@ const Alertes = () => {
       toast.error('Erreur lors du chargement des alertes');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProgrammes = async () => {
+    try {
+      const response = await axios.get(`${API}/programmes`);
+      setProgrammes(response.data);
+    } catch (error) {
+      console.error('Erreur:', error);
+    }
+  };
+
+  const fetchPartenaires = async () => {
+    try {
+      const response = await axios.get(`${API}/partenaires`);
+      setPartenaires(response.data);
+    } catch (error) {
+      console.error('Erreur:', error);
     }
   };
 
