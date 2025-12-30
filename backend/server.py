@@ -2579,111 +2579,111 @@ async def export_bilan_ligne_excel(
         header_fill = PatternFill(start_color='C00000', end_color='C00000', fill_type='solid')
         header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
     
-    title_font = Font(name='Calibri', size=14, bold=True, color='C00000')
-    title_alignment = Alignment(horizontal='center', vertical='center')
+        title_font = Font(name='Calibri', size=14, bold=True, color='C00000')
+        title_alignment = Alignment(horizontal='center', vertical='center')
     
-    cell_alignment_center = Alignment(horizontal='center', vertical='center')
-    cell_alignment_left = Alignment(horizontal='left', vertical='center')
+        cell_alignment_center = Alignment(horizontal='center', vertical='center')
+        cell_alignment_left = Alignment(horizontal='left', vertical='center')
     
-    border_style = Border(
-        left=Side(style='thin', color='000000'),
-        right=Side(style='thin', color='000000'),
-        top=Side(style='thin', color='000000'),
-        bottom=Side(style='thin', color='000000')
-    )
+        border_style = Border(
+            left=Side(style='thin', color='000000'),
+            right=Side(style='thin', color='000000'),
+            top=Side(style='thin', color='000000'),
+            bottom=Side(style='thin', color='000000')
+        )
     
-    # Mapper mois en français
-    mois_fr = {
-        1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
-        5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
-        9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
-    }
-    
-    # Créer une feuille par groupe
-    for group_id, tests in tests_groupes.items():
-        group_name = group_dict.get(group_id, group_id)
-        
-        # Créer la feuille (limiter le nom à 31 caractères pour Excel)
-        if partenaire_id:
-            sheet_name = f"{entity_name[:15]} - {group_name[:12]}"
-            title_text = f"TESTS LIGNE – {entity_name} – {group_name}"
-        else:
-            sheet_name = f"{group_name[:15]} - {entity_name[:12]}"
-            title_text = f"TESTS LIGNE – {group_name} – {entity_name}"
-        
-        ws = wb.create_sheet(title=sheet_name)
-        
-        # Titre principal (ligne 1 fusionnée)
-        ws.merge_cells('A1:I1')
-        title_cell = ws['A1']
-        title_cell.value = title_text
-        title_cell.font = title_font
-        title_cell.alignment = title_alignment
-        ws.row_dimensions[1].height = 25
-        
-        # En-têtes (ligne 2) - NOUVELLES COLONNES
-        headers = ['MOIS', 'DATE EXACTE', 'Numéro de téléphone', 'Messagerie Vocale dédiée', 
-                   'Délai d\'attente', 'Nom du conseiller', 'Décroche dédiée', 
-                   'Évaluation de l\'accueil', 'Application de l\'offre']
-        
-        for col_num, header in enumerate(headers, 1):
-            cell = ws.cell(row=2, column=col_num)
-            cell.value = header
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.alignment = header_alignment
-            cell.border = border_style
-        
-        ws.row_dimensions[2].height = 30
-        
-        # Données
-        for row_num, test in enumerate(tests, 3):
-            # Date
-            date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
-            try:
-                date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
-                # MOIS : Février-2025
-                mois_nom = mois_fr.get(date_obj.month, date_obj.strftime('%B'))
-                mois_formatted = f"{mois_nom}-{date_obj.year}"
-                # DATE EXACTE : 15/02/2025
-                date_formatted = date_obj.strftime('%d/%m/%Y')
-            except:
-                mois_formatted = date_str[:7]
-                date_formatted = date_str
-            
-            row_data = [
-                mois_formatted,  # MOIS
-                date_formatted,  # DATE EXACTE
-                test.get('numero_telephone', ''),  # Numéro de téléphone
-                'Oui' if test.get('messagerie_vocale_dediee') else 'Non',  # Messagerie Vocale dédiée
-                test.get('delai_attente', ''),  # Délai d'attente
-                test.get('nom_conseiller', ''),  # Nom du conseiller
-                'Oui' if test.get('decroche_dedie') else 'Non',  # Décroche dédiée
-                test.get('evaluation_accueil', ''),  # Évaluation de l'accueil
-                'Oui' if test.get('application_offre') else 'Non',  # Application de l'offre
-            ]
-            
-            for col_num, value in enumerate(row_data, 1):
-                cell = ws.cell(row=row_num, column=col_num)
-                cell.value = value
-                cell.border = border_style
-                cell.alignment = cell_alignment_center
-        
-        # Ajuster largeurs de colonnes
-        column_widths = {
-            'A': 18,  # MOIS
-            'B': 15,  # DATE EXACTE
-            'C': 20,  # Numéro de téléphone
-            'D': 25,  # Messagerie Vocale dédiée
-            'E': 18,  # Délai d'attente
-            'F': 25,  # Nom du conseiller
-            'G': 18,  # Décroche dédiée
-            'H': 25,  # Évaluation de l'accueil
-            'I': 25   # Application de l'offre
+        # Mapper mois en français
+        mois_fr = {
+            1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
+            5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
+            9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
         }
     
-        for col_letter, width in column_widths.items():
-            ws.column_dimensions[col_letter].width = width
+        # Créer une feuille par groupe
+        for group_id, tests in tests_groupes.items():
+            group_name = group_dict.get(group_id, group_id)
+        
+            # Créer la feuille (limiter le nom à 31 caractères pour Excel)
+            if partenaire_id:
+                sheet_name = f"{entity_name[:15]} - {group_name[:12]}"
+                title_text = f"TESTS LIGNE – {entity_name} – {group_name}"
+            else:
+                sheet_name = f"{group_name[:15]} - {entity_name[:12]}"
+                title_text = f"TESTS LIGNE – {group_name} – {entity_name}"
+        
+            ws = wb.create_sheet(title=sheet_name)
+        
+            # Titre principal (ligne 1 fusionnée)
+            ws.merge_cells('A1:I1')
+            title_cell = ws['A1']
+            title_cell.value = title_text
+            title_cell.font = title_font
+            title_cell.alignment = title_alignment
+            ws.row_dimensions[1].height = 25
+        
+            # En-têtes (ligne 2) - NOUVELLES COLONNES
+            headers = ['MOIS', 'DATE EXACTE', 'Numéro de téléphone', 'Messagerie Vocale dédiée', 
+                       'Délai d\'attente', 'Nom du conseiller', 'Décroche dédiée', 
+                       'Évaluation de l\'accueil', 'Application de l\'offre']
+        
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=2, column=col_num)
+                cell.value = header
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = header_alignment
+                cell.border = border_style
+        
+            ws.row_dimensions[2].height = 30
+        
+            # Données
+            for row_num, test in enumerate(tests, 3):
+                # Date
+                date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
+                try:
+                    date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
+                    # MOIS : Février-2025
+                    mois_nom = mois_fr.get(date_obj.month, date_obj.strftime('%B'))
+                    mois_formatted = f"{mois_nom}-{date_obj.year}"
+                    # DATE EXACTE : 15/02/2025
+                    date_formatted = date_obj.strftime('%d/%m/%Y')
+                except:
+                    mois_formatted = date_str[:7]
+                    date_formatted = date_str
+            
+                row_data = [
+                    mois_formatted,  # MOIS
+                    date_formatted,  # DATE EXACTE
+                    test.get('numero_telephone', ''),  # Numéro de téléphone
+                    'Oui' if test.get('messagerie_vocale_dediee') else 'Non',  # Messagerie Vocale dédiée
+                    test.get('delai_attente', ''),  # Délai d'attente
+                    test.get('nom_conseiller', ''),  # Nom du conseiller
+                    'Oui' if test.get('decroche_dedie') else 'Non',  # Décroche dédiée
+                    test.get('evaluation_accueil', ''),  # Évaluation de l'accueil
+                    'Oui' if test.get('application_offre') else 'Non',  # Application de l'offre
+                ]
+            
+                for col_num, value in enumerate(row_data, 1):
+                    cell = ws.cell(row=row_num, column=col_num)
+                    cell.value = value
+                    cell.border = border_style
+                    cell.alignment = cell_alignment_center
+        
+            # Ajuster largeurs de colonnes
+            column_widths = {
+                'A': 18,  # MOIS
+                'B': 15,  # DATE EXACTE
+                'C': 20,  # Numéro de téléphone
+                'D': 25,  # Messagerie Vocale dédiée
+                'E': 18,  # Délai d'attente
+                'F': 25,  # Nom du conseiller
+                'G': 18,  # Décroche dédiée
+                'H': 25,  # Évaluation de l'accueil
+                'I': 25   # Application de l'offre
+            }
+    
+            for col_letter, width in column_widths.items():
+                ws.column_dimensions[col_letter].width = width
     
         # Sauvegarder dans un buffer
         output = io.BytesIO()
