@@ -202,6 +202,42 @@ const TestsLigne = () => {
     updatePartenaireTelephone(formData.programme_id, value);
   };
 
+  // Vérification des doublons en temps réel
+  useEffect(() => {
+    const checkDuplicate = async () => {
+      // Seulement si les deux sont renseignés et qu'on n'est pas en mode édition
+      if (formData.partenaire_id && formData.programme_id && !editingTest) {
+        setCheckingDuplicate(true);
+        try {
+          const response = await axios.get(`${API}/check-duplicate-test`, {
+            params: {
+              partenaire_id: formData.partenaire_id,
+              programme_id: formData.programme_id,
+              test_type: 'ligne'
+            },
+            headers: getAuthHeader()
+          });
+          
+          if (response.data.exists) {
+            setDuplicateWarning(response.data.test);
+          } else {
+            setDuplicateWarning(null);
+          }
+        } catch (error) {
+          console.error('Erreur vérification doublon:', error);
+          // Ne pas bloquer si l'API échoue
+          setDuplicateWarning(null);
+        } finally {
+          setCheckingDuplicate(false);
+        }
+      } else {
+        setDuplicateWarning(null);
+      }
+    };
+
+    checkDuplicate();
+  }, [formData.partenaire_id, formData.programme_id, editingTest, getAuthHeader]);
+
   const fetchTests = async () => {
     try {
       const params = {};
