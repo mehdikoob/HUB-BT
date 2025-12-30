@@ -2569,15 +2569,15 @@ async def export_bilan_ligne_excel(
                 if key not in tests_groupes:
                     tests_groupes[key] = []
                 tests_groupes[key].append(test)
-    
-    # Créer le workbook Excel
-    wb = Workbook()
-    wb.remove(wb.active)  # Supprimer la feuille par défaut
-    
-    # Styles
-    header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
-    header_fill = PatternFill(start_color='C00000', end_color='C00000', fill_type='solid')
-    header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        
+        # Créer le workbook Excel
+        wb = Workbook()
+        wb.remove(wb.active)  # Supprimer la feuille par défaut
+        
+        # Styles
+        header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
+        header_fill = PatternFill(start_color='C00000', end_color='C00000', fill_type='solid')
+        header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
     
     title_font = Font(name='Calibri', size=14, bold=True, color='C00000')
     title_alignment = Alignment(horizontal='center', vertical='center')
