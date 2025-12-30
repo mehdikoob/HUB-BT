@@ -2388,18 +2388,24 @@ async def export_bilan_site_excel(
         9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
     }
     
-    # Créer une feuille par programme
-    for prog_id, tests in tests_par_programme.items():
-        programme_nom = programmes_dict.get(prog_id, prog_id)
+    # Créer une feuille par groupe
+    for group_id, tests in tests_groupes.items():
+        group_name = group_dict.get(group_id, group_id)
         
         # Créer la feuille (limiter le nom à 31 caractères pour Excel)
-        sheet_name = f"{partenaire['nom'][:15]} - {programme_nom[:12]}"
+        if partenaire_id:
+            sheet_name = f"{entity_name[:15]} - {group_name[:12]}"
+            title_text = f"TESTS SITE – {entity_name} – {group_name}"
+        else:
+            sheet_name = f"{group_name[:15]} - {entity_name[:12]}"
+            title_text = f"TESTS SITE – {group_name} – {entity_name}"
+        
         ws = wb.create_sheet(title=sheet_name)
         
         # Titre principal (ligne 1 fusionnée)
         ws.merge_cells('A1:F1')
         title_cell = ws['A1']
-        title_cell.value = f"TESTS SITE – {partenaire['nom']} – {programme_nom}"
+        title_cell.value = title_text
         title_cell.font = title_font
         title_cell.alignment = title_alignment
         ws.row_dimensions[1].height = 25
