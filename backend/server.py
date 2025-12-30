@@ -2367,21 +2367,21 @@ async def export_bilan_site_excel(
     
         # Styles
         header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
-    header_fill = PatternFill(start_color='C00000', end_color='C00000', fill_type='solid')
-    header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        header_fill = PatternFill(start_color='C00000', end_color='C00000', fill_type='solid')
+        header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
     
-    title_font = Font(name='Calibri', size=14, bold=True, color='C00000')
-    title_alignment = Alignment(horizontal='center', vertical='center')
+        title_font = Font(name='Calibri', size=14, bold=True, color='C00000')
+        title_alignment = Alignment(horizontal='center', vertical='center')
     
-    cell_alignment_center = Alignment(horizontal='center', vertical='center')
-    cell_alignment_left = Alignment(horizontal='left', vertical='center')
+        cell_alignment_center = Alignment(horizontal='center', vertical='center')
+        cell_alignment_left = Alignment(horizontal='left', vertical='center')
     
-    border_style = Border(
-        left=Side(style='thin', color='000000'),
-        right=Side(style='thin', color='000000'),
-        top=Side(style='thin', color='000000'),
-        bottom=Side(style='thin', color='000000')
-    )
+        border_style = Border(
+            left=Side(style='thin', color='000000'),
+            right=Side(style='thin', color='000000'),
+            top=Side(style='thin', color='000000'),
+            bottom=Side(style='thin', color='000000')
+        )
     
     # Mapper mois en français
     mois_fr = {
