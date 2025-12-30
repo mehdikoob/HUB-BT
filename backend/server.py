@@ -2494,11 +2494,11 @@ async def export_bilan_site_excel(
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
 
-except HTTPException:
-    raise
-except Exception as e:
-    logging.error(f"Erreur lors de la génération du bilan Excel site: {str(e)}", exc_info=True)
-    raise HTTPException(status_code=500, detail=f"Erreur lors de la génération: {str(e)}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Erreur lors de la génération du bilan Excel site: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la génération: {str(e)}")
 
 # Routes - Export Bilan Excel Tests Ligne
 @api_router.get("/export/bilan-ligne-excel")
