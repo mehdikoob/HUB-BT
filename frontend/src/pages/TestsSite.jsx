@@ -1203,6 +1203,7 @@ const TestsSite = () => {
                     <SortIcon columnKey="application_remise" />
                   </div>
                 </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Objet</th>
                 <th 
                   className="px-2 py-2 text-left text-xs font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('prix_public')}
