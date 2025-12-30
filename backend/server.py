@@ -2685,24 +2685,30 @@ async def export_bilan_ligne_excel(
         for col_letter, width in column_widths.items():
             ws.column_dimensions[col_letter].width = width
     
-    # Sauvegarder dans un buffer
-    output = io.BytesIO()
-    wb.save(output)
-    output.seek(0)
+        # Sauvegarder dans un buffer
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        # Nom du fichier : export_[entity]_[mois-année].xlsx
+        try:
+            date_obj_debut = dt.fromisoformat(date_debut.replace('Z', '+00:00'))
+            mois_nom = mois_fr.get(date_obj_debut.month, date_obj_debut.strftime('%B')).lower()
+            filename = f"export_{entity_name.lower().replace(' ', '_')}_{mois_nom}-{date_obj_debut.year}.xlsx"
+        except:
+            filename = f"export_{entity_name.lower().replace(' ', '_')}.xlsx"
+        
+        return StreamingResponse(
+            output,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
     
-    # Nom du fichier : export_[entity]_[mois-année].xlsx
-    try:
-        date_obj_debut = dt.fromisoformat(date_debut.replace('Z', '+00:00'))
-        mois_nom = mois_fr.get(date_obj_debut.month, date_obj_debut.strftime('%B')).lower()
-        filename = f"export_{entity_name.lower().replace(' ', '_')}_{mois_nom}-{date_obj_debut.year}.xlsx"
-    except:
-        filename = f"export_{entity_name.lower().replace(' ', '_')}.xlsx"
-    
-    return StreamingResponse(
-        output,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
-    )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Erreur lors de la génération du bilan Excel ligne: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la génération: {str(e)}")
 
 # Routes - Export CSV (legacy)
 @api_router.get("/export/tests-site")
