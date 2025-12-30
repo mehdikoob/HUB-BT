@@ -2508,65 +2508,67 @@ async def export_bilan_ligne_excel(
     date_debut: str = Query(...),
     date_fin: str = Query(...)
 ):
-    from datetime import datetime as dt
-    import locale
-    
-    # Essayer de définir la locale française
     try:
-        locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
-    except:
+        from datetime import datetime as dt
+        import locale
+        
+        # Essayer de définir la locale française
         try:
-            locale.setlocale(locale.LC_TIME, 'fr_FR')
+            locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
         except:
-            pass
-    
-    # Récupérer le partenaire ou programme
-    entity_name = ""
-    if partenaire_id:
-        partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
-        if not partenaire:
-            raise HTTPException(status_code=404, detail="Partenaire non trouvé")
-        entity_name = partenaire['nom']
-    elif programme_id:
-        programme = await db.programmes.find_one({"id": programme_id}, {"_id": 0})
-        if not programme:
-            raise HTTPException(status_code=404, detail="Programme non trouvé")
-        entity_name = programme['nom']
-    else:
-        raise HTTPException(status_code=400, detail="partenaire_id ou programme_id requis")
-    
-    # Récupérer tous les programmes et partenaires
-    programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
-    programmes_dict = {p['id']: p['nom'] for p in programmes}
-    
-    partenaires_all = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
-    partenaires_dict = {p['id']: p['nom'] for p in partenaires_all}
-    
-    # Query pour tous les tests ligne du partenaire/programme dans la période
-    query = {
-        'date_test': {
-            '$gte': date_debut,
-            '$lte': date_fin
+            try:
+                locale.setlocale(locale.LC_TIME, 'fr_FR')
+            except:
+                pass
+        
+        # Récupérer le partenaire ou programme
+        entity_name = ""
+        if partenaire_id:
+            partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
+            if not partenaire:
+                raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+            entity_name = partenaire['nom']
+        elif programme_id:
+            programme = await db.programmes.find_one({"id": programme_id}, {"_id": 0})
+            if not programme:
+                raise HTTPException(status_code=404, detail="Programme non trouvé")
+            entity_name = programme['nom']
+        else:
+            raise HTTPException(status_code=400, detail="partenaire_id ou programme_id requis")
+        
+        # Récupérer tous les programmes et partenaires
+        programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
+        programmes_dict = {p['id']: p['nom'] for p in programmes}
+        
+        partenaires_all = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+        partenaires_dict = {p['id']: p['nom'] for p in partenaires_all}
+        
+        # Query pour tous les tests ligne du partenaire/programme dans la période
+        query = {
+            'date_test': {
+                '$gte': date_debut,
+                '$lte': date_fin
+            }
         }
-    }
-    
-    if partenaire_id:
-        query['partenaire_id'] = partenaire_id
-    elif programme_id:
-        query['programme_id'] = programme_id
-    
-    tests_ligne = await db.tests_ligne.find(query, {"_id": 0}).to_list(10000)
-    
-    # Grouper les tests par programme (si export par partenaire) ou par partenaire (si export par programme)
-    tests_groupes = {}
-    group_key = 'programme_id' if partenaire_id else 'partenaire_id'
-    group_dict = programmes_dict if partenaire_id else partenaires_dict
-    
-    for test in tests_ligne:
-        key = test[group_key]
-        if key not in tests_groupes:
-            tests_groupes[key] = []
-        tests_groupes[key].append(test)
+        
+        if partenaire_id:
+            query['partenaire_id'] = partenaire_id
+        elif programme_id:
+            query['programme_id'] = programme_id
+        
+        tests_ligne = await db.tests_ligne.find(query, {"_id": 0}).to_list(10000)
+        
+        # Grouper les tests par programme (si export par partenaire) ou par partenaire (si export par programme)
+        tests_groupes = {}
+        group_key = 'programme_id' if partenaire_id else 'partenaire_id'
+        group_dict = programmes_dict if partenaire_id else partenaires_dict
+        
+        for test in tests_ligne:
+            key = test.get(group_key)
+            if key:  # Seulement si la clé existe
+                if key not in tests_groupes:
+                    tests_groupes[key] = []
+                tests_groupes[key].append(test)
     
     # Créer le workbook Excel
     wb = Workbook()
