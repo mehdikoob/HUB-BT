@@ -2475,9 +2475,6 @@ async def export_bilan_site_excel(
                 'G': 30,  # Naming
                 'H': 25   # Cumul codes
             }
-                'E': 30,  # Naming
-                'F': 25   # Cumul codes
-            }
             
             for col_letter, width in column_widths.items():
                 ws.column_dimensions[col_letter].width = width
