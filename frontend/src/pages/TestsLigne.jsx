@@ -626,27 +626,66 @@ const TestsLigne = () => {
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>Export des tests</DialogTitle>
+                <DialogTitle>Export des tests lignes</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div>
-                  <Label htmlFor="bilan-partenaire">Partenaire *</Label>
+                  <Label htmlFor="export-type">Type d'export *</Label>
                   <Select
-                    value={bilanData.partenaire_id}
-                    onValueChange={(value) => setBilanData({ ...bilanData, partenaire_id: value })}
+                    value={bilanData.export_type || 'partenaire'}
+                    onValueChange={(value) => setBilanData({ ...bilanData, export_type: value, partenaire_id: '', programme_id: '' })}
                   >
-                    <SelectTrigger data-testid="bilan-partenaire-select">
-                      <SelectValue placeholder="Sélectionnez un partenaire" />
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez le type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {partenaires.map((part) => (
-                        <SelectItem key={part.id} value={part.id}>
-                          {part.nom}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="partenaire">Par Partenaire</SelectItem>
+                      <SelectItem value="programme">Par Programme</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {(!bilanData.export_type || bilanData.export_type === 'partenaire') && (
+                  <div>
+                    <Label htmlFor="bilan-partenaire">Partenaire *</Label>
+                    <Select
+                      value={bilanData.partenaire_id}
+                      onValueChange={(value) => setBilanData({ ...bilanData, partenaire_id: value })}
+                    >
+                      <SelectTrigger data-testid="bilan-partenaire-select">
+                        <SelectValue placeholder="Sélectionnez un partenaire" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {partenaires.map((part) => (
+                          <SelectItem key={part.id} value={part.id}>
+                            {part.nom}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {bilanData.export_type === 'programme' && (
+                  <div>
+                    <Label htmlFor="bilan-programme">Programme *</Label>
+                    <Select
+                      value={bilanData.programme_id}
+                      onValueChange={(value) => setBilanData({ ...bilanData, programme_id: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un programme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {programmes.map((prog) => (
+                          <SelectItem key={prog.id} value={prog.id}>
+                            {prog.nom}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
