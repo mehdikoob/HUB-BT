@@ -2495,7 +2495,8 @@ async def export_bilan_site_excel(
 # Routes - Export Bilan Excel Tests Ligne
 @api_router.get("/export/bilan-ligne-excel")
 async def export_bilan_ligne_excel(
-    partenaire_id: str = Query(...),
+    partenaire_id: Optional[str] = Query(None),
+    programme_id: Optional[str] = Query(None),
     date_debut: str = Query(...),
     date_fin: str = Query(...)
 ):
@@ -2511,33 +2512,53 @@ async def export_bilan_ligne_excel(
         except:
             pass
     
-    # Récupérer le partenaire
-    partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
-    if not partenaire:
-        raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+    # Récupérer le partenaire ou programme
+    entity_name = ""
+    if partenaire_id:
+        partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
+        if not partenaire:
+            raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+        entity_name = partenaire['nom']
+    elif programme_id:
+        programme = await db.programmes.find_one({"id": programme_id}, {"_id": 0})
+        if not programme:
+            raise HTTPException(status_code=404, detail="Programme non trouvé")
+        entity_name = programme['nom']
+    else:
+        raise HTTPException(status_code=400, detail="partenaire_id ou programme_id requis")
     
-    # Récupérer tous les programmes
+    # Récupérer tous les programmes et partenaires
     programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
     programmes_dict = {p['id']: p['nom'] for p in programmes}
     
-    # Query pour tous les tests ligne du partenaire dans la période
+    partenaires_all = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+    partenaires_dict = {p['id']: p['nom'] for p in partenaires_all}
+    
+    # Query pour tous les tests ligne du partenaire/programme dans la période
     query = {
-        'partenaire_id': partenaire_id,
         'date_test': {
             '$gte': date_debut,
             '$lte': date_fin
         }
     }
     
+    if partenaire_id:
+        query['partenaire_id'] = partenaire_id
+    elif programme_id:
+        query['programme_id'] = programme_id
+    
     tests_ligne = await db.tests_ligne.find(query, {"_id": 0}).to_list(10000)
     
-    # Grouper les tests par programme
-    tests_par_programme = {}
+    # Grouper les tests par programme (si export par partenaire) ou par partenaire (si export par programme)
+    tests_groupes = {}
+    group_key = 'programme_id' if partenaire_id else 'partenaire_id'
+    group_dict = programmes_dict if partenaire_id else partenaires_dict
+    
     for test in tests_ligne:
-        prog_id = test['programme_id']
-        if prog_id not in tests_par_programme:
-            tests_par_programme[prog_id] = []
-        tests_par_programme[prog_id].append(test)
+        key = test[group_key]
+        if key not in tests_groupes:
+            tests_groupes[key] = []
+        tests_groupes[key].append(test)
     
     # Créer le workbook Excel
     wb = Workbook()
