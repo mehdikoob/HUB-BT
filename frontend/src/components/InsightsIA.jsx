@@ -287,13 +287,13 @@ const InsightsIA = () => {
 
       {/* Dialog pour détails complets */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="text-purple-500" size={24} />
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Sparkles className="text-purple-500" size={20} />
               Insights IA détaillés
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Analyse complète{getScopeLabel()} - {period === 'week' ? 'Dernière semaine' : 'Dernier mois'}
             </DialogDescription>
           </DialogHeader>
@@ -302,18 +302,18 @@ const InsightsIA = () => {
             <div className="space-y-4 mt-4">
               {/* Statistiques */}
               {insights.stats && (
-                <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-900">{insights.stats.total_tests || 0}</p>
-                    <p className="text-xs text-gray-600">Tests effectués</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">{insights.stats.total_tests || 0}</p>
+                    <p className="text-xs text-gray-600">Tests</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-orange-600">{insights.stats.total_alertes || 0}</p>
-                    <p className="text-xs text-gray-600">Alertes détectées</p>
+                    <p className="text-xl sm:text-2xl font-bold text-orange-600">{insights.stats.total_alertes || 0}</p>
+                    <p className="text-xs text-gray-600">Alertes</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-purple-600">{insights.insights?.length || 0}</p>
-                    <p className="text-xs text-gray-600">Insights générés</p>
+                    <p className="text-xl sm:text-2xl font-bold text-purple-600">{insights.insights?.length || 0}</p>
+                    <p className="text-xs text-gray-600">Insights</p>
                   </div>
                 </div>
               )}
@@ -325,24 +325,24 @@ const InsightsIA = () => {
                   {insights.insights.map((insight, index) => (
                     <div 
                       key={index} 
-                      className={`p-4 rounded-lg border ${getInsightBgColor(insight.type)} transition-all`}
+                      className={`p-3 sm:p-4 rounded-lg border ${getInsightBgColor(insight.type)} transition-all`}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2 sm:gap-3">
                         <div className="flex-shrink-0 mt-0.5">
                           {getInsightIcon(insight.type)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 mb-1">
+                          <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                             {insight.title}
                           </h4>
-                          <p className="text-sm text-gray-700 mb-2">
+                          <p className="text-xs sm:text-sm text-gray-700 mb-2">
                             {insight.description}
                           </p>
                           {insight.action && (
-                            <div className="flex items-start gap-2 mt-3 p-3 bg-white/50 rounded border border-gray-200/50">
-                              <span className="text-xs font-medium text-gray-600">💡 Action recommandée :</span>
+                            <div className="flex items-start gap-2 mt-3 p-2 sm:p-3 bg-white/50 rounded border border-gray-200/50">
+                              <span className="text-xs font-medium text-gray-600 flex-shrink-0">💡</span>
                               <p className="text-xs text-gray-700 flex-1">
-                                {insight.action}
+                                <span className="font-medium">Action :</span> {insight.action}
                               </p>
                             </div>
                           )}
