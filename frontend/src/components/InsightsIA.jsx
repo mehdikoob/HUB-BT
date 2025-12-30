@@ -132,7 +132,7 @@ const InsightsIA = () => {
     <>
       <Card className="w-full shadow-sm hover-lift transition-smooth">
         <CardHeader className="pb-1 pt-2 px-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="text-purple-500" size={16} />
               <div>
@@ -140,10 +140,10 @@ const InsightsIA = () => {
                 <CardDescription className="text-xs">Analyse par Gemini</CardDescription>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Période */}
               <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-[140px] h-9">
+                <SelectTrigger className="w-[120px] sm:w-[140px] h-9 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="z-[100]">
@@ -154,11 +154,11 @@ const InsightsIA = () => {
               
               {/* Programme */}
               <Select value={programmeId} onValueChange={setProgrammeId}>
-                <SelectTrigger className="w-[160px] h-9">
-                  <SelectValue placeholder="Tous programmes" />
+                <SelectTrigger className="w-[120px] sm:w-[160px] h-9 text-xs">
+                  <SelectValue placeholder="Programmes" />
                 </SelectTrigger>
                 <SelectContent className="z-[100]">
-                  <SelectItem value="all">🌐 Tous programmes</SelectItem>
+                  <SelectItem value="all">🌐 Tous</SelectItem>
                   {programmes.map((prog) => (
                     <SelectItem key={prog.id} value={prog.id}>
                       {prog.nom}
@@ -169,11 +169,11 @@ const InsightsIA = () => {
               
               {/* Partenaire */}
               <Select value={partenaireId} onValueChange={setPartenaireId}>
-                <SelectTrigger className="w-[160px] h-9">
-                  <SelectValue placeholder="Tous partenaires" />
+                <SelectTrigger className="w-[120px] sm:w-[160px] h-9 text-xs">
+                  <SelectValue placeholder="Partenaires" />
                 </SelectTrigger>
                 <SelectContent className="z-[100]">
-                  <SelectItem value="all">👥 Tous partenaires</SelectItem>
+                  <SelectItem value="all">👥 Tous</SelectItem>
                   {partenaires.map((part) => (
                     <SelectItem key={part.id} value={part.id}>
                       {part.nom}
@@ -186,7 +186,7 @@ const InsightsIA = () => {
               <Button 
                 onClick={generateInsights} 
                 disabled={loading}
-                className="gap-2 h-9"
+                className="gap-2 h-9 text-xs"
                 size="sm"
               >
                 {loading ? (
