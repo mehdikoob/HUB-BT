@@ -2383,12 +2383,12 @@ async def export_bilan_site_excel(
             bottom=Side(style='thin', color='000000')
         )
     
-    # Mapper mois en français
-    mois_fr = {
-        1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
-        5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
-        9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
-    }
+        # Mapper mois en français
+        mois_fr = {
+            1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
+            5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
+            9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
+        }
     
     # Créer une feuille par groupe
     for group_id, tests in tests_groupes.items():
