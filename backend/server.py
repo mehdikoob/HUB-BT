@@ -2365,8 +2365,8 @@ async def export_bilan_site_excel(
         wb = Workbook()
         wb.remove(wb.active)  # Supprimer la feuille par défaut
     
-    # Styles
-    header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
+        # Styles
+        header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
     header_fill = PatternFill(start_color='C00000', end_color='C00000', fill_type='solid')
     header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
     
