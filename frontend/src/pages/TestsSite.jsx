@@ -92,6 +92,8 @@ const TestsSite = () => {
   const [programmeInfoExpanded, setProgrammeInfoExpanded] = useState(false);
   const [filteredPartenaires, setFilteredPartenaires] = useState([]);
   const [filteredProgrammes, setFilteredProgrammes] = useState([]);
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
 
   // Initialize date with current datetime when dialog opens
   useEffect(() => {
