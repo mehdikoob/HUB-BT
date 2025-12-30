@@ -2294,7 +2294,8 @@ async def export_bilan_partenaire(
 # Routes - Export Bilan Excel Tests Site
 @api_router.get("/export/bilan-site-excel")
 async def export_bilan_site_excel(
-    partenaire_id: str = Query(...),
+    partenaire_id: Optional[str] = Query(None),
+    programme_id: Optional[str] = Query(None),
     date_debut: str = Query(...),
     date_fin: str = Query(...)
 ):
@@ -2310,23 +2311,40 @@ async def export_bilan_site_excel(
         except:
             pass  # Si pas de locale française, on utilisera l'anglais
     
-    # Récupérer le partenaire
-    partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
-    if not partenaire:
-        raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+    # Récupérer le partenaire ou programme
+    entity_name = ""
+    if partenaire_id:
+        partenaire = await db.partenaires.find_one({"id": partenaire_id}, {"_id": 0})
+        if not partenaire:
+            raise HTTPException(status_code=404, detail="Partenaire non trouvé")
+        entity_name = partenaire['nom']
+    elif programme_id:
+        programme = await db.programmes.find_one({"id": programme_id}, {"_id": 0})
+        if not programme:
+            raise HTTPException(status_code=404, detail="Programme non trouvé")
+        entity_name = programme['nom']
+    else:
+        raise HTTPException(status_code=400, detail="partenaire_id ou programme_id requis")
     
-    # Récupérer tous les programmes
+    # Récupérer tous les programmes et partenaires pour affichage
     programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
     programmes_dict = {p['id']: p['nom'] for p in programmes}
     
-    # Query pour tous les tests site du partenaire dans la période
+    partenaires_all = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+    partenaires_dict = {p['id']: p['nom'] for p in partenaires_all}
+    
+    # Query pour tous les tests site du partenaire/programme dans la période
     query = {
-        'partenaire_id': partenaire_id,
         'date_test': {
             '$gte': date_debut,
             '$lte': date_fin
         }
     }
+    
+    if partenaire_id:
+        query['partenaire_id'] = partenaire_id
+    elif programme_id:
+        query['programme_id'] = programme_id
     
     tests_site = await db.tests_site.find(query, {"_id": 0}).to_list(10000)
     
