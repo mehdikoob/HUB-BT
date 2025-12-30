@@ -2955,7 +2955,8 @@ async def get_email_history(alerte_id: Optional[str] = None):
 @api_router.post("/auth/login", response_model=Token)
 async def login(login_request: LoginRequest):
     """Authenticate user and return JWT token"""
-    user = await db.users.find_one({"email": login_request.email})
+    # Case-insensitive email search
+    user = await db.users.find_one({"email": {"$regex": f"^{login_request.email}$", "$options": "i"}})
     if not user:
         raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
     
