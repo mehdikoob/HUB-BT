@@ -589,7 +589,7 @@ const TestsSite = () => {
         params.programme_id = bilanData.programme_id;
       }
 
-      const response = await axios.get(`${API}/export/tests-site`, {
+      const response = await axios.get(`${API}/export/bilan-site-excel`, {
         params: params,
         responseType: 'blob',
       });
@@ -599,12 +599,12 @@ const TestsSite = () => {
         const partenaire = partenaires.find(p => p.id === bilanData.partenaire_id);
         const partenaireNom = partenaire ? partenaire.nom : 'partenaire';
         const today = new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
-        filename = `Tests_Site_${partenaireNom}_${today}.csv`;
+        filename = `Tests_Site_${partenaireNom}_${today}.xlsx`;
       } else {
         const programme = programmes.find(p => p.id === bilanData.programme_id);
         const programmeNom = programme ? programme.nom : 'programme';
         const today = new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
-        filename = `Tests_Site_${programmeNom}_${today}.csv`;
+        filename = `Tests_Site_${programmeNom}_${today}.xlsx`;
       }
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
