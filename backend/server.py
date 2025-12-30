@@ -2391,108 +2391,108 @@ async def export_bilan_site_excel(
         }
     
     # Créer une feuille par groupe
-    for group_id, tests in tests_groupes.items():
-        group_name = group_dict.get(group_id, group_id)
-        
-        # Créer la feuille (limiter le nom à 31 caractères pour Excel)
-        if partenaire_id:
-            sheet_name = f"{entity_name[:15]} - {group_name[:12]}"
-            title_text = f"TESTS SITE – {entity_name} – {group_name}"
-        else:
-            sheet_name = f"{group_name[:15]} - {entity_name[:12]}"
-            title_text = f"TESTS SITE – {group_name} – {entity_name}"
-        
-        ws = wb.create_sheet(title=sheet_name)
-        
-        # Titre principal (ligne 1 fusionnée)
-        ws.merge_cells('A1:F1')
-        title_cell = ws['A1']
-        title_cell.value = title_text
-        title_cell.font = title_font
-        title_cell.alignment = title_alignment
-        ws.row_dimensions[1].height = 25
-        
-        # En-têtes (ligne 2) - NOUVELLES COLONNES
-        headers = ['MOIS', 'DATE EXACTE', 'APPLICATION DE LA REMISE', 
-                   'Application claire (Prix GP vs Prix remisé)', 'Naming de la remise', 
-                   'Cumul des codes promos']
-        
-        for col_num, header in enumerate(headers, 1):
-            cell = ws.cell(row=2, column=col_num)
-            cell.value = header
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.alignment = header_alignment
-            cell.border = border_style
-        
-        ws.row_dimensions[2].height = 30
-        
-        # Données
-        for row_num, test in enumerate(tests, 3):
-            # Date
-            date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
-            try:
-                date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
-                # MOIS : Février-2025
-                mois_nom = mois_fr.get(date_obj.month, date_obj.strftime('%B'))
-                mois_formatted = f"{mois_nom}-{date_obj.year}"
-                # DATE EXACTE : 15/02/2025
-                date_formatted = date_obj.strftime('%d/%m/%Y')
-            except:
-                mois_formatted = date_str[:7]
-                date_formatted = date_str
+        for group_id, tests in tests_groupes.items():
+            group_name = group_dict.get(group_id, group_id)
             
-            # Application claire de la remise
-            prix_gp = test.get('prix_public', 0)
-            prix_remise = test.get('prix_remise', 0)
-            application_claire = f"{prix_gp}€ vs {prix_remise}€"
+            # Créer la feuille (limiter le nom à 31 caractères pour Excel)
+            if partenaire_id:
+                sheet_name = f"{entity_name[:15]} - {group_name[:12]}"
+                title_text = f"TESTS SITE – {entity_name} – {group_name}"
+            else:
+                sheet_name = f"{group_name[:15]} - {entity_name[:12]}"
+                title_text = f"TESTS SITE – {group_name} – {entity_name}"
             
-            row_data = [
-                mois_formatted,  # MOIS
-                date_formatted,  # DATE EXACTE
-                'Oui' if test.get('application_remise') else 'Non',  # APPLICATION DE LA REMISE
-                application_claire,  # Application claire
-                test.get('naming_constate', ''),  # Naming de la remise
-                'Oui' if test.get('cumul_codes') else 'Non',  # Cumul des codes promos
-            ]
+            ws = wb.create_sheet(title=sheet_name)
             
-            for col_num, value in enumerate(row_data, 1):
-                cell = ws.cell(row=row_num, column=col_num)
-                cell.value = value
+            # Titre principal (ligne 1 fusionnée)
+            ws.merge_cells('A1:F1')
+            title_cell = ws['A1']
+            title_cell.value = title_text
+            title_cell.font = title_font
+            title_cell.alignment = title_alignment
+            ws.row_dimensions[1].height = 25
+            
+            # En-têtes (ligne 2) - NOUVELLES COLONNES
+            headers = ['MOIS', 'DATE EXACTE', 'APPLICATION DE LA REMISE', 
+                       'Application claire (Prix GP vs Prix remisé)', 'Naming de la remise', 
+                       'Cumul des codes promos']
+            
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=2, column=col_num)
+                cell.value = header
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = header_alignment
                 cell.border = border_style
-                cell.alignment = cell_alignment_center
+            
+            ws.row_dimensions[2].height = 30
+            
+            # Données
+            for row_num, test in enumerate(tests, 3):
+                # Date
+                date_str = test['date_test'] if isinstance(test['date_test'], str) else test['date_test'].isoformat()
+                try:
+                    date_obj = dt.fromisoformat(date_str.replace('Z', '+00:00'))
+                    # MOIS : Février-2025
+                    mois_nom = mois_fr.get(date_obj.month, date_obj.strftime('%B'))
+                    mois_formatted = f"{mois_nom}-{date_obj.year}"
+                    # DATE EXACTE : 15/02/2025
+                    date_formatted = date_obj.strftime('%d/%m/%Y')
+                except:
+                    mois_formatted = date_str[:7]
+                    date_formatted = date_str
+                
+                # Application claire de la remise
+                prix_gp = test.get('prix_public', 0)
+                prix_remise = test.get('prix_remise', 0)
+                application_claire = f"{prix_gp}€ vs {prix_remise}€"
+                
+                row_data = [
+                    mois_formatted,  # MOIS
+                    date_formatted,  # DATE EXACTE
+                    'Oui' if test.get('application_remise') else 'Non',  # APPLICATION DE LA REMISE
+                    application_claire,  # Application claire
+                    test.get('naming_constate', ''),  # Naming de la remise
+                    'Oui' if test.get('cumul_codes') else 'Non',  # Cumul des codes promos
+                ]
+                
+                for col_num, value in enumerate(row_data, 1):
+                    cell = ws.cell(row=row_num, column=col_num)
+                    cell.value = value
+                    cell.border = border_style
+                    cell.alignment = cell_alignment_center
+            
+            # Ajuster largeurs de colonnes
+            column_widths = {
+                'A': 18,  # MOIS
+                'B': 15,  # DATE EXACTE
+                'C': 25,  # APPLICATION DE LA REMISE
+                'D': 30,  # Application claire
+                'E': 30,  # Naming
+                'F': 25   # Cumul codes
+            }
+            
+            for col_letter, width in column_widths.items():
+                ws.column_dimensions[col_letter].width = width
         
-        # Ajuster largeurs de colonnes
-        column_widths = {
-            'A': 18,  # MOIS
-            'B': 15,  # DATE EXACTE
-            'C': 25,  # APPLICATION DE LA REMISE
-            'D': 30,  # Application claire
-            'E': 30,  # Naming
-            'F': 25   # Cumul codes
-        }
+        # Sauvegarder dans un buffer
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
         
-        for col_letter, width in column_widths.items():
-            ws.column_dimensions[col_letter].width = width
-    
-    # Sauvegarder dans un buffer
-    output = io.BytesIO()
-    wb.save(output)
-    output.seek(0)
-    
-    # Nom du fichier : export_[entity]_[mois-année].xlsx
-    try:
-        date_obj_debut = dt.fromisoformat(date_debut.replace('Z', '+00:00'))
-        mois_nom = mois_fr.get(date_obj_debut.month, date_obj_debut.strftime('%B')).lower()
-        filename = f"export_{entity_name.lower().replace(' ', '_')}_{mois_nom}-{date_obj_debut.year}.xlsx"
-    except:
-        filename = f"export_{entity_name.lower().replace(' ', '_')}.xlsx"
-    
-    return StreamingResponse(
-        output,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
-    )
+        # Nom du fichier : export_[entity]_[mois-année].xlsx
+        try:
+            date_obj_debut = dt.fromisoformat(date_debut.replace('Z', '+00:00'))
+            mois_nom = mois_fr.get(date_obj_debut.month, date_obj_debut.strftime('%B')).lower()
+            filename = f"export_{entity_name.lower().replace(' ', '_')}_{mois_nom}-{date_obj_debut.year}.xlsx"
+        except:
+            filename = f"export_{entity_name.lower().replace(' ', '_')}.xlsx"
+        
+        return StreamingResponse(
+            output,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
 
 except HTTPException:
     raise
