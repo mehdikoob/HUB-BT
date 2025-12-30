@@ -2348,13 +2348,16 @@ async def export_bilan_site_excel(
     
     tests_site = await db.tests_site.find(query, {"_id": 0}).to_list(10000)
     
-    # Grouper les tests par programme
-    tests_par_programme = {}
+    # Grouper les tests par programme (si export par partenaire) ou par partenaire (si export par programme)
+    tests_groupes = {}
+    group_key = 'programme_id' if partenaire_id else 'partenaire_id'
+    group_dict = programmes_dict if partenaire_id else partenaires_dict
+    
     for test in tests_site:
-        prog_id = test['programme_id']
-        if prog_id not in tests_par_programme:
-            tests_par_programme[prog_id] = []
-        tests_par_programme[prog_id].append(test)
+        key = test[group_key]
+        if key not in tests_groupes:
+            tests_groupes[key] = []
+        tests_groupes[key].append(test)
     
     # Créer le workbook Excel
     wb = Workbook()
