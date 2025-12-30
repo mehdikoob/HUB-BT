@@ -544,8 +544,14 @@ const TestsLigne = () => {
   };
 
   const handleGenerateBilan = async () => {
-    if (!bilanData.partenaire_id) {
+    const exportType = bilanData.export_type || 'partenaire';
+    
+    if (exportType === 'partenaire' && !bilanData.partenaire_id) {
       toast.error('Veuillez sélectionner un partenaire');
+      return;
+    }
+    if (exportType === 'programme' && !bilanData.programme_id) {
+      toast.error('Veuillez sélectionner un programme');
       return;
     }
     if (!bilanData.date_debut || !bilanData.date_fin) {
@@ -554,19 +560,34 @@ const TestsLigne = () => {
     }
 
     try {
-      const response = await axios.get(`${API}/export/bilan-ligne-excel`, {
-        params: {
-          partenaire_id: bilanData.partenaire_id,
-          date_debut: bilanData.date_debut,
-          date_fin: bilanData.date_fin,
-        },
+      const params = {
+        date_debut: bilanData.date_debut,
+        date_fin: bilanData.date_fin,
+      };
+      
+      if (exportType === 'partenaire') {
+        params.partenaire_id = bilanData.partenaire_id;
+      } else {
+        params.programme_id = bilanData.programme_id;
+      }
+
+      const response = await axios.get(`${API}/export/tests-ligne`, {
+        params: params,
         responseType: 'blob',
       });
       
-      const partenaire = partenaires.find(p => p.id === bilanData.partenaire_id);
-      const partenaireNom = partenaire ? partenaire.nom : 'partenaire';
-      const today = new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
-      const filename = `Bilan_Ligne_${partenaireNom}_${today}.xlsx`;
+      let filename;
+      if (exportType === 'partenaire') {
+        const partenaire = partenaires.find(p => p.id === bilanData.partenaire_id);
+        const partenaireNom = partenaire ? partenaire.nom : 'partenaire';
+        const today = new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
+        filename = `Tests_Ligne_${partenaireNom}_${today}.csv`;
+      } else {
+        const programme = programmes.find(p => p.id === bilanData.programme_id);
+        const programmeNom = programme ? programme.nom : 'programme';
+        const today = new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
+        filename = `Tests_Ligne_${programmeNom}_${today}.csv`;
+      }
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -576,10 +597,12 @@ const TestsLigne = () => {
       link.click();
       link.remove();
       
-      toast.success('Bilan généré avec succès');
+      toast.success('Export généré avec succès');
       setBilanDialogOpen(false);
       setBilanData({
         partenaire_id: '',
+        programme_id: '',
+        export_type: 'partenaire',
         date_debut: '',
         date_fin: '',
       });
