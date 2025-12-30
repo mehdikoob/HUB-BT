@@ -1004,6 +1004,71 @@ async def verify_remise(partenaire_id: str, remise_calculee: float):
     
     return {"conforme": True, "message": "Remise conforme"}
 
+# Routes - Check Duplicate Test (pour éviter les doublons)
+@api_router.get("/check-duplicate-test")
+async def check_duplicate_test(
+    partenaire_id: str = Query(...),
+    programme_id: str = Query(...),
+    test_type: str = Query(...),  # 'site' ou 'ligne'
+    current_user: User = Depends(get_current_active_user)
+):
+    """Vérifie s'il existe déjà un test pour ce partenaire/programme ce mois-ci"""
+    from datetime import datetime
+    
+    # Calculer le début et la fin du mois en cours
+    now = datetime.now()
+    start_of_month = datetime(now.year, now.month, 1).isoformat()
+    
+    # Calculer la fin du mois
+    if now.month == 12:
+        end_of_month = datetime(now.year + 1, 1, 1).isoformat()
+    else:
+        end_of_month = datetime(now.year, now.month + 1, 1).isoformat()
+    
+    # Query pour chercher un test existant
+    query = {
+        'partenaire_id': partenaire_id,
+        'programme_id': programme_id,
+        'date_test': {
+            '$gte': start_of_month,
+            '$lt': end_of_month
+        }
+    }
+    
+    # Chercher dans la bonne collection
+    collection = db.tests_site if test_type == 'site' else db.tests_ligne
+    existing_test = await collection.find_one(query, {'_id': 0})
+    
+    if existing_test:
+        # Récupérer les infos de l'utilisateur qui a créé le test
+        creator = None
+        if existing_test.get('user_id'):
+            creator = await db.users.find_one(
+                {'id': existing_test['user_id']},
+                {'_id': 0, 'prenom': 1, 'nom': 1, 'email': 1}
+            )
+        
+        # Récupérer les noms du partenaire et programme
+        partenaire = await db.partenaires.find_one({'id': partenaire_id}, {'_id': 0, 'nom': 1})
+        programme = await db.programmes.find_one({'id': programme_id}, {'_id': 0, 'nom': 1})
+        
+        return {
+            'exists': True,
+            'test': {
+                'id': existing_test['id'],
+                'date_test': existing_test['date_test'],
+                'partenaire_nom': partenaire.get('nom') if partenaire else 'Inconnu',
+                'programme_nom': programme.get('nom') if programme else 'Inconnu',
+                'created_by': {
+                    'nom': creator.get('nom') if creator else 'Inconnu',
+                    'prenom': creator.get('prenom') if creator else '',
+                    'email': creator.get('email') if creator else ''
+                } if creator else None
+            }
+        }
+    
+    return {'exists': False, 'test': None}
+
 # Routes - Tests Site
 @api_router.post("/tests-site", response_model=TestSite)
 async def create_test_site(input: TestSiteCreate, current_user: User = Depends(get_current_active_user)):
