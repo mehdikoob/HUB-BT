@@ -2361,15 +2361,9 @@ async def export_bilan_site_excel(
                     tests_groupes[key] = []
                 tests_groupes[key].append(test)
     
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.error(f"Erreur lors de la génération du bilan Excel site: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Erreur lors de la génération: {str(e)}")
-    
-    # Créer le workbook Excel
-    wb = Workbook()
-    wb.remove(wb.active)  # Supprimer la feuille par défaut
+        # Créer le workbook Excel
+        wb = Workbook()
+        wb.remove(wb.active)  # Supprimer la feuille par défaut
     
     # Styles
     header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
