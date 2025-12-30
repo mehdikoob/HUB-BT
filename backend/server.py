@@ -2405,16 +2405,16 @@ async def export_bilan_site_excel(
             ws = wb.create_sheet(title=sheet_name)
             
             # Titre principal (ligne 1 fusionnée)
-            ws.merge_cells('A1:F1')
+            ws.merge_cells('A1:H1')
             title_cell = ws['A1']
             title_cell.value = title_text
             title_cell.font = title_font
             title_cell.alignment = title_alignment
             ws.row_dimensions[1].height = 25
             
-            # En-têtes (ligne 2) - NOUVELLES COLONNES
-            headers = ['MOIS', 'DATE EXACTE', 'APPLICATION DE LA REMISE', 
-                       'Application claire (Prix GP vs Prix remisé)', 'Naming de la remise', 
+            # En-têtes (ligne 2)
+            headers = ['MOIS', 'DATE EXACTE', 'OBJET', 'APPLICATION DE LA REMISE', 
+                       'Application claire (Prix GP vs Prix remisé)', '% REMISE', 'Naming de la remise', 
                        'Cumul des codes promos']
             
             for col_num, header in enumerate(headers, 1):
