@@ -2450,8 +2450,10 @@ async def export_bilan_site_excel(
                 row_data = [
                     mois_formatted,  # MOIS
                     date_formatted,  # DATE EXACTE
+                    test.get('commentaire', ''),  # OBJET
                     'Oui' if test.get('application_remise') else 'Non',  # APPLICATION DE LA REMISE
                     application_claire,  # Application claire
+                    f"{test.get('pct_remise_calcule', 0)}%",  # % REMISE
                     test.get('naming_constate', ''),  # Naming de la remise
                     'Oui' if test.get('cumul_codes') else 'Non',  # Cumul des codes promos
                 ]
@@ -2466,8 +2468,13 @@ async def export_bilan_site_excel(
             column_widths = {
                 'A': 18,  # MOIS
                 'B': 15,  # DATE EXACTE
-                'C': 25,  # APPLICATION DE LA REMISE
-                'D': 30,  # Application claire
+                'C': 35,  # OBJET
+                'D': 25,  # APPLICATION DE LA REMISE
+                'E': 30,  # Application claire
+                'F': 12,  # % REMISE
+                'G': 30,  # Naming
+                'H': 25   # Cumul codes
+            }
                 'E': 30,  # Naming
                 'F': 25   # Cumul codes
             }
