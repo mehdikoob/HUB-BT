@@ -1284,6 +1284,11 @@ const TestsSite = () => {
                       {test.application_remise ? 'OUI' : 'NON'}
                     </span>
                   </td>
+                  <td className="px-2 py-2 text-xs text-gray-700">
+                    <div className="max-w-[200px] truncate" title={test.commentaire || ''}>
+                      {test.commentaire || <span className="text-gray-400 italic">-</span>}
+                    </div>
+                  </td>
                   <td className="px-2 py-2 text-xs text-gray-900">{test.prix_public.toFixed(2)} €</td>
                   <td className="px-2 py-2 text-xs text-gray-900">{test.prix_remise.toFixed(2)} €</td>
                   <td className="px-2 py-2 text-xs font-medium text-red-600">{test.pct_remise_calcule}%</td>
