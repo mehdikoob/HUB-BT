@@ -865,6 +865,32 @@ const TestsLigne = () => {
                     </Select>
                   </div>
                 </div>
+
+                {/* Bandeau d'avertissement si doublon détecté */}
+                {duplicateWarning && (
+                  <div className="bg-orange-50 border-l-4 border-orange-500 p-3 rounded">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="text-orange-600 flex-shrink-0 mt-0.5" size={20} />
+                      <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-orange-900 mb-1">
+                          ⚠️ Test déjà existant ce mois-ci
+                        </h4>
+                        <p className="text-xs text-orange-800 mb-2">
+                          Un test pour <strong>{duplicateWarning.partenaire_nom}</strong> x <strong>{duplicateWarning.programme_nom}</strong> existe déjà ce mois-ci
+                        </p>
+                        <div className="text-xs text-orange-700 space-y-0.5">
+                          <p>• Créé le : {new Date(duplicateWarning.date_test).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                          {duplicateWarning.created_by && (
+                            <p>• Créé par : {duplicateWarning.created_by.prenom} {duplicateWarning.created_by.nom}</p>
+                          )}
+                        </div>
+                        <p className="text-xs text-orange-600 mt-2 italic">
+                          Vous pouvez quand même créer ce test, mais assurez-vous qu'il s'agit d'un nouveau test distinct.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 {/* Display telephone if available */}
                 {partenaireTelephone && (
