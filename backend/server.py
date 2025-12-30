@@ -2478,13 +2478,13 @@ async def export_bilan_site_excel(
     wb.save(output)
     output.seek(0)
     
-    # Nom du fichier : export_azureva_[mois-année].xlsx
+    # Nom du fichier : export_[entity]_[mois-année].xlsx
     try:
         date_obj_debut = dt.fromisoformat(date_debut.replace('Z', '+00:00'))
         mois_nom = mois_fr.get(date_obj_debut.month, date_obj_debut.strftime('%B')).lower()
-        filename = f"export_{partenaire['nom'].lower().replace(' ', '_')}_{mois_nom}-{date_obj_debut.year}.xlsx"
+        filename = f"export_{entity_name.lower().replace(' ', '_')}_{mois_nom}-{date_obj_debut.year}.xlsx"
     except:
-        filename = f"export_{partenaire['nom'].lower().replace(' ', '_')}.xlsx"
+        filename = f"export_{entity_name.lower().replace(' ', '_')}.xlsx"
     
     return StreamingResponse(
         output,
@@ -2653,13 +2653,13 @@ async def export_bilan_ligne_excel(
     wb.save(output)
     output.seek(0)
     
-    # Nom du fichier : export_azureva_[mois-année].xlsx
+    # Nom du fichier : export_[entity]_[mois-année].xlsx
     try:
         date_obj_debut = dt.fromisoformat(date_debut.replace('Z', '+00:00'))
         mois_nom = mois_fr.get(date_obj_debut.month, date_obj_debut.strftime('%B')).lower()
-        filename = f"export_{partenaire['nom'].lower().replace(' ', '_')}_{mois_nom}-{date_obj_debut.year}.xlsx"
+        filename = f"export_{entity_name.lower().replace(' ', '_')}_{mois_nom}-{date_obj_debut.year}.xlsx"
     except:
-        filename = f"export_{partenaire['nom'].lower().replace(' ', '_')}.xlsx"
+        filename = f"export_{entity_name.lower().replace(' ', '_')}.xlsx"
     
     return StreamingResponse(
         output,
