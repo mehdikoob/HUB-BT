@@ -729,7 +729,9 @@ const TestsSite = () => {
                 </div>
                 
                 <p className="text-sm text-gray-500">
-                  Le bilan inclura tous les tests (tous programmes confondus) pour ce partenaire sur la période sélectionnée.
+                  {(!bilanData.export_type || bilanData.export_type === 'partenaire') 
+                    ? "L'export inclura tous les tests (tous programmes confondus) pour ce partenaire sur la période sélectionnée."
+                    : "L'export inclura tous les tests (tous partenaires confondus) pour ce programme sur la période sélectionnée."}
                 </p>
                 
                 <div className="flex gap-2 justify-end">
