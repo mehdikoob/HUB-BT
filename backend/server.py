@@ -4072,68 +4072,68 @@ async def export_bilan_partenaire_ppt(
                 no_data.text_frame.paragraphs[0].font.size = Pt(18)
                 no_data.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
             
-                # Footer
-                footer2 = slide2.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
-                footer2.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page {slide_number}/{total_slides}"
-                footer2.text_frame.paragraphs[0].font.size = Pt(10)
-                footer2.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
+            # Footer slide 2
+            footer2 = slide2.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
+            footer2.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page {slide_number}/{total_slides}"
+            footer2.text_frame.paragraphs[0].font.size = Pt(10)
+            footer2.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
             
-                # === SLIDE 3: TESTS LIGNE (FOR THIS PROGRAMME) ===
-                slide_number += 1
-                slide3 = prs.slides.add_slide(slide_layout)
+            # === SLIDE 3: TESTS LIGNE (FOR THIS PROGRAMME) ===
+            slide_number += 1
+            slide3 = prs.slides.add_slide(slide_layout)
             
-                # Title
-                title3 = slide3.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(0.7))
-                title3.text_frame.text = f"Tests Ligne – {partner_name} x {program_name}"
-                title3.text_frame.paragraphs[0].font.size = Pt(24)
-                title3.text_frame.paragraphs[0].font.bold = True
+            # Title
+            title3 = slide3.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(9), Inches(0.7))
+            title3.text_frame.text = f"Tests Ligne – {partner_name} x {program_name}"
+            title3.text_frame.paragraphs[0].font.size = Pt(24)
+            title3.text_frame.paragraphs[0].font.bold = True
             
-                # Table
-                if tests_ligne:
-                    rows = min(len(tests_ligne) + 1, 15)
-                    cols = 7
-                    table = slide3.shapes.add_table(rows, cols, Inches(0.5), Inches(1.5), Inches(9), Inches(5)).table
+            # Table
+            if tests_ligne:
+                rows = min(len(tests_ligne) + 1, 15)
+                cols = 7
+                table = slide3.shapes.add_table(rows, cols, Inches(0.5), Inches(1.5), Inches(9), Inches(5)).table
                 
-                    # Header
-                    headers = ['Date', 'Téléphone', 'Délai', 'Msg. Vocale', 'Décroche', 'Accueil', 'OK?']
-                    for i, header in enumerate(headers):
-                        cell = table.cell(0, i)
-                        cell.text = header
-                        cell.text_frame.paragraphs[0].font.bold = True
-                        cell.text_frame.paragraphs[0].font.size = Pt(11)
-                        cell.fill.solid()
-                        cell.fill.fore_color.rgb = RGBColor(200, 200, 200)
+                # Header
+                headers = ['Date', 'Téléphone', 'Délai', 'Msg. Vocale', 'Décroche', 'Accueil', 'OK?']
+                for i, header in enumerate(headers):
+                    cell = table.cell(0, i)
+                    cell.text = header
+                    cell.text_frame.paragraphs[0].font.bold = True
+                    cell.text_frame.paragraphs[0].font.size = Pt(11)
+                    cell.fill.solid()
+                    cell.fill.fore_color.rgb = RGBColor(200, 200, 200)
                 
-                    # Data rows
-                    for idx, test in enumerate(tests_ligne[:14]):
-                        if idx + 1 >= rows:
-                            break
-                        try:
-                            test_date = datetime.fromisoformat(test['date_test'])
-                            table.cell(idx + 1, 0).text = test_date.strftime('%d/%m/%Y')
-                            table.cell(idx + 1, 1).text = test.get('numero_telephone', 'N/A')[:15]
-                            table.cell(idx + 1, 2).text = test.get('delai_attente', 'N/A')
-                            table.cell(idx + 1, 3).text = '✓' if test.get('messagerie_vocale_dediee') else '✗'
-                            table.cell(idx + 1, 4).text = '✓' if test.get('decroche_dedie') else '✗'
-                            table.cell(idx + 1, 5).text = test.get('evaluation_accueil', 'N/A')[:15]
-                            table.cell(idx + 1, 6).text = '✓' if test.get('application_offre') else '✗'
+                # Data rows
+                for idx, test in enumerate(tests_ligne[:14]):
+                    if idx + 1 >= rows:
+                        break
+                    try:
+                        test_date = datetime.fromisoformat(test['date_test'])
+                        table.cell(idx + 1, 0).text = test_date.strftime('%d/%m/%Y')
+                        table.cell(idx + 1, 1).text = test.get('numero_telephone', 'N/A')[:15]
+                        table.cell(idx + 1, 2).text = test.get('delai_attente', 'N/A')
+                        table.cell(idx + 1, 3).text = '✓' if test.get('messagerie_vocale_dediee') else '✗'
+                        table.cell(idx + 1, 4).text = '✓' if test.get('decroche_dedie') else '✗'
+                        table.cell(idx + 1, 5).text = test.get('evaluation_accueil', 'N/A')[:15]
+                        table.cell(idx + 1, 6).text = '✓' if test.get('application_offre') else '✗'
                         
-                            # Font size
-                            for col in range(cols):
-                                table.cell(idx + 1, col).text_frame.paragraphs[0].font.size = Pt(9)
-                        except Exception as e:
-                            logging.error(f"Error adding test ligne row: {str(e)}")
-                else:
-                    no_data = slide3.shapes.add_textbox(Inches(2), Inches(3), Inches(6), Inches(1))
-                    no_data.text_frame.text = "Aucun test ligne disponible pour cette période"
-                    no_data.text_frame.paragraphs[0].font.size = Pt(18)
-                    no_data.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+                        # Font size
+                        for col in range(cols):
+                            table.cell(idx + 1, col).text_frame.paragraphs[0].font.size = Pt(9)
+                    except Exception as e:
+                        logging.error(f"Error adding test ligne row: {str(e)}")
+            else:
+                no_data = slide3.shapes.add_textbox(Inches(2), Inches(3), Inches(6), Inches(1))
+                no_data.text_frame.text = "Aucun test ligne disponible pour cette période"
+                no_data.text_frame.paragraphs[0].font.size = Pt(18)
+                no_data.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
             
-                # Footer
-                footer3 = slide3.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
-                footer3.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page {slide_number}/{total_slides}"
-                footer3.text_frame.paragraphs[0].font.size = Pt(10)
-                footer3.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
+            # Footer slide 3
+            footer3 = slide3.shapes.add_textbox(Inches(0.5), Inches(7), Inches(9), Inches(0.3))
+            footer3.text_frame.text = f"Bilan du {datetime.now(timezone.utc).strftime('%d/%m/%Y')} - Page {slide_number}/{total_slides}"
+            footer3.text_frame.paragraphs[0].font.size = Pt(10)
+            footer3.text_frame.paragraphs[0].font.color.rgb = RGBColor(128, 128, 128)
         
         # END OF LOOP - All programmes processed
         
