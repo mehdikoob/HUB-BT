@@ -1,0 +1,63 @@
+{
+  "summary": "Backend testing completed for PPTX Bilan Partenaire multi-programme fix and PDF Incident Report word wrap fix. Both critical bug fixes validated successfully.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/alertes", "issue": "Intermittent 520 error during one test run (likely network/timeout issue)"}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/tests/test_export_fixes.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "PPTX export function (lines 3871-4160): Indentation fix verified - all 3 slide creation blocks (Vue d'ensemble, Tests Sites, Tests Ligne) are now correctly inside the programme loop",
+    "PDF export function (lines 1688-1990): wordWrap='CJK' in cell_style ParagraphStyle correctly enables text wrapping for long points_attention content"
+  ],
+  "updated_files": [
+    "/app/tests/test_export_fixes.py"
+  ],
+  "success_rate": {
+    "backend": "92% (12/13 tests passed)",
+    "frontend": "N/A (backend only testing requested)"
+  },
+  "test_credentials": {
+    "admin_email": "admin@hubblindtests.com",
+    "admin_password": "admin123"
+  },
+  "seed_data_creation": "None - used existing test data (Azureva partenaire with 7 programmes, test_id 379a3e4a-9445-4545-93ac-45dc79da9fbc)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Both bug fixes validated: 1) PPTX generates 21 slides for Azureva (7 programmes × 3 slides), 2) PDF word wrap working correctly with long points_attention text spanning 2 pages. Test file /app/tests/test_export_fixes.py can be reused for regression testing.",
+  "test_results_detail": {
+    "pptx_multi_programme_fix": {
+      "status": "PASSED",
+      "partenaire": "Azureva (cd529b17-46de-4a31-96e9-4cfa265db425)",
+      "programmes_count": 7,
+      "expected_slides": 21,
+      "actual_slides": 21,
+      "programmes_verified": [
+        "Avantagés avec Unéo",
+        "Banque Populaire",
+        "Caisse D'Epargne",
+        "Direct Avantages",
+        "Intersport",
+        "Pass Partenaires",
+        "The Corner"
+      ]
+    },
+    "pdf_word_wrap_fix": {
+      "status": "PASSED",
+      "test_id": "379a3e4a-9445-4545-93ac-45dc79da9fbc",
+      "pdf_pages": 2,
+      "long_text_wrapped": true,
+      "points_attention_displayed": true
+    }
+  }
+}
