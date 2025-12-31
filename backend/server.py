@@ -1335,20 +1335,25 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
     
     test = TestLigne(**input.model_dump(), user_id=current_user.id)
     
-    # Validations et création d'alertes
+    # Collecter toutes les anomalies (au lieu de créer plusieurs alertes)
+    anomalies = []
+    
     if not input.application_offre:
-        await check_and_create_alerte(
+        anomalies.append("Offre non appliquée")
+    
+    # Note: Le décroche dédié non disponible n'est pas considéré comme un incident
+    # Il sera simplement mentionné dans le rapport comme information
+    
+    # Créer UNE SEULE alerte si des anomalies existent
+    if anomalies:
+        await create_alerte_groupee(
             test.id,
             TypeTest.TL,
-            "Offre non appliquée",
+            anomalies,
             input.programme_id,
             input.partenaire_id,
             current_user.id
         )
-    
-    # Note: Le décroche dédié non disponible n'est pas considéré comme un incident
-    # Il sera simplement mentionné dans le rapport comme information
-    # Aucune alerte n'est créée automatiquement pour les tests ligne basés sur ces critères
     
     # Save test
     doc = test.model_dump()
