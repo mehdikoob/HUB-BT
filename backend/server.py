@@ -572,6 +572,7 @@ Bien cordialement,""",
         logging.error(f"Error creating email draft: {str(e)}")
 
 async def check_and_create_alerte(test_id: str, type_test: TypeTest, description: str, programme_id: str = None, partenaire_id: str = None, user_id: str = None):
+    """Ancienne fonction - conservée pour compatibilité"""
     alerte = Alerte(
         test_id=test_id,
         type_test=type_test,
@@ -591,6 +592,41 @@ async def check_and_create_alerte(test_id: str, type_test: TypeTest, description
     # Create notifications for relevant chefs de projet
     if programme_id:
         await create_notifications_for_chefs_projet(alerte.id, programme_id, partenaire_id, description)
+
+async def create_alerte_groupee(test_id: str, type_test: TypeTest, points_attention: List[str], programme_id: str = None, partenaire_id: str = None, user_id: str = None):
+    """Nouvelle fonction - Créer UNE SEULE alerte avec plusieurs points d'attention"""
+    if not points_attention:
+        return  # Pas d'alerte si aucun point d'attention
+    
+    # Description globale basée sur le nombre de points
+    nb_points = len(points_attention)
+    if nb_points == 1:
+        description = f"1 anomalie détectée"
+    else:
+        description = f"{nb_points} anomalies détectées"
+    
+    alerte = Alerte(
+        test_id=test_id,
+        type_test=type_test,
+        description=description,
+        points_attention=points_attention,  # NOUVEAU: Liste des points
+        statut=StatutAlerte.ouvert,
+        programme_id=programme_id,
+        partenaire_id=partenaire_id,
+        user_id=user_id
+    )
+    doc = alerte.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.alertes.insert_one(doc)
+    
+    # Automatically create email draft for this alerte
+    await create_email_draft_for_alerte(alerte.id)
+    
+    # Create notifications for relevant chefs de projet
+    if programme_id:
+        # Utiliser tous les points d'attention dans la notification
+        description_complete = description + ": " + "; ".join(points_attention)
+        await create_notifications_for_chefs_projet(alerte.id, programme_id, partenaire_id, description_complete)
 
 async def create_notifications_for_chefs_projet(alerte_id: str, programme_id: str, partenaire_id: str, description: str):
     """Créer des notifications pour les chefs de projet concernés par cette alerte"""
