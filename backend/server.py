@@ -248,7 +248,8 @@ class TestLigne(TestLigneBase):
 class AlerteBase(BaseModel):
     test_id: Optional[str] = None  # Optionnel pour les alertes créées directement
     type_test: TypeTest
-    description: str
+    description: str  # Description globale ou unique (rétro-compatible)
+    points_attention: Optional[List[str]] = None  # Liste des points d'attention (nouveau)
     statut: StatutAlerte = StatutAlerte.ouvert
     programme_id: Optional[str] = None
     partenaire_id: Optional[str] = None
