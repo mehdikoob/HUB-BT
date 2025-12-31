@@ -1740,6 +1740,15 @@ async def export_incident_report(
     )
     normal_style = styles['Normal']
     
+    # Style pour le contenu des cellules avec word wrap
+    cell_style = ParagraphStyle(
+        'CellContent',
+        parent=normal_style,
+        fontSize=9,
+        leading=11,
+        wordWrap='CJK',  # Meilleur word wrap pour textes longs
+    )
+    
     # Contenu du PDF
     story = []
     
