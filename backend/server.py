@@ -1810,10 +1810,21 @@ async def export_incident_report(
     for idx, alerte in enumerate(alertes, 1):
         incident_data = [
             [f"Incident #{idx}"],
-            ["Description", alerte.get('description', 'N/A')],
             ["Statut", alerte.get('statut', 'N/A').upper()],
             ["Date de création", alerte.get('created_at', 'N/A')[:10] if alerte.get('created_at') else 'N/A'],
         ]
+        
+        # Gérer points_attention (nouveau) OU description (ancien) - COMPATIBILITÉ ASCENDANTE
+        points_attention = alerte.get('points_attention')
+        if points_attention and len(points_attention) > 0:
+            # NOUVEAU FORMAT: Liste de points d'attention
+            incident_data.append(["Description", alerte.get('description', 'N/A')])
+            incident_data.append(["Points d'attention", f"{len(points_attention)} anomalie(s) détectée(s):"])
+            for i, point in enumerate(points_attention, 1):
+                incident_data.append(["", f"• {point}"])
+        else:
+            # ANCIEN FORMAT: Description simple (rétro-compatible)
+            incident_data.append(["Description", alerte.get('description', 'N/A')])
         
         # Ajouter le commentaire du test s'il existe
         if test.get('commentaire'):
