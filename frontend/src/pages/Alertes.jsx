@@ -256,6 +256,20 @@ const Alertes = () => {
                     
                     <p className="text-sm text-gray-600 mb-2">{alerte.description}</p>
                     
+                    {/* Points d'attention si présents (nouveau format) */}
+                    {alerte.points_attention && alerte.points_attention.length > 0 && (
+                      <div className="bg-red-50 border-l-4 border-red-400 p-2 rounded mt-2">
+                        <ul className="text-sm text-red-800 space-y-1">
+                          {alerte.points_attention.map((point, idx) => (
+                            <li key={idx} className="flex items-start gap-1">
+                              <span className="text-red-600 font-bold">•</span>
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
                     <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
                       <span>Créé le {format(new Date(alerte.created_at), 'dd/MM/yyyy à HH:mm')}</span>
                       {alerte.resolved_at && (
