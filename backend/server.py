@@ -1834,34 +1834,35 @@ async def export_incident_report(
         points_attention = alerte.get('points_attention')
         if points_attention and len(points_attention) > 0:
             # NOUVEAU FORMAT: Liste de points d'attention avec Paragraph pour word wrap
-            desc_para = Paragraph(alerte.get('description', 'N/A'), normal_style)
+            desc_para = Paragraph(alerte.get('description', 'N/A'), cell_style)
             incident_data.append(["Description", desc_para])
             
             # En-tête des points d'attention
-            header_para = Paragraph(f"<b>{len(points_attention)} anomalie(s) détectée(s):</b>", normal_style)
+            header_para = Paragraph(f"<b>{len(points_attention)} anomalie(s) détectée(s):</b>", cell_style)
             incident_data.append(["Points d'attention", header_para])
             
             # Chaque point d'attention avec Paragraph pour permettre le retour à la ligne
             for i, point in enumerate(points_attention, 1):
-                # Style avec police légèrement plus petite pour les points
+                # Style avec police légèrement plus petite pour les points avec word wrap
                 point_style = ParagraphStyle(
                     'PointStyle',
-                    parent=normal_style,
+                    parent=cell_style,
                     fontSize=9,
                     leading=11,
                     leftIndent=0,
-                    spaceAfter=2
+                    spaceAfter=2,
+                    wordWrap='CJK',
                 )
                 point_para = Paragraph(f"• {point}", point_style)
                 incident_data.append(["", point_para])
         else:
             # ANCIEN FORMAT: Description simple (rétro-compatible)
-            desc_para = Paragraph(alerte.get('description', 'N/A'), normal_style)
+            desc_para = Paragraph(alerte.get('description', 'N/A'), cell_style)
             incident_data.append(["Description", desc_para])
         
         # Ajouter le commentaire du test s'il existe
         if test.get('commentaire'):
-            comment_para = Paragraph(test.get('commentaire', ''), normal_style)
+            comment_para = Paragraph(test.get('commentaire', ''), cell_style)
             incident_data.append(["Commentaire", comment_para])
         
         # Augmenter légèrement la largeur de la colonne droite : 4*inch → 4.5*inch
