@@ -1122,39 +1122,31 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
     # Récupérer le partenaire pour vérifier la remise minimum
     partenaire = await db.partenaires.find_one({"id": input.partenaire_id}, {"_id": 0})
     
-    # Validations et création d'alertes
+    # Collecter toutes les anomalies (au lieu de créer plusieurs alertes)
+    anomalies = []
+    
     if input.prix_remise > input.prix_public:
-        await check_and_create_alerte(
-            test.id,
-            TypeTest.TS,
-            f"Prix remisé ({input.prix_remise}€) supérieur au prix public ({input.prix_public}€)",
-            input.programme_id,
-            input.partenaire_id,
-            current_user.id
-        )
+        anomalies.append(f"Prix remisé ({input.prix_remise}€) supérieur au prix public ({input.prix_public}€)")
     
     if not input.application_remise:
-        await check_and_create_alerte(
-            test.id,
-            TypeTest.TS,
-            "Remise non appliquée",
-            input.programme_id,
-            input.partenaire_id,
-            current_user.id
-        )
+        anomalies.append("Remise non appliquée")
     
     # Vérifier la remise minimum si définie
     if partenaire and partenaire.get('remise_minimum'):
         remise_minimum = partenaire['remise_minimum']
         if pct_remise < remise_minimum:
-            await check_and_create_alerte(
-                test.id,
-                TypeTest.TS,
-                f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {remise_minimum - pct_remise}%)",
-                input.programme_id,
-                input.partenaire_id,
-                current_user.id
-            )
+            anomalies.append(f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {remise_minimum - pct_remise}%)")
+    
+    # Créer UNE SEULE alerte si des anomalies existent
+    if anomalies:
+        await create_alerte_groupee(
+            test.id,
+            TypeTest.TS,
+            anomalies,
+            input.programme_id,
+            input.partenaire_id,
+            current_user.id
+        )
     
     # Save test
     doc = test.model_dump()
