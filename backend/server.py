@@ -1809,28 +1809,54 @@ async def export_incident_report(
     
     for idx, alerte in enumerate(alertes, 1):
         incident_data = [
-            [f"Incident #{idx}"],
-            ["Statut", alerte.get('statut', 'N/A').upper()],
-            ["Date de création", alerte.get('created_at', 'N/A')[:10] if alerte.get('created_at') else 'N/A'],
+            [Paragraph(f"<b>Incident #{idx}</b>", normal_style)],
         ]
+        
+        # Créer des Paragraphs pour gérer le word wrap
+        statut_para = Paragraph(alerte.get('statut', 'N/A').upper(), normal_style)
+        date_para = Paragraph(alerte.get('created_at', 'N/A')[:10] if alerte.get('created_at') else 'N/A', normal_style)
+        
+        incident_data.extend([
+            ["Statut", statut_para],
+            ["Date de création", date_para],
+        ])
         
         # Gérer points_attention (nouveau) OU description (ancien) - COMPATIBILITÉ ASCENDANTE
         points_attention = alerte.get('points_attention')
         if points_attention and len(points_attention) > 0:
-            # NOUVEAU FORMAT: Liste de points d'attention
-            incident_data.append(["Description", alerte.get('description', 'N/A')])
-            incident_data.append(["Points d'attention", f"{len(points_attention)} anomalie(s) détectée(s):"])
+            # NOUVEAU FORMAT: Liste de points d'attention avec Paragraph pour word wrap
+            desc_para = Paragraph(alerte.get('description', 'N/A'), normal_style)
+            incident_data.append(["Description", desc_para])
+            
+            # En-tête des points d'attention
+            header_para = Paragraph(f"<b>{len(points_attention)} anomalie(s) détectée(s):</b>", normal_style)
+            incident_data.append(["Points d'attention", header_para])
+            
+            # Chaque point d'attention avec Paragraph pour permettre le retour à la ligne
             for i, point in enumerate(points_attention, 1):
-                incident_data.append(["", f"• {point}"])
+                # Style avec police légèrement plus petite pour les points
+                point_style = ParagraphStyle(
+                    'PointStyle',
+                    parent=normal_style,
+                    fontSize=9,
+                    leading=11,
+                    leftIndent=0,
+                    spaceAfter=2
+                )
+                point_para = Paragraph(f"• {point}", point_style)
+                incident_data.append(["", point_para])
         else:
             # ANCIEN FORMAT: Description simple (rétro-compatible)
-            incident_data.append(["Description", alerte.get('description', 'N/A')])
+            desc_para = Paragraph(alerte.get('description', 'N/A'), normal_style)
+            incident_data.append(["Description", desc_para])
         
         # Ajouter le commentaire du test s'il existe
         if test.get('commentaire'):
-            incident_data.append(["Commentaire", test.get('commentaire')])
+            comment_para = Paragraph(test.get('commentaire', ''), normal_style)
+            incident_data.append(["Commentaire", comment_para])
         
-        incident_table = Table(incident_data, colWidths=[2.5*inch, 4*inch])
+        # Augmenter légèrement la largeur de la colonne droite : 4*inch → 4.5*inch
+        incident_table = Table(incident_data, colWidths=[2*inch, 4.5*inch])
         incident_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#fee2e2')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#991b1b')),
@@ -1842,7 +1868,8 @@ async def export_incident_report(
             ('FONTNAME', (1, 1), (1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),  # Header centré verticalement
+            ('VALIGN', (0, 1), (-1, -1), 'TOP'),  # Contenu aligné en haut pour meilleur rendu
             ('LEFTPADDING', (0, 0), (-1, -1), 6),
             ('RIGHTPADDING', (0, 0), (-1, -1), 6),
             ('TOPPADDING', (0, 0), (-1, -1), 6),
