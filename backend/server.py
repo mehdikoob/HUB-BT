@@ -259,13 +259,14 @@ class AlerteCreate(AlerteBase):
     pass
 
 class AlerteCreateStandalone(BaseModel):
-    """Modèle pour créer une alerte sans test associé (test non réalisable)"""
+    """Modèle pour créer une alerte avec ou sans test associé (utilisé pour tests non réalisables)"""
     programme_id: str
     partenaire_id: str
     type_test: TypeTest
     description: str
     statut: StatutAlerte = StatutAlerte.ouvert
     screenshots: List[str] = []  # IDs des screenshots stockés dans GridFS (max 3)
+    test_id: Optional[str] = None  # ID du test associé (optionnel)
     
     @field_validator('description')
     def validate_description(cls, v):
