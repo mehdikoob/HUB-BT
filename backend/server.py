@@ -1576,7 +1576,7 @@ async def create_alerte_standalone(
     # Créer le document alerte
     alerte_doc = {
         "id": str(uuid.uuid4()),
-        "test_id": None,  # Pas de test associé
+        "test_id": alerte.test_id,  # ID du test associé (peut être None)
         "type_test": alerte.type_test.value,
         "description": alerte.description,
         "statut": alerte.statut.value,
