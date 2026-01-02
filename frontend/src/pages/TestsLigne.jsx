@@ -1020,7 +1020,19 @@ const TestsLigne = () => {
                       type="checkbox"
                       id="test_non_realisable"
                       checked={formData.test_non_realisable}
-                      onChange={(e) => setFormData({ ...formData, test_non_realisable: e.target.checked })}
+                      onChange={(e) => {
+                        const isNonRealisable = e.target.checked;
+                        setFormData({ 
+                          ...formData, 
+                          test_non_realisable: isNonRealisable,
+                          // Si non réalisable, décocher automatiquement les champs techniques
+                          ...(isNonRealisable && {
+                            application_offre: false,
+                            messagerie_vocale_dediee: false,
+                            decroche_dedie: false
+                          })
+                        });
+                      }}
                       className="w-4 h-4 mt-0.5 text-orange-600 rounded focus:ring-orange-500"
                     />
                     <div className="flex-1">
