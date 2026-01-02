@@ -1122,31 +1122,34 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
     # Récupérer le partenaire pour vérifier la remise minimum
     partenaire = await db.partenaires.find_one({"id": input.partenaire_id}, {"_id": 0})
     
-    # Collecter toutes les anomalies (au lieu de créer plusieurs alertes)
-    anomalies = []
-    
-    if input.prix_remise > input.prix_public:
-        anomalies.append(f"Prix remisé ({input.prix_remise}€) supérieur au prix public ({input.prix_public}€)")
-    
-    if not input.application_remise:
-        anomalies.append("Remise non appliquée")
-    
-    # Vérifier la remise minimum si définie
-    if partenaire and partenaire.get('remise_minimum'):
-        remise_minimum = partenaire['remise_minimum']
-        if pct_remise < remise_minimum:
-            anomalies.append(f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {remise_minimum - pct_remise}%)")
-    
-    # Créer UNE SEULE alerte si des anomalies existent
-    if anomalies:
-        await create_alerte_groupee(
-            test.id,
-            TypeTest.TS,
-            anomalies,
-            input.programme_id,
-            input.partenaire_id,
-            current_user.id
-        )
+    # NE PAS créer d'alerte automatique si test non réalisable
+    # (le frontend crée déjà une alerte spécifique "Test non réalisable")
+    if not input.test_non_realisable:
+        # Collecter toutes les anomalies (au lieu de créer plusieurs alertes)
+        anomalies = []
+        
+        if input.prix_remise > input.prix_public:
+            anomalies.append(f"Prix remisé ({input.prix_remise}€) supérieur au prix public ({input.prix_public}€)")
+        
+        if not input.application_remise:
+            anomalies.append("Remise non appliquée")
+        
+        # Vérifier la remise minimum si définie
+        if partenaire and partenaire.get('remise_minimum'):
+            remise_minimum = partenaire['remise_minimum']
+            if pct_remise < remise_minimum:
+                anomalies.append(f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {remise_minimum - pct_remise}%)")
+        
+        # Créer UNE SEULE alerte si des anomalies existent
+        if anomalies:
+            await create_alerte_groupee(
+                test.id,
+                TypeTest.TS,
+                anomalies,
+                input.programme_id,
+                input.partenaire_id,
+                current_user.id
+            )
     
     # Save test
     doc = test.model_dump()
