@@ -88,6 +88,7 @@ const TestsSite = () => {
   });
   const [partenaireUrl, setPartenaireUrl] = useState('');
   const [partenaireReferer, setPartenaireReferer] = useState('');
+  const [partenaireCodePromo, setPartenaireCodePromo] = useState('');
   const [programmeInfo, setProgrammeInfo] = useState(null);
   const [programmeInfoExpanded, setProgrammeInfoExpanded] = useState(false);
   const [filteredPartenaires, setFilteredPartenaires] = useState([]);
