@@ -98,6 +98,7 @@ const TestsLigne = () => {
     screenshots: [],
   });
   const [partenaireTelephone, setPartenaireTelephone] = useState('');
+  const [partenaireUrl, setPartenaireUrl] = useState('');
   const [filteredPartenaires, setFilteredPartenaires] = useState([]);
   const [filteredProgrammes, setFilteredProgrammes] = useState([]);
   const [duplicateWarning, setDuplicateWarning] = useState(null);
