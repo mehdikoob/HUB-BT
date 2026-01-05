@@ -169,10 +169,12 @@ const TestsSite = () => {
     return '';
   };
 
-  // Get URL for selected partenaire and programme
-  const updatePartenaireUrl = (programmeId, partenaireId) => {
+  // Get URL, referer and code promo for selected partenaire and programme
+  const updatePartenaireInfo = (programmeId, partenaireId) => {
     if (!programmeId || !partenaireId) {
       setPartenaireUrl('');
+      setPartenaireReferer('');
+      setPartenaireCodePromo('');
       return;
     }
 
@@ -181,20 +183,22 @@ const TestsSite = () => {
       const contact = partenaire.contacts_programmes.find(c => c.programme_id === programmeId);
       setPartenaireUrl(contact?.url_site || '');
       setPartenaireReferer(contact?.referer || '');
+      setPartenaireCodePromo(contact?.code_promo || '');
     } else {
       setPartenaireUrl('');
       setPartenaireReferer('');
+      setPartenaireCodePromo('');
     }
   };
 
   const handleProgrammeChange = (value) => {
     setFormData({ ...formData, programme_id: value });
-    updatePartenaireUrl(value, formData.partenaire_id);
+    updatePartenaireInfo(value, formData.partenaire_id);
   };
 
   const handlePartenaireChange = (value) => {
     setFormData({ ...formData, partenaire_id: value });
-    updatePartenaireUrl(formData.programme_id, value);
+    updatePartenaireInfo(formData.programme_id, value);
   };
 
   // Vérification des doublons en temps réel
