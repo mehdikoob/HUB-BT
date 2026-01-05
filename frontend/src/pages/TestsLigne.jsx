@@ -909,6 +909,24 @@ const TestsLigne = () => {
                   </div>
                 )}
                 
+                {/* Display URL if available */}
+                {partenaireUrl && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                    <Label className="text-xs text-blue-800 font-semibold mb-1 flex items-center gap-1.5">
+                      <Globe size={14} />
+                      Site web du partenaire pour ce programme :
+                    </Label>
+                    <a 
+                      href={partenaireUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline font-medium text-sm break-all"
+                    >
+                      {partenaireUrl}
+                    </a>
+                  </div>
+                )}
+                
                 <div>
                   <Label htmlFor="date_test">Date du test *</Label>
                   <Input
