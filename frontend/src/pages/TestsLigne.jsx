@@ -99,6 +99,7 @@ const TestsLigne = () => {
   });
   const [partenaireTelephone, setPartenaireTelephone] = useState('');
   const [partenaireUrl, setPartenaireUrl] = useState('');
+  const [partenaireCodePromo, setPartenaireCodePromo] = useState('');
   const [filteredPartenaires, setFilteredPartenaires] = useState([]);
   const [filteredProgrammes, setFilteredProgrammes] = useState([]);
   const [duplicateWarning, setDuplicateWarning] = useState(null);
