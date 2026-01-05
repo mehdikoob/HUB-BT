@@ -1034,6 +1034,19 @@ const TestsSite = () => {
                   </div>
                 )}
                 
+                {/* Display Code Promo if available */}
+                {partenaireCodePromo && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-2">
+                    <Label className="text-xs text-green-800 font-semibold mb-0.5 flex items-center gap-1.5">
+                      <Tag size={14} />
+                      Code promo à utiliser :
+                    </Label>
+                    <p className="text-green-900 font-bold text-lg tracking-wide">
+                      {partenaireCodePromo}
+                    </p>
+                  </div>
+                )}
+                
                 {/* Display Referer if available */}
                 {partenaireReferer && (
                   <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
