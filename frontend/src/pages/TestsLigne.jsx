@@ -175,11 +175,12 @@ const TestsLigne = () => {
     }
   };
 
-  // Get telephone and URL for selected partenaire and programme
+  // Get telephone, URL and code promo for selected partenaire and programme
   const updatePartenaireInfo = (programmeId, partenaireId) => {
     if (!programmeId || !partenaireId) {
       setPartenaireTelephone('');
       setPartenaireUrl('');
+      setPartenaireCodePromo('');
       return;
     }
 
@@ -189,11 +190,13 @@ const TestsLigne = () => {
       const tel = contact?.numero_telephone || '';
       setPartenaireTelephone(tel);
       setPartenaireUrl(contact?.url_site || '');
+      setPartenaireCodePromo(contact?.code_promo || '');
       // Also update formData with the telephone
       setFormData(prev => ({ ...prev, numero_telephone: tel }));
     } else {
       setPartenaireTelephone('');
       setPartenaireUrl('');
+      setPartenaireCodePromo('');
     }
   };
 
