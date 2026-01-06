@@ -200,6 +200,9 @@ class TestLigneBase(BaseModel):
 
     @field_validator('delai_attente')
     def validate_delai(cls, v):
+        # Permettre les valeurs vides pour les tests non réalisables
+        if v is None or v == '':
+            return v
         parts = v.split(':')
         if len(parts) != 2:
             raise ValueError('Format invalide, attendu mm:ss')
