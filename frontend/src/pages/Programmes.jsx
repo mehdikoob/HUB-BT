@@ -58,26 +58,49 @@ const Programmes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let programmeId;
+      
       if (editingProgramme) {
         await axios.put(`${API}/programmes/${editingProgramme.id}`, formData);
+        programmeId = editingProgramme.id;
         toast.success('Programme modifié avec succès');
       } else {
-        await axios.post(`${API}/programmes`, formData);
+        const response = await axios.post(`${API}/programmes`, formData);
+        programmeId = response.data.id;
         toast.success('Programme créé avec succès');
       }
       
-      // Update partenaires to link them to this programme if needed
-      if (selectedPartenairesIds.length > 0) {
-        const programmeId = editingProgramme?.id || (await axios.get(`${API}/programmes`)).data.find(p => p.nom === formData.nom)?.id;
-        
-        for (const partId of selectedPartenairesIds) {
-          const part = partenaires.find(p => p.id === partId);
-          if (part && !part.programmes_ids.includes(programmeId)) {
-            await axios.put(`${API}/partenaires/${partId}`, {
-              ...part,
-              programmes_ids: [...part.programmes_ids, programmeId],
-            });
-          }
+      // Mettre à jour les associations partenaires-programme
+      // 1. Trouver les partenaires actuellement liés à ce programme
+      const currentlyLinkedIds = partenaires
+        .filter(p => p.programmes_ids && p.programmes_ids.includes(programmeId))
+        .map(p => p.id);
+      
+      // 2. Partenaires à AJOUTER (cochés mais pas encore liés)
+      const toAdd = selectedPartenairesIds.filter(id => !currentlyLinkedIds.includes(id));
+      
+      // 3. Partenaires à RETIRER (décochés mais encore liés)
+      const toRemove = currentlyLinkedIds.filter(id => !selectedPartenairesIds.includes(id));
+      
+      // Ajouter le programme aux nouveaux partenaires
+      for (const partId of toAdd) {
+        const part = partenaires.find(p => p.id === partId);
+        if (part) {
+          await axios.put(`${API}/partenaires/${partId}`, {
+            ...part,
+            programmes_ids: [...(part.programmes_ids || []), programmeId],
+          });
+        }
+      }
+      
+      // Retirer le programme des partenaires décochés
+      for (const partId of toRemove) {
+        const part = partenaires.find(p => p.id === partId);
+        if (part) {
+          await axios.put(`${API}/partenaires/${partId}`, {
+            ...part,
+            programmes_ids: (part.programmes_ids || []).filter(id => id !== programmeId),
+          });
         }
       }
       
