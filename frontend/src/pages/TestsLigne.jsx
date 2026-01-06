@@ -292,12 +292,14 @@ const TestsLigne = () => {
           test_non_realisable: true,
           commentaire: formData.commentaire,
           screenshots: formData.screenshots,
-          // Champs techniques optionnels avec valeurs par défaut
+          // Champs techniques avec valeurs par défaut pour test non réalisable
+          numero_telephone: '',
           application_offre: false,
           messagerie_vocale_dediee: false,
           decroche_dedie: false,
-          delai_attente: 0,
-          nom_conseiller: "N/A",
+          delai_attente: '',
+          evaluation_accueil: null,
+          nom_conseiller: 'N/A',
         };
         
         const testResponse = await axios.post(`${API}/tests-ligne`, testData, {
