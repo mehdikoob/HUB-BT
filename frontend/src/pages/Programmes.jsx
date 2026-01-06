@@ -386,9 +386,9 @@ const Programmes = () => {
                 <p className="text-sm text-gray-600 mb-2">{programme.description}</p>
               )}
               {(() => {
-                const linkedPartenaires = partenaires.filter(p => 
-                  p.programmes_ids && p.programmes_ids.includes(programme.id)
-                );
+                const linkedPartenaires = partenaires
+                  .filter(p => p.programmes_ids && p.programmes_ids.includes(programme.id))
+                  .sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
                 return linkedPartenaires.length > 0 && (
                   <div className="text-sm text-gray-600">
                     <span className="font-medium">Partenaires:</span>
