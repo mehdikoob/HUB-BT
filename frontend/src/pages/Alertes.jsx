@@ -332,6 +332,17 @@ const Alertes = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
+                  {alerte.test_id && (
+                    <Button
+                      onClick={() => handleDownloadReport(alerte)}
+                      data-testid={`download-alerte-${alerte.id}`}
+                      variant="outline"
+                      className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                    >
+                      <FileDown size={16} className="mr-2" />
+                      PDF
+                    </Button>
+                  )}
                   {alerte.statut === 'ouvert' ? (
                     <Button
                       onClick={() => handleResolve(alerte.id)}
@@ -351,7 +362,7 @@ const Alertes = () => {
                       <Trash2 size={16} className="mr-2" />
                       Supprimer
                     </Button>
-                  )}
+                  )}}
                 </div>
               </div>
             </CardHeader>
