@@ -82,6 +82,41 @@ const Alertes = () => {
     }
   };
 
+  const handleDownloadReport = async (alerte) => {
+    if (!alerte.test_id) {
+      toast.error('Aucun test associé à cette alerte');
+      return;
+    }
+    
+    const testType = alerte.type_test === 'TL' ? 'ligne' : 'site';
+    
+    try {
+      const response = await axios.get(
+        `${API}/export-alerte-report/${alerte.test_id}?test_type=${testType}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          },
+          responseType: 'blob'
+        }
+      );
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `rapport_alerte_${alerte.test_id.slice(0, 8)}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Rapport téléchargé avec succès');
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error(error.response?.data?.detail || 'Erreur lors du téléchargement du rapport');
+    }
+  };
+
   const handleSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
