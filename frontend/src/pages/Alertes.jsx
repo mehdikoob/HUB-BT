@@ -362,7 +362,7 @@ const Alertes = () => {
                       <Trash2 size={16} className="mr-2" />
                       Supprimer
                     </Button>
-                  )}}
+                  )}
                 </div>
               </div>
             </CardHeader>
