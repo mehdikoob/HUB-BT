@@ -374,6 +374,7 @@ class EmailHistory(EmailHistoryBase):
 
 # Models - User & Authentication
 class UserRole(str, Enum):
+    super_admin = "super_admin"  # Super admin avec accès complet + logs + tests anonymes
     admin = "admin"
     agent = "agent"
     programme = "programme"
