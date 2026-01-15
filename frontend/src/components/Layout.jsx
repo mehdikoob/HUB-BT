@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X, Mail, FileBarChart, Settings, BarChart3, LogOut, User, Shield } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X, Mail, FileBarChart, Settings, BarChart3, LogOut, User, Shield, UserSearch } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import NotificationCenter from './NotificationCenter';
@@ -16,6 +16,7 @@ const Layout = () => {
     { path: '/', icon: LayoutDashboard, label: 'Tableau de bord', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
     { path: '/programmes', icon: FileText, label: 'Programmes', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'programme'] },
     { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'partenaire'] },
+    { path: '/identifiants', icon: UserSearch, label: 'Identifiants', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent'] },
     { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
     { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
     { path: '/alertes', icon: AlertCircle, label: 'Alertes', allowedRoles: ['super_admin', 'admin', 'chef_projet'] },
