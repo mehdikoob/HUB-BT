@@ -3308,6 +3308,46 @@ async def init_admin():
     return {"message": "Administrateur créé avec succès", "email": "admin@hubblindtests.com", "password": "admin123"}
 
 # =====================
+# SUPER ADMIN - Connection Logs
+# =====================
+
+@api_router.get("/connection-logs")
+async def get_connection_logs(
+    current_user: User = Depends(get_current_active_user),
+    limit: int = Query(100, ge=1, le=500),
+    skip: int = Query(0, ge=0)
+):
+    """Get connection logs (Super Admin only)"""
+    if current_user.role != UserRole.super_admin:
+        raise HTTPException(status_code=403, detail="Accès réservé au super administrateur")
+    
+    logs = await db.connection_logs.find({}, {"_id": 0}).sort("login_time", -1).skip(skip).limit(limit).to_list(length=limit)
+    total = await db.connection_logs.count_documents({})
+    
+    return {
+        "logs": logs,
+        "total": total,
+        "limit": limit,
+        "skip": skip
+    }
+
+@api_router.delete("/connection-logs")
+async def clear_connection_logs(
+    current_user: User = Depends(get_current_active_user),
+    before_date: Optional[str] = Query(None, description="Supprimer les logs avant cette date (format: YYYY-MM-DD)")
+):
+    """Clear connection logs (Super Admin only)"""
+    if current_user.role != UserRole.super_admin:
+        raise HTTPException(status_code=403, detail="Accès réservé au super administrateur")
+    
+    query = {}
+    if before_date:
+        query["login_time"] = {"$lt": before_date}
+    
+    result = await db.connection_logs.delete_many(query)
+    return {"message": f"{result.deleted_count} log(s) supprimé(s)"}
+
+# =====================
 # Screenshot Management Routes
 # =====================
 
