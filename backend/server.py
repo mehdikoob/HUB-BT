@@ -3417,6 +3417,108 @@ async def init_admin():
     return {"message": "Administrateur créé avec succès", "email": "admin@hubblindtests.com", "password": "admin123"}
 
 # =====================
+# IDENTIFIANTS MYSTÈRE - Profils clients mystères fictifs
+# =====================
+
+@api_router.get("/identifiants-mystere", response_model=List[IdentifiantMystere])
+async def get_identifiants_mystere(
+    current_user: User = Depends(get_current_active_user),
+    programme_id: Optional[str] = Query(None, description="Filtrer par programme")
+):
+    """Get all mystery shopper profiles (not visible to partenaire/programme roles)"""
+    if current_user.role in [UserRole.partenaire, UserRole.programme]:
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
+    
+    query = {}
+    if programme_id:
+        query["programme_id"] = programme_id
+    
+    identifiants = await db.identifiants_mystere.find(query, {"_id": 0}).to_list(1000)
+    return [IdentifiantMystere(**i) for i in identifiants]
+
+@api_router.get("/identifiants-mystere/{identifiant_id}", response_model=IdentifiantMystere)
+async def get_identifiant_mystere(
+    identifiant_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get a specific mystery shopper profile"""
+    if current_user.role in [UserRole.partenaire, UserRole.programme]:
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
+    
+    identifiant = await db.identifiants_mystere.find_one({"id": identifiant_id}, {"_id": 0})
+    if not identifiant:
+        raise HTTPException(status_code=404, detail="Identifiant non trouvé")
+    
+    return IdentifiantMystere(**identifiant)
+
+@api_router.post("/identifiants-mystere", response_model=IdentifiantMystere)
+async def create_identifiant_mystere(
+    identifiant: IdentifiantMystereCreate,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Create a new mystery shopper profile (admin/super_admin/chef_projet only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin, UserRole.chef_projet]:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent créer des identifiants")
+    
+    # Vérifier que le programme existe
+    programme = await db.programmes.find_one({"id": identifiant.programme_id})
+    if not programme:
+        raise HTTPException(status_code=404, detail="Programme non trouvé")
+    
+    new_identifiant = IdentifiantMystere(
+        **identifiant.model_dump(),
+        created_by=current_user.id
+    )
+    
+    await db.identifiants_mystere.insert_one(new_identifiant.model_dump())
+    return new_identifiant
+
+@api_router.put("/identifiants-mystere/{identifiant_id}", response_model=IdentifiantMystere)
+async def update_identifiant_mystere(
+    identifiant_id: str,
+    identifiant_update: IdentifiantMystereUpdate,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Update a mystery shopper profile (admin/super_admin/chef_projet only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin, UserRole.chef_projet]:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent modifier des identifiants")
+    
+    existing = await db.identifiants_mystere.find_one({"id": identifiant_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Identifiant non trouvé")
+    
+    update_data = {k: v for k, v in identifiant_update.model_dump().items() if v is not None}
+    
+    if "programme_id" in update_data:
+        programme = await db.programmes.find_one({"id": update_data["programme_id"]})
+        if not programme:
+            raise HTTPException(status_code=404, detail="Programme non trouvé")
+    
+    if update_data:
+        await db.identifiants_mystere.update_one(
+            {"id": identifiant_id},
+            {"$set": update_data}
+        )
+    
+    updated = await db.identifiants_mystere.find_one({"id": identifiant_id}, {"_id": 0})
+    return IdentifiantMystere(**updated)
+
+@api_router.delete("/identifiants-mystere/{identifiant_id}")
+async def delete_identifiant_mystere(
+    identifiant_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Delete a mystery shopper profile (admin/super_admin/chef_projet only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin, UserRole.chef_projet]:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent supprimer des identifiants")
+    
+    result = await db.identifiants_mystere.delete_one({"id": identifiant_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Identifiant non trouvé")
+    
+    return {"message": "Identifiant supprimé avec succès"}
+
+# =====================
 # SUPER ADMIN - Connection Logs
 # =====================
 
