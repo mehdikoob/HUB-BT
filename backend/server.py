@@ -2094,14 +2094,17 @@ async def get_agent_dashboard_stats(user: User):
             
             # Vérifier test site ce mois (uniquement si requis)
             if test_site_requis:
+                tests_site_attendus += 1
                 test_site_count = await db.tests_site.count_documents({
                     "partenaire_id": part_id,
                     "programme_id": prog_id,
                     "date_test": {"$gte": first_day, "$lte": last_day}
                 })
                 
-                # Collecter les tests site manquants comme "tâches à faire"
-                if test_site_count == 0:
+                if test_site_count > 0:
+                    tests_site_effectues += 1
+                else:
+                    # Collecter les tests site manquants comme "tâches à faire"
                     taches_tests.append({
                         "partenaire_id": part_id,
                         "partenaire_nom": part_nom,
@@ -2113,14 +2116,17 @@ async def get_agent_dashboard_stats(user: User):
             
             # Vérifier test ligne ce mois (uniquement si requis)
             if test_ligne_requis:
+                tests_ligne_attendus += 1
                 test_ligne_count = await db.tests_ligne.count_documents({
                     "partenaire_id": part_id,
                     "programme_id": prog_id,
                     "date_test": {"$gte": first_day, "$lte": last_day}
                 })
                 
-                # Collecter les tests ligne manquants comme "tâches à faire"
-                if test_ligne_count == 0:
+                if test_ligne_count > 0:
+                    tests_ligne_effectues += 1
+                else:
+                    # Collecter les tests ligne manquants comme "tâches à faire"
                     taches_tests.append({
                         "partenaire_id": part_id,
                         "partenaire_nom": part_nom,
