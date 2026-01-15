@@ -2174,6 +2174,12 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     tests_effectues = 0
     tests_manquants = []
     
+    # Compteurs séparés pour site et ligne
+    tests_site_attendus = 0
+    tests_site_effectues = 0
+    tests_ligne_attendus = 0
+    tests_ligne_effectues = 0
+    
     for partenaire in partenaires:
         part_id = partenaire['id']
         part_nom = partenaire['nom']
