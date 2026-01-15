@@ -96,6 +96,7 @@ const TestsLigne = () => {
     application_offre: true,
     commentaire: '',
     screenshots: [],
+    is_anonymous: false,  // Test anonyme (super_admin uniquement)
   });
   const [partenaireTelephone, setPartenaireTelephone] = useState('');
   const [partenaireUrl, setPartenaireUrl] = useState('');
