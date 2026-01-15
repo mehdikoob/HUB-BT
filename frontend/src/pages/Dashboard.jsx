@@ -127,8 +127,8 @@ const Dashboard = () => {
         <p className="text-gray-600">Vue d'ensemble des blind tests QWERTYS</p>
       </div>
 
-      {/* AI Insights - Visible pour Admin et Chef de projet uniquement */}
-      {(stats?.role === 'admin' || stats?.role === 'chef_projet') && (
+      {/* AI Insights - Visible pour Admin, Super Admin et Chef de projet uniquement */}
+      {(stats?.role === 'admin' || stats?.role === 'super_admin' || stats?.role === 'chef_projet') && (
         <div className="mb-8 animate-slide-up animation-delay-100">
           <InsightsIA />
         </div>
