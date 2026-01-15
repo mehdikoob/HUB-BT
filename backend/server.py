@@ -3214,7 +3214,7 @@ async def get_email_history(alerte_id: Optional[str] = None):
 # =====================
 
 @api_router.post("/auth/login", response_model=Token)
-async def login(login_request: LoginRequest):
+async def login(login_request: LoginRequest, request: Request):
     """Authenticate user and return JWT token"""
     # Case-insensitive email search
     user = await db.users.find_one({"email": {"$regex": f"^{login_request.email}$", "$options": "i"}})
@@ -3226,6 +3226,24 @@ async def login(login_request: LoginRequest):
     
     if not user.get('is_active', True):
         raise HTTPException(status_code=400, detail="Compte utilisateur désactivé")
+    
+    # Enregistrer le log de connexion
+    try:
+        connection_log = {
+            "id": str(uuid.uuid4()),
+            "user_id": user['id'],
+            "user_email": user['email'],
+            "user_nom": user.get('nom', ''),
+            "user_prenom": user.get('prenom', ''),
+            "user_role": user.get('role', 'agent'),
+            "login_time": datetime.now(timezone.utc).isoformat(),
+            "ip_address": request.client.host if request.client else None,
+            "user_agent": request.headers.get('user-agent', '')[:200]
+        }
+        await db.connection_logs.insert_one(connection_log)
+    except Exception as e:
+        # Ne pas bloquer le login si le log échoue
+        logging.error(f"Erreur lors de l'enregistrement du log de connexion: {e}")
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
