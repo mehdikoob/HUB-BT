@@ -413,6 +413,10 @@ const Parametres = () => {
                     <SelectContent className="z-[100]">
                       <SelectItem value="agent">Agent</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
+                      {/* Super Admin uniquement visible pour les super admins */}
+                      {currentUser?.role === 'super_admin' && (
+                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                      )}
                       <SelectItem value="chef_projet">Chef de projet</SelectItem>
                       <SelectItem value="programme">Programme</SelectItem>
                       <SelectItem value="partenaire">Partenaire</SelectItem>
