@@ -2165,6 +2165,10 @@ async def get_agent_dashboard_stats(user: User):
         "date_test": {"$gte": first_day, "$lte": last_day}
     })
     
+    # Calculs pour la progression globale
+    tests_attendus = tests_site_attendus + tests_ligne_attendus
+    tests_effectues = tests_site_effectues + tests_ligne_effectues
+    
     return {
         "role": "agent",
         "taches_tests": taches_tests,
@@ -2174,7 +2178,14 @@ async def get_agent_dashboard_stats(user: User):
         "tests_effectues_mois": tests_effectues_mois,
         "current_month": month,
         "current_year": year,
-        "message_encourageant": get_encouragement_message(tests_effectues_mois)
+        "message_encourageant": get_encouragement_message(tests_effectues_mois),
+        # Statistiques de progression mensuelle
+        "tests_attendus": tests_attendus,
+        "tests_effectues": tests_effectues,
+        "tests_site_attendus": tests_site_attendus,
+        "tests_site_effectues": tests_site_effectues,
+        "tests_ligne_attendus": tests_ligne_attendus,
+        "tests_ligne_effectues": tests_ligne_effectues,
     }
 
 def get_encouragement_message(tests_count):
