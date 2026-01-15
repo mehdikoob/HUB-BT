@@ -1418,6 +1418,32 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
     if current_user.role in [UserRole.programme, UserRole.partenaire]:
         raise HTTPException(status_code=403, detail="Vous n'avez pas les permissions pour créer des tests")
     
+    # ===== VALIDATION STRICTE DES DOUBLONS =====
+    # Vérifier s'il existe déjà un test pour ce partenaire/programme ce mois-ci
+    from datetime import datetime
+    now = datetime.now()
+    start_of_month = datetime(now.year, now.month, 1).isoformat()
+    end_of_month = datetime(now.year + 1, 1, 1).isoformat() if now.month == 12 else datetime(now.year, now.month + 1, 1).isoformat()
+    
+    existing_test = await db.tests_ligne.find_one({
+        'partenaire_id': input.partenaire_id,
+        'programme_id': input.programme_id,
+        'date_test': {'$gte': start_of_month, '$lt': end_of_month}
+    }, {'_id': 0, 'id': 1, 'date_test': 1, 'user_id': 1})
+    
+    if existing_test:
+        # Récupérer les infos pour le message d'erreur
+        partenaire = await db.partenaires.find_one({'id': input.partenaire_id}, {'_id': 0, 'nom': 1})
+        programme = await db.programmes.find_one({'id': input.programme_id}, {'_id': 0, 'nom': 1})
+        creator = await db.users.find_one({'id': existing_test.get('user_id')}, {'_id': 0, 'prenom': 1, 'nom': 1}) if existing_test.get('user_id') else None
+        
+        creator_name = f"{creator.get('prenom', '')} {creator.get('nom', '')}" if creator else "Inconnu"
+        raise HTTPException(
+            status_code=409,
+            detail=f"Un test ligne existe déjà ce mois pour {partenaire.get('nom', 'ce partenaire')} / {programme.get('nom', 'ce programme')} (créé par {creator_name})"
+        )
+    # ===== FIN VALIDATION DOUBLONS =====
+    
     # Seul le super_admin peut créer des tests anonymes
     if input.is_anonymous and current_user.role != UserRole.super_admin:
         input.is_anonymous = False  # Forcer à False si pas super_admin
