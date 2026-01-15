@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X, Mail, FileBarChart, Settings, BarChart3, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, ClipboardCheck, Phone, AlertCircle, Glasses, Menu, X, Mail, FileBarChart, Settings, BarChart3, LogOut, User, Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import NotificationCenter from './NotificationCenter';
@@ -13,16 +13,17 @@ const Layout = () => {
   const { user, isAdmin, logout } = useAuth();
 
   const menuItems = [
-    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord', allowedRoles: ['admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
-    { path: '/programmes', icon: FileText, label: 'Programmes', allowedRoles: ['admin', 'chef_projet', 'agent', 'programme'] },
-    { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['admin', 'chef_projet', 'agent', 'partenaire'] },
-    { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
-    { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
-    { path: '/alertes', icon: AlertCircle, label: 'Alertes', allowedRoles: ['admin', 'chef_projet'] },
-    { path: '/messagerie', icon: Mail, label: 'Messagerie', allowedRoles: ['admin', 'chef_projet'], wip: true },
-    { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire', allowedRoles: ['admin', 'chef_projet', 'agent'], wip: true },
-    { path: '/statistiques', icon: BarChart3, label: 'Statistiques', allowedRoles: ['admin', 'chef_projet'] },
-    { path: '/parametres', icon: Settings, label: 'Paramètres', allowedRoles: ['admin', 'chef_projet'] },
+    { path: '/', icon: LayoutDashboard, label: 'Tableau de bord', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
+    { path: '/programmes', icon: FileText, label: 'Programmes', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'programme'] },
+    { path: '/partenaires', icon: Users, label: 'Partenaires', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'partenaire'] },
+    { path: '/tests-site', icon: ClipboardCheck, label: 'Tests Site', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
+    { path: '/tests-ligne', icon: Phone, label: 'Tests Ligne', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent', 'programme', 'partenaire'] },
+    { path: '/alertes', icon: AlertCircle, label: 'Alertes', allowedRoles: ['super_admin', 'admin', 'chef_projet'] },
+    { path: '/messagerie', icon: Mail, label: 'Messagerie', allowedRoles: ['super_admin', 'admin', 'chef_projet'], wip: true },
+    { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent'], wip: true },
+    { path: '/statistiques', icon: BarChart3, label: 'Statistiques', allowedRoles: ['super_admin', 'admin', 'chef_projet'] },
+    { path: '/parametres', icon: Settings, label: 'Paramètres', allowedRoles: ['super_admin', 'admin', 'chef_projet'] },
+    { path: '/connection-logs', icon: Shield, label: 'Logs Connexion', allowedRoles: ['super_admin'], superAdminOnly: true },
   ];
 
   const visibleMenuItems = menuItems.filter(item => 
