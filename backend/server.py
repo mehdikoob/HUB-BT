@@ -2178,7 +2178,7 @@ async def get_agent_dashboard_stats(user: User):
         "tests_effectues_mois": tests_effectues_mois,
         "current_month": month,
         "current_year": year,
-        "message_encourageant": get_encouragement_message(tests_effectues_mois),
+        "message_encourageant": get_encouragement_message(tests_effectues, tests_attendus, now.day, last_day_num),
         # Statistiques de progression mensuelle
         "tests_attendus": tests_attendus,
         "tests_effectues": tests_effectues,
@@ -2188,18 +2188,54 @@ async def get_agent_dashboard_stats(user: User):
         "tests_ligne_effectues": tests_ligne_effectues,
     }
 
-def get_encouragement_message(tests_count):
-    """Génère un message encourageant basé sur le nombre de tests effectués"""
-    if tests_count == 0:
-        return "C'est parti pour un nouveau mois ! 💪"
-    elif tests_count < 10:
-        return f"Bon début ! {tests_count} test{'s' if tests_count > 1 else ''} effectué{'s' if tests_count > 1 else ''} ce mois-ci 🎯"
-    elif tests_count < 30:
-        return f"Beau travail ! {tests_count} tests effectués ce mois-ci 🌟"
-    elif tests_count < 60:
-        return f"Excellent rythme ! {tests_count} tests effectués ce mois-ci 🚀"
+def get_encouragement_message(tests_effectues, tests_attendus, jour_actuel, jours_dans_mois):
+    """Génère un message encourageant basé sur la progression réelle vs attendue"""
+    
+    # Si aucun test attendu, message neutre
+    if tests_attendus == 0:
+        return "Aucun test planifié ce mois-ci 📋"
+    
+    # Calcul de la progression attendue à ce jour du mois
+    progression_attendue = (jour_actuel / jours_dans_mois) * tests_attendus
+    progression_reelle = tests_effectues
+    pourcentage_reel = (tests_effectues / tests_attendus) * 100
+    
+    # Calcul du retard/avance
+    ecart = progression_reelle - progression_attendue
+    ecart_pourcentage = (ecart / tests_attendus) * 100 if tests_attendus > 0 else 0
+    
+    # Tous les tests effectués
+    if tests_effectues >= tests_attendus:
+        return f"🏆 Objectif atteint ! {tests_effectues}/{tests_attendus} tests complétés"
+    
+    # En avance (plus de 10% d'avance sur le planning)
+    if ecart_pourcentage > 10:
+        return f"🚀 Super rythme ! En avance sur le planning ({tests_effectues} tests effectués)"
+    
+    # Dans les temps (entre -10% et +10%)
+    if ecart_pourcentage >= -10:
+        return f"✅ Bon rythme ! {tests_effectues} tests effectués, vous êtes dans les temps"
+    
+    # Léger retard (entre -10% et -25%)
+    if ecart_pourcentage >= -25:
+        tests_restants = tests_attendus - tests_effectues
+        return f"📊 {tests_effectues} tests effectués — il reste {tests_restants} tests à réaliser ce mois"
+    
+    # Retard modéré (entre -25% et -50%)
+    if ecart_pourcentage >= -50:
+        tests_restants = tests_attendus - tests_effectues
+        jours_restants = jours_dans_mois - jour_actuel
+        tests_par_jour = round(tests_restants / jours_restants, 1) if jours_restants > 0 else tests_restants
+        return f"⏰ {tests_effectues}/{tests_attendus} tests — objectif : ~{tests_par_jour} tests/jour pour rattraper"
+    
+    # Retard important (plus de 50% de retard)
+    tests_restants = tests_attendus - tests_effectues
+    jours_restants = jours_dans_mois - jour_actuel
+    if jours_restants > 0:
+        tests_par_jour = round(tests_restants / jours_restants, 1)
+        return f"🎯 Challenge du mois : {tests_restants} tests en {jours_restants} jours (~{tests_par_jour}/jour)"
     else:
-        return f"Performance exceptionnelle ! {tests_count} tests effectués ce mois-ci 🏆"
+        return f"📋 Fin de mois — {tests_effectues}/{tests_attendus} tests réalisés"
 
 
 @api_router.get("/stats/dashboard")
