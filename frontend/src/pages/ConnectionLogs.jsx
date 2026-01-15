@@ -49,7 +49,7 @@ const ConnectionLogs = () => {
     if (!window.confirm(`Supprimer tous les logs avant le ${dateStr} ?`)) return;
     
     try {
-      const response = await axios.delete(`${API}/connection-logs`, {
+      const response = await axios.delete(`${API}/api/connection-logs`, {
         params: { before_date: dateStr },
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
