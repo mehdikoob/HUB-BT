@@ -13,11 +13,12 @@ import BilanPartenaire from './pages/BilanPartenaire';
 import Login from './pages/Login';
 import Parametres from './pages/Parametres';
 import Statistiques from './pages/Statistiques';
+import ConnectionLogs from './pages/ConnectionLogs';
 import Layout from './components/Layout';
 
 // Protected Route component
-const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
+const ProtectedRoute = ({ children, adminOnly = false, superAdminOnly = false }) => {
+  const { isAuthenticated, isAdmin, user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -31,7 +32,11 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (adminOnly && !isAdmin()) {
+  if (superAdminOnly && user?.role !== 'super_admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  if (adminOnly && !isAdmin() && user?.role !== 'super_admin') {
     return <Navigate to="/" replace />;
   }
 
