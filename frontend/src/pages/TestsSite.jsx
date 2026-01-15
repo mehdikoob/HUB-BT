@@ -48,7 +48,7 @@ const monthYearToDateRange = (monthYear) => {
 };
 
 const TestsSite = () => {
-  const { getAuthHeader } = useAuth();
+  const { getAuthHeader, user } = useAuth();
   const [tests, setTests] = useState([]);
   const [programmes, setProgrammes] = useState([]);
   const [partenaires, setPartenaires] = useState([]);
