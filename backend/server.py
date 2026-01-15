@@ -1368,6 +1368,10 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
     if current_user.role in [UserRole.programme, UserRole.partenaire]:
         raise HTTPException(status_code=403, detail="Vous n'avez pas les permissions pour créer des tests")
     
+    # Seul le super_admin peut créer des tests anonymes
+    if input.is_anonymous and current_user.role != UserRole.super_admin:
+        input.is_anonymous = False  # Forcer à False si pas super_admin
+    
     test = TestLigne(**input.model_dump(), user_id=current_user.id)
     
     # NE PAS créer d'alerte automatique si test non réalisable
