@@ -19,7 +19,7 @@ const ConnectionLogs = () => {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API}/connection-logs`, {
+      const response = await axios.get(`${API}/api/connection-logs`, {
         params: { limit, skip: page * limit },
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
