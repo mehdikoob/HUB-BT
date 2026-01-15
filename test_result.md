@@ -1119,12 +1119,12 @@ agent_communication:
 
 ```bash
 # Test avec agent
-curl -X GET https://bugslayer-27.preview.emergentagent.com/api/stats/dashboard \
+curl -X GET https://hubtest-fixes.preview.emergentagent.com/api/stats/dashboard \
   -H "Authorization: Bearer <AGENT_TOKEN>"
 # Retourne: {"role": "agent", "taches_tests": [...], "total_taches": 235, ...}
 
 # Test avec admin
-curl -X GET https://bugslayer-27.preview.emergentagent.com/api/stats/dashboard \
+curl -X GET https://hubtest-fixes.preview.emergentagent.com/api/stats/dashboard \
   -H "Authorization: Bearer <ADMIN_TOKEN>"
 # Retourne: {"total_programmes": 8, "total_partenaires": 38, ...}
 ```
