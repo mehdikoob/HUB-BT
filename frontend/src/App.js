@@ -93,6 +93,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="connection-logs"
+          element={
+            <ProtectedRoute superAdminOnly>
+              <ConnectionLogs />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   );
