@@ -425,6 +425,18 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+# Model - Connection Log (super_admin only)
+class ConnectionLog(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_email: str
+    user_nom: str
+    user_prenom: str
+    user_role: str
+    login_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    ip_address: Optional[str] = None
+    user_agent: Optional[str] = None
+
 # Helper functions
 def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float:
     if prix_public <= 0:
