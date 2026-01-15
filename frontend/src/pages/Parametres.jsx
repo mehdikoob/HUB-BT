@@ -280,6 +280,7 @@ const Parametres = () => {
 
   const getRoleBadge = (role) => {
     const roleConfig = {
+      super_admin: { bg: 'bg-red-100', text: 'text-red-800', label: 'Super Admin', icon: Shield },
       admin: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Admin', icon: Shield },
       chef_projet: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Chef de projet', icon: Shield },
       agent: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Agent', icon: UserCog },

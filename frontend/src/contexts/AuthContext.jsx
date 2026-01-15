@@ -74,9 +74,9 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // Check if user is admin or chef de projet (both have admin rights)
+  // Check if user is admin, chef de projet or super_admin (all have admin rights)
   const isAdmin = () => {
-    return user?.role === 'admin' || user?.role === 'chef_projet';
+    return user?.role === 'admin' || user?.role === 'chef_projet' || user?.role === 'super_admin';
   };
 
   // Check if user is authenticated
