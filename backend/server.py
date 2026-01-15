@@ -437,6 +437,30 @@ class ConnectionLog(BaseModel):
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
 
+# Model - Identifiant Mystère (profil client mystère fictif par programme)
+class IdentifiantMystereBase(BaseModel):
+    programme_id: str
+    nom: str
+    prenom: str
+    numero_adherent: Optional[str] = None  # Optionnel
+    date_naissance: Optional[str] = None  # Format: YYYY-MM-DD, Optionnel
+
+class IdentifiantMystereCreate(IdentifiantMystereBase):
+    pass
+
+class IdentifiantMystereUpdate(BaseModel):
+    programme_id: Optional[str] = None
+    nom: Optional[str] = None
+    prenom: Optional[str] = None
+    numero_adherent: Optional[str] = None
+    date_naissance: Optional[str] = None
+
+class IdentifiantMystere(IdentifiantMystereBase):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_by: Optional[str] = None  # ID de l'utilisateur qui a créé le profil
+
 # Helper functions
 def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float:
     if prix_public <= 0:
