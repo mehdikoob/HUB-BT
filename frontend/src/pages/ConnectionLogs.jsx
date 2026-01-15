@@ -60,6 +60,20 @@ const ConnectionLogs = () => {
     }
   };
 
+  const handleClearAllLogs = async () => {
+    if (!window.confirm('⚠️ Supprimer TOUS les logs de connexion ? Cette action est irréversible.')) return;
+    
+    try {
+      const response = await axios.delete(`${API}/api/connection-logs`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      toast.success(response.data.message);
+      fetchLogs();
+    } catch (error) {
+      toast.error('Erreur lors de la suppression');
+    }
+  };
+
   const getRoleBadge = (role) => {
     const colors = {
       super_admin: 'bg-purple-100 text-purple-800',
