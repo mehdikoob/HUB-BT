@@ -4346,6 +4346,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_db_client():
+    """Migration au démarrage : assurer que mkoob@qwertys.fr est super_admin"""
+    try:
+        result = await db.users.update_one(
+            {"email": "mkoob@qwertys.fr"},
+            {"$set": {"role": "super_admin"}}
+        )
+        if result.modified_count > 0:
+            logger.info("Migration: mkoob@qwertys.fr mis à jour en super_admin")
+        else:
+            logger.info("Migration: mkoob@qwertys.fr déjà super_admin ou non trouvé")
+    except Exception as e:
+        logger.error(f"Erreur lors de la migration super_admin: {e}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
