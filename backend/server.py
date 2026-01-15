@@ -146,6 +146,7 @@ class TestSiteBase(BaseModel):
     cumul_codes: Optional[bool] = None
     commentaire: Optional[str] = None
     screenshots: List[str] = []  # IDs GridFS des captures d'écran (CTRL+V)
+    is_anonymous: bool = False  # Test anonyme (super_admin uniquement)
 
 class TestSiteCreate(TestSiteBase):
     @model_validator(mode='after')
