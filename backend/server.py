@@ -1246,8 +1246,17 @@ async def get_tests_site(
         if isinstance(t.get('created_at'), str):
             t['created_at'] = datetime.fromisoformat(t['created_at'])
         
-        # Ajouter les infos de l'utilisateur qui a créé le test (lookup depuis dict)
-        if t.get('user_id') and t['user_id'] in users_dict:
+        # Si test anonyme et l'utilisateur n'est pas super_admin, masquer le créateur
+        if t.get('is_anonymous') and current_user.role != UserRole.super_admin:
+            t['created_by'] = {
+                "id": None,
+                "nom": "Anonyme",
+                "prenom": "",
+                "email": None,
+                "role": None
+            }
+            t['user_id'] = None
+        elif t.get('user_id') and t['user_id'] in users_dict:
             user = users_dict[t['user_id']]
             t['created_by'] = {
                 "id": user.get('id'),
