@@ -2196,8 +2196,10 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
             tests_attendus_programme = 0
             if test_site_requis:
                 tests_attendus_programme += 1
+                tests_site_attendus += 1
             if test_ligne_requis:
                 tests_attendus_programme += 1
+                tests_ligne_attendus += 1
             tests_attendus += tests_attendus_programme
             
             # Vérifier test site ce mois (uniquement si requis)
@@ -2210,6 +2212,7 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
                 })
                 if test_site_count > 0:
                     tests_effectues += 1
+                    tests_site_effectues += 1
             
             # Vérifier test ligne ce mois (uniquement si requis)
             test_ligne_count = 0
@@ -2221,6 +2224,7 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
                 })
                 if test_ligne_count > 0:
                     tests_effectues += 1
+                    tests_ligne_effectues += 1
             
             # Collecter les tests manquants
             manquants = []
