@@ -3253,9 +3253,13 @@ async def login(login_request: LoginRequest, request: Request):
 
 @api_router.post("/auth/register", response_model=User)
 async def register(user_create: UserCreate, current_user: User = Depends(get_current_active_user)):
-    """Register a new user (Admin only)"""
-    if current_user.role != UserRole.admin:
+    """Register a new user (Admin or Super Admin only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin]:
         raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent créer des utilisateurs")
+    
+    # Seul un super_admin peut créer un autre super_admin
+    if user_create.role == UserRole.super_admin and current_user.role != UserRole.super_admin:
+        raise HTTPException(status_code=403, detail="Seul un super administrateur peut créer un autre super administrateur")
     
     # Check if user already exists
     existing_user = await db.users.find_one({"email": user_create.email})
