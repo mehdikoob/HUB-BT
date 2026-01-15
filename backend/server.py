@@ -2075,6 +2075,12 @@ async def get_agent_dashboard_stats(user: User):
     # Tâches à effectuer : tests manquants ce mois
     taches_tests = []
     
+    # Compteurs pour la progression mensuelle
+    tests_site_attendus = 0
+    tests_site_effectues = 0
+    tests_ligne_attendus = 0
+    tests_ligne_effectues = 0
+    
     for partenaire in partenaires:
         part_id = partenaire['id']
         part_nom = partenaire['nom']
