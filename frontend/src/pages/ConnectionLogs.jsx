@@ -103,9 +103,13 @@ const ConnectionLogs = () => {
             <RefreshCw size={16} />
             Actualiser
           </Button>
-          <Button onClick={handleClearOldLogs} variant="outline" className="gap-2 text-red-600 border-red-200 hover:bg-red-50">
+          <Button onClick={handleClearOldLogs} variant="outline" className="gap-2 text-orange-600 border-orange-200 hover:bg-orange-50">
             <Trash2 size={16} />
-            Purger +30 jours
+            Purger +30j
+          </Button>
+          <Button onClick={handleClearAllLogs} variant="outline" className="gap-2 text-red-600 border-red-200 hover:bg-red-50">
+            <Trash2 size={16} />
+            Tout supprimer
           </Button>
         </div>
       </div>
