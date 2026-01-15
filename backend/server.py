@@ -3494,8 +3494,8 @@ async def get_my_profile(current_user: User = Depends(get_current_active_user)):
 
 @api_router.get("/users", response_model=List[User])
 async def get_users(current_user: User = Depends(get_current_active_user)):
-    """Get all users (Admin only)"""
-    if current_user.role != UserRole.admin:
+    """Get all users (Admin or Super Admin only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin]:
         raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
     
     users = await db.users.find().to_list(length=None)
@@ -3503,8 +3503,8 @@ async def get_users(current_user: User = Depends(get_current_active_user)):
 
 @api_router.get("/users/{user_id}", response_model=User)
 async def get_user(user_id: str, current_user: User = Depends(get_current_active_user)):
-    """Get user by ID (Admin only)"""
-    if current_user.role != UserRole.admin:
+    """Get user by ID (Admin or Super Admin only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin]:
         raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
     
     user = await db.users.find_one({"id": user_id})
@@ -3514,8 +3514,8 @@ async def get_user(user_id: str, current_user: User = Depends(get_current_active
 
 @api_router.post("/users", response_model=User)
 async def create_user(user_create: UserCreate, current_user: User = Depends(get_current_active_user)):
-    """Create a new user (Admin only)"""
-    if current_user.role != UserRole.admin:
+    """Create a new user (Admin or Super Admin only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin]:
         raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent créer des utilisateurs")
     
     # Check if user already exists
@@ -3544,8 +3544,8 @@ async def create_user(user_create: UserCreate, current_user: User = Depends(get_
 
 @api_router.put("/users/{user_id}", response_model=User)
 async def update_user(user_id: str, user_update: UserUpdate, current_user: User = Depends(get_current_active_user)):
-    """Update user (Admin only)"""
-    if current_user.role != UserRole.admin:
+    """Update user (Admin or Super Admin only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin]:
         raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent modifier des utilisateurs")
     
     user = await db.users.find_one({"id": user_id})
@@ -3572,8 +3572,8 @@ async def update_user(user_id: str, user_update: UserUpdate, current_user: User 
 
 @api_router.delete("/users/{user_id}")
 async def delete_user(user_id: str, current_user: User = Depends(get_current_active_user)):
-    """Delete user (Admin only)"""
-    if current_user.role != UserRole.admin:
+    """Delete user (Admin or Super Admin only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin]:
         raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent supprimer des utilisateurs")
     
     if user_id == current_user.id:
@@ -3588,7 +3588,7 @@ async def delete_user(user_id: str, current_user: User = Depends(get_current_act
 @api_router.get("/users/stats/all")
 async def get_users_stats(current_user: User = Depends(get_current_active_user)):
     """Get statistics for all users"""
-    if current_user.role != UserRole.admin:
+    if current_user.role not in [UserRole.admin, UserRole.super_admin]:
         raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
     
     users = await db.users.find().to_list(length=None)
