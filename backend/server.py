@@ -1132,6 +1132,10 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
     if current_user.role in [UserRole.programme, UserRole.partenaire]:
         raise HTTPException(status_code=403, detail="Vous n'avez pas les permissions pour créer des tests")
     
+    # Seul le super_admin peut créer des tests anonymes
+    if input.is_anonymous and current_user.role != UserRole.super_admin:
+        input.is_anonymous = False  # Forcer à False si pas super_admin
+    
     # Calculate remise percentage
     pct_remise = calculate_remise_percentage(input.prix_public, input.prix_remise)
     
