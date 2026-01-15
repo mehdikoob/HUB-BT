@@ -1088,6 +1088,29 @@ const TestsLigne = () => {
                   </div>
                 </div>
                 
+                {/* Checkbox Test anonyme - Visible uniquement pour super_admin */}
+                {user?.role === 'super_admin' && (
+                  <div className="border-l-4 border-purple-400 pl-3 py-1.5 bg-purple-50">
+                    <div className="flex items-start gap-2">
+                      <input
+                        type="checkbox"
+                        id="is_anonymous"
+                        checked={formData.is_anonymous}
+                        onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
+                        className="w-4 h-4 mt-0.5 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                      <div className="flex-1">
+                        <Label htmlFor="is_anonymous" className="text-xs font-medium text-purple-900 cursor-pointer">
+                          🔒 Test anonyme
+                        </Label>
+                        <p className="text-xs text-purple-700 mt-0">
+                          Votre identité ne sera pas visible pour les autres utilisateurs
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <div>
                   <Label htmlFor="commentaire" className="text-sm">
                     Commentaire {formData.test_non_realisable && <span className="text-red-600">*</span>}
