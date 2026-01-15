@@ -182,13 +182,14 @@ const Dashboard = () => {
       {stats?.tests_attendus > 0 && (
         <Card className="mb-4 border-0 shadow-sm hover-lift animate-fade-in animation-delay-300">
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
+            {/* Progression globale */}
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-blue-50">
                   <TrendingUp className="text-blue-600" size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600 mb-0.5">Progression mensuelle</p>
+                  <p className="text-xs text-gray-600 mb-0.5">Progression mensuelle globale</p>
                   <p className="text-lg font-bold text-gray-900">
                     <span className="text-blue-600">{stats.tests_effectues}</span> / {stats.tests_attendus} tests
                   </p>
@@ -201,12 +202,57 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-500">Complétion</p>
               </div>
             </div>
-            {/* Progress bar */}
-            <div className="mt-3 bg-gray-200 rounded-full h-1.5">
+            {/* Progress bar globale */}
+            <div className="mb-4 bg-gray-200 rounded-full h-1.5">
               <div 
                 className="bg-blue-600 rounded-full h-1.5 transition-all duration-300"
                 style={{ width: `${Math.min((stats.tests_effectues / stats.tests_attendus) * 100, 100)}%` }}
               ></div>
+            </div>
+            
+            {/* Progression séparée Site / Ligne */}
+            <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100">
+              {/* Tests Site */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-red-700">🌐 Tests Site</span>
+                  <span className="text-xs font-bold text-red-600">
+                    {stats.tests_site_effectues || 0} / {stats.tests_site_attendus || 0}
+                  </span>
+                </div>
+                <div className="bg-red-100 rounded-full h-2">
+                  <div 
+                    className="bg-red-500 rounded-full h-2 transition-all duration-300"
+                    style={{ width: `${stats.tests_site_attendus > 0 ? Math.min((stats.tests_site_effectues / stats.tests_site_attendus) * 100, 100) : 0}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats.tests_site_attendus > 0 
+                    ? `${Math.round((stats.tests_site_effectues / stats.tests_site_attendus) * 100)}% • Reste ${stats.tests_site_attendus - stats.tests_site_effectues}`
+                    : 'Aucun test requis'}
+                </p>
+              </div>
+              
+              {/* Tests Ligne */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-purple-700">📞 Tests Ligne</span>
+                  <span className="text-xs font-bold text-purple-600">
+                    {stats.tests_ligne_effectues || 0} / {stats.tests_ligne_attendus || 0}
+                  </span>
+                </div>
+                <div className="bg-purple-100 rounded-full h-2">
+                  <div 
+                    className="bg-purple-500 rounded-full h-2 transition-all duration-300"
+                    style={{ width: `${stats.tests_ligne_attendus > 0 ? Math.min((stats.tests_ligne_effectues / stats.tests_ligne_attendus) * 100, 100) : 0}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats.tests_ligne_attendus > 0 
+                    ? `${Math.round((stats.tests_ligne_effectues / stats.tests_ligne_attendus) * 100)}% • Reste ${stats.tests_ligne_attendus - stats.tests_ligne_effectues}`
+                    : 'Aucun test requis'}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
