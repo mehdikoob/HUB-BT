@@ -85,6 +85,7 @@ const TestsSite = () => {
     cumul_codes: false,
     commentaire: '',
     screenshots: [],
+    is_anonymous: false,  // Test anonyme (super_admin uniquement)
   });
   const [partenaireUrl, setPartenaireUrl] = useState('');
   const [partenaireReferer, setPartenaireReferer] = useState('');
