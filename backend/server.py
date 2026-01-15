@@ -198,6 +198,7 @@ class TestLigneBase(BaseModel):
     application_offre: Optional[bool] = None
     commentaire: Optional[str] = None
     screenshots: List[str] = []  # Captures d'écran (base64)
+    is_anonymous: bool = False  # Test anonyme (super_admin uniquement)
 
     @field_validator('delai_attente')
     def validate_delai(cls, v):
