@@ -434,6 +434,17 @@ const AgentDashboard = ({ stats }) => {
 
   const groupedTasks = groupTasksByProgramme(stats?.taches_tests || []);
 
+  // Calculs de progression
+  const globalProgress = stats?.tests_attendus > 0 
+    ? Math.round((stats.tests_effectues / stats.tests_attendus) * 100) 
+    : 0;
+  const siteProgress = stats?.tests_site_attendus > 0 
+    ? Math.round((stats.tests_site_effectues / stats.tests_site_attendus) * 100) 
+    : 0;
+  const ligneProgress = stats?.tests_ligne_attendus > 0 
+    ? Math.round((stats.tests_ligne_effectues / stats.tests_ligne_attendus) * 100) 
+    : 0;
+
   return (
     <div data-testid="agent-dashboard">
       {/* Header avec message encourageant */}
@@ -443,6 +454,95 @@ const AgentDashboard = ({ stats }) => {
         </h1>
         <p className="text-gray-600">{stats?.message_encourageant || 'Bienvenue !'}</p>
       </div>
+
+      {/* Progression mensuelle - Visible uniquement si des tests sont attendus */}
+      {stats?.tests_attendus > 0 && (
+        <Card className="mb-6 border-0 shadow-sm">
+          <CardContent className="p-5">
+            {/* Progression globale */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-50">
+                  <TrendingUp className="text-blue-600" size={22} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-0.5">Progression mensuelle</p>
+                  <p className="text-xl font-bold text-gray-900">
+                    <span className="text-blue-600">{stats.tests_effectues}</span> / {stats.tests_attendus} tests
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className={`text-3xl font-bold ${
+                  globalProgress >= 80 ? 'text-green-600' : 
+                  globalProgress >= 50 ? 'text-blue-600' : 
+                  'text-orange-600'
+                }`}>
+                  {globalProgress}%
+                </div>
+                <p className="text-xs text-gray-500">Complétion</p>
+              </div>
+            </div>
+            
+            {/* Barre de progression globale */}
+            <div className="mb-5 bg-gray-200 rounded-full h-2.5">
+              <div 
+                className={`rounded-full h-2.5 transition-all duration-500 ${
+                  globalProgress >= 80 ? 'bg-green-500' : 
+                  globalProgress >= 50 ? 'bg-blue-500' : 
+                  'bg-orange-500'
+                }`}
+                style={{ width: `${Math.min(globalProgress, 100)}%` }}
+              ></div>
+            </div>
+            
+            {/* Progression détaillée Site / Ligne */}
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+              {/* Tests Site */}
+              <div className="bg-red-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-red-800 flex items-center gap-1.5">
+                    🌐 Tests Site
+                  </span>
+                  <span className="text-sm font-bold text-red-600">
+                    {stats.tests_site_effectues || 0} / {stats.tests_site_attendus || 0}
+                  </span>
+                </div>
+                <div className="bg-red-200 rounded-full h-2">
+                  <div 
+                    className="bg-red-500 rounded-full h-2 transition-all duration-500"
+                    style={{ width: `${Math.min(siteProgress, 100)}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-red-700 mt-1.5 font-medium">
+                  {siteProgress}% • Reste {Math.max(0, (stats.tests_site_attendus || 0) - (stats.tests_site_effectues || 0))} test{(stats.tests_site_attendus || 0) - (stats.tests_site_effectues || 0) > 1 ? 's' : ''}
+                </p>
+              </div>
+              
+              {/* Tests Ligne */}
+              <div className="bg-purple-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-purple-800 flex items-center gap-1.5">
+                    📞 Tests Ligne
+                  </span>
+                  <span className="text-sm font-bold text-purple-600">
+                    {stats.tests_ligne_effectues || 0} / {stats.tests_ligne_attendus || 0}
+                  </span>
+                </div>
+                <div className="bg-purple-200 rounded-full h-2">
+                  <div 
+                    className="bg-purple-500 rounded-full h-2 transition-all duration-500"
+                    style={{ width: `${Math.min(ligneProgress, 100)}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-purple-700 mt-1.5 font-medium">
+                  {ligneProgress}% • Reste {Math.max(0, (stats.tests_ligne_attendus || 0) - (stats.tests_ligne_effectues || 0))} test{(stats.tests_ligne_attendus || 0) - (stats.tests_ligne_effectues || 0) > 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Cartes de résumé */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
