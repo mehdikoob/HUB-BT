@@ -14,6 +14,7 @@ import Login from './pages/Login';
 import Parametres from './pages/Parametres';
 import Statistiques from './pages/Statistiques';
 import ConnectionLogs from './pages/ConnectionLogs';
+import Identifiants from './pages/Identifiants';
 import Layout from './components/Layout';
 
 // Protected Route component
