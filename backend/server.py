@@ -2317,12 +2317,12 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         "total_incidents_ouverts": total_incidents_ouverts,
         "taux_reussite_ts": round(taux_reussite_ts, 2),
         "taux_reussite_tl": round(taux_reussite_tl, 2),
-        "tests_non_realisables": total_tests_non_realisables,  # Nombre de tests non réalisables
+        "tests_non_realisables": total_tests_non_realisables,
         "tests_non_realisables_site": tests_site_non_realisables,
         "tests_non_realisables_ligne": tests_ligne_non_realisables,
         "tests_manquants": tests_manquants,
-        "tests_manquants_count": len(tests_manquants),  # Nombre de combinaisons avec tests manquants
-        "tests_manquants_reel": tests_manquants_reel,  # Vrai nombre de tests manquants
+        "tests_manquants_count": len(tests_manquants),
+        "tests_manquants_reel": tests_manquants_reel,
         "partenaires_manquants": partenaires_manquants,
         "tests_manquants_j5": tests_manquants_j5,
         "is_j5_alert": is_j5_alert,
@@ -2331,6 +2331,11 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         "current_year": year,
         "tests_attendus": tests_attendus,
         "tests_effectues": tests_effectues,
+        # Nouveaux champs pour progression séparée
+        "tests_site_attendus": tests_site_attendus,
+        "tests_site_effectues": tests_site_effectues,
+        "tests_ligne_attendus": tests_ligne_attendus,
+        "tests_ligne_effectues": tests_ligne_effectues,
         "pourcentage_mois_ecoule": round(pourcentage_mois_ecoule, 2),
         "pourcentage_tests_effectues": round(pourcentage_tests_effectues, 2),
         "retard": round(retard, 2),
