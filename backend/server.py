@@ -3920,6 +3920,41 @@ async def get_user(user_id: str, current_user: User = Depends(get_current_active
         raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
     return User(**user)
 
+# =====================
+# SETTINGS - Configuration globale
+# =====================
+
+@api_router.get("/settings")
+async def get_app_settings(current_user: User = Depends(get_current_active_user)):
+    """Get global application settings"""
+    settings = await get_settings()
+    return settings
+
+@api_router.put("/settings")
+async def update_app_settings(
+    settings_update: SettingsUpdate,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Update global application settings (Admin/Super Admin only)"""
+    if current_user.role not in [UserRole.admin, UserRole.super_admin]:
+        raise HTTPException(status_code=403, detail="Seuls les administrateurs peuvent modifier les paramètres")
+    
+    # Récupérer les settings actuels
+    current_settings = await get_settings()
+    
+    # Mettre à jour les champs fournis
+    update_data = {k: v for k, v in settings_update.model_dump().items() if v is not None}
+    
+    if update_data:
+        await db.settings.update_one(
+            {"id": "global_settings"},
+            {"$set": update_data}
+        )
+    
+    # Retourner les settings mis à jour
+    updated_settings = await get_settings()
+    return updated_settings
+
 @api_router.post("/users", response_model=User)
 async def create_user(user_create: UserCreate, current_user: User = Depends(get_current_active_user)):
     """Create a new user (Admin or Super Admin only)"""
