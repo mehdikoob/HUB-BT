@@ -32,7 +32,45 @@ const Alertes = () => {
     fetchAlertes();
     fetchProgrammes();
     fetchPartenaires();
+    fetchSettings();
   }, [filter]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${API}/settings`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      const marge = response.data.marge_alerte_remise || 0;
+      setMargeAlerte(marge);
+      setMargeInput(marge.toString());
+    } catch (error) {
+      console.error('Erreur lors du chargement des paramètres:', error);
+    }
+  };
+
+  const handleSaveMarge = async () => {
+    const newMarge = parseFloat(margeInput);
+    if (isNaN(newMarge) || newMarge < 0 || newMarge > 100) {
+      toast.error('La marge doit être un nombre entre 0 et 100');
+      return;
+    }
+    
+    setSavingMarge(true);
+    try {
+      await axios.put(`${API}/settings`, 
+        { marge_alerte_remise: newMarge },
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
+      );
+      setMargeAlerte(newMarge);
+      setSettingsOpen(false);
+      toast.success('Marge d\'erreur mise à jour avec succès');
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error(error.response?.data?.detail || 'Erreur lors de la sauvegarde');
+    } finally {
+      setSavingMarge(false);
+    }
+  };
 
   const fetchAlertes = async () => {
     try {
