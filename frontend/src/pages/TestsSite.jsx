@@ -173,12 +173,13 @@ const TestsSite = () => {
     return '';
   };
 
-  // Get URL, referer and code promo for selected partenaire and programme
+  // Get URL, referer, code promo and expected remise for selected partenaire and programme
   const updatePartenaireInfo = (programmeId, partenaireId) => {
     if (!programmeId || !partenaireId) {
       setPartenaireUrl('');
       setPartenaireReferer('');
       setPartenaireCodePromo('');
+      setRemiseAttendue(null);
       return;
     }
 
@@ -188,10 +189,13 @@ const TestsSite = () => {
       setPartenaireUrl(contact?.url_site || '');
       setPartenaireReferer(contact?.referer || '');
       setPartenaireCodePromo(contact?.code_promo || '');
+      // Remise minimum attendue (au niveau du partenaire)
+      setRemiseAttendue(partenaire.remise_minimum || null);
     } else {
       setPartenaireUrl('');
       setPartenaireReferer('');
       setPartenaireCodePromo('');
+      setRemiseAttendue(null);
     }
   };
 
