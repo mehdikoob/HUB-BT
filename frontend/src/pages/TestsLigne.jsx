@@ -635,7 +635,16 @@ const TestsLigne = () => {
       const response = await axios.get(`${API}/export/bilan-ligne-excel`, {
         params: params,
         responseType: 'blob',
+        headers: getAuthHeader(),
       });
+      
+      // Vérifier si la réponse est une erreur JSON (pas un blob Excel)
+      if (response.data.type === 'application/json') {
+        const text = await response.data.text();
+        const errorData = JSON.parse(text);
+        toast.error(errorData.detail || 'Aucun test trouvé pour cette période');
+        return;
+      }
       
       let filename;
       if (exportType === 'partenaire') {
@@ -657,6 +666,7 @@ const TestsLigne = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
       
       toast.success('Export généré avec succès');
       setBilanDialogOpen(false);
@@ -668,8 +678,19 @@ const TestsLigne = () => {
         date_fin: '',
       });
     } catch (error) {
-      console.error('Erreur:', error);
-      toast.error('Erreur lors de la génération du bilan');
+      console.error('Erreur export:', error);
+      // Essayer de lire le message d'erreur depuis le blob
+      if (error.response?.data instanceof Blob) {
+        try {
+          const text = await error.response.data.text();
+          const errorData = JSON.parse(text);
+          toast.error(errorData.detail || 'Aucun test trouvé pour cette période');
+        } catch {
+          toast.error('Aucun test trouvé pour cette période');
+        }
+      } else {
+        toast.error(error.response?.data?.detail || 'Erreur lors de la génération du bilan');
+      }
     }
   };
 
