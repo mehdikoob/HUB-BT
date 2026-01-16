@@ -164,7 +164,7 @@ const TestsLigne = () => {
 
   useEffect(() => {
     fetchTests();
-  }, [filters]);
+  }, [filters, currentPage, itemsPerPage]);
 
   const fetchData = async () => {
     try {
