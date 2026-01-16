@@ -1106,19 +1106,30 @@ const TestsSite = () => {
                   </div>
                 )}
                 
-                <div>
-                  <Label htmlFor="date_test">Date du test *</Label>
-                  <Input
-                    id="date_test"
-                    type="datetime-local"
-                    data-testid="test-site-date-input"
-                    value={formData.date_test}
-                    onChange={(e) => setFormData({ ...formData, date_test: e.target.value })}
-                    required
-                  />
+                {/* Date du test et Naming constaté sur la même ligne */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="date_test">Date du test *</Label>
+                    <Input
+                      id="date_test"
+                      type="datetime-local"
+                      data-testid="test-site-date-input"
+                      value={formData.date_test}
+                      onChange={(e) => setFormData({ ...formData, date_test: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="naming_constate">Naming constaté</Label>
+                    <Input
+                      id="naming_constate"
+                      data-testid="test-site-naming-input"
+                      value={formData.naming_constate}
+                      onChange={(e) => setFormData({ ...formData, naming_constate: e.target.value })}
+                      placeholder="Code promo - [Nom du programme]"
+                    />
+                  </div>
                 </div>
-                
-                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <Label htmlFor="prix_public" className="text-sm">
                       Prix public (€) {!formData.test_non_realisable && '*'}
