@@ -104,7 +104,7 @@ const Partenaires = () => {
       }
       setDialogOpen(false);
       resetForm();
-      fetchData();
+      fetchPartenaires();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors de l\'enregistrement');
