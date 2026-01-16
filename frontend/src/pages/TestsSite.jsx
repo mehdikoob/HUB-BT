@@ -477,6 +477,7 @@ const TestsSite = () => {
     });
     setEditingTest(null);
     setRemarquesExpanded(false);
+    setRemiseAttendue(null);
   };
 
   const handleEdit = (test) => {
