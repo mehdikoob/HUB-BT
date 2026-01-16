@@ -1941,6 +1941,29 @@ async def export_incident_report(
     story.append(test_table)
     story.append(Spacer(1, 0.3*inch))
     
+    # Remarques importantes (si présentes)
+    remarques = test.get('remarques_importantes')
+    if remarques and remarques.strip():
+        story.append(Paragraph("REMARQUES IMPORTANTES", heading_style))
+        remarques_para = Paragraph(remarques, cell_style)
+        remarques_table = Table([["📝 Remarques", remarques_para]], colWidths=[2.5*inch, 4*inch])
+        remarques_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#fef3c7')),  # Jaune clair
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        story.append(remarques_table)
+        story.append(Spacer(1, 0.3*inch))
+    
     # Liste des alertes
     story.append(Paragraph(f"INCIDENTS DÉTECTÉS ({len(alertes)})", heading_style))
     story.append(Spacer(1, 0.1*inch))
