@@ -497,6 +497,9 @@ const TestsSite = () => {
     });
     // Ouvrir la section remarques si elle contient du texte
     setRemarquesExpanded(!!test.remarques_importantes);
+    // Récupérer la remise attendue du partenaire
+    const partenaire = partenaires.find(p => p.id === test.partenaire_id);
+    setRemiseAttendue(partenaire?.remise_minimum || null);
     setDialogOpen(true);
   };
 
