@@ -1153,9 +1153,30 @@ const TestsSite = () => {
                       value={calculateRemisePercentage() ? `${calculateRemisePercentage()}%` : ''}
                       readOnly
                       disabled
-                      className="bg-gray-50 text-gray-700 font-semibold"
+                      className={`bg-gray-50 font-semibold ${
+                        remiseAttendue && calculateRemisePercentage() && calculateRemisePercentage() < remiseAttendue 
+                          ? 'text-orange-600 border-orange-300' 
+                          : 'text-gray-700'
+                      }`}
                       placeholder="Auto"
                     />
+                    {/* Indicateur de remise attendue */}
+                    {remiseAttendue && !formData.test_non_realisable && (
+                      <p className={`text-xs mt-1 ${
+                        calculateRemisePercentage() && calculateRemisePercentage() >= remiseAttendue
+                          ? 'text-green-600'
+                          : calculateRemisePercentage() && calculateRemisePercentage() < remiseAttendue
+                            ? 'text-orange-600'
+                            : 'text-gray-500'
+                      }`}>
+                        {calculateRemisePercentage() && calculateRemisePercentage() >= remiseAttendue 
+                          ? `✓ Attendue : ≥${remiseAttendue}%`
+                          : calculateRemisePercentage() && calculateRemisePercentage() < remiseAttendue
+                            ? `⚠ Attendue : ≥${remiseAttendue}% (écart: ${(remiseAttendue - calculateRemisePercentage()).toFixed(1)}%)`
+                            : `Attendue : ≥${remiseAttendue}%`
+                        }
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div>
