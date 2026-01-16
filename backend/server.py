@@ -145,6 +145,7 @@ class TestSiteBase(BaseModel):
     naming_constate: Optional[str] = None
     cumul_codes: Optional[bool] = None
     commentaire: Optional[str] = None
+    remarques_importantes: Optional[str] = None  # Remarques importantes (optionnel)
     screenshots: List[str] = []  # IDs GridFS des captures d'écran (CTRL+V)
     is_anonymous: bool = False  # Test anonyme (super_admin uniquement)
 
@@ -197,6 +198,7 @@ class TestLigneBase(BaseModel):
     evaluation_accueil: Optional[EvaluationAccueil] = None
     application_offre: Optional[bool] = None
     commentaire: Optional[str] = None
+    remarques_importantes: Optional[str] = None  # Remarques importantes (optionnel)
     screenshots: List[str] = []  # Captures d'écran (base64)
     is_anonymous: bool = False  # Test anonyme (super_admin uniquement)
 
