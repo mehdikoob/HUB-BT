@@ -2932,6 +2932,10 @@ async def export_bilan_ligne_excel(
                     tests_groupes[key] = []
                 tests_groupes[key].append(test)
         
+        # Vérifier s'il y a des tests à exporter
+        if not tests_groupes:
+            raise HTTPException(status_code=404, detail="Aucun test ligne trouvé pour cette période")
+        
         # Créer le workbook Excel
         wb = Workbook()
         wb.remove(wb.active)  # Supprimer la feuille par défaut
