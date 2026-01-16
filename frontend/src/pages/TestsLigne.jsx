@@ -1598,17 +1598,15 @@ const TestsLigne = () => {
       </Card>
       
       {/* Pagination */}
-      {totalItems > 0 && (
-        <TablePagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={handlePageChange}
-          onItemsPerPageChange={handleItemsPerPageChange}
-          loading={loading}
-        />
-      )}
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+        loading={loading}
+      />
 
       {tests.length === 0 && !loading && (
         <div className="text-center py-12">
