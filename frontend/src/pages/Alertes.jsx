@@ -518,7 +518,7 @@ const Alertes = () => {
           <CardContent className="py-12 text-center">
             <CheckCircle className="mx-auto mb-4 text-green-600" size={48} />
             <p className="text-gray-500 text-lg">Aucun alerte pour le moment</p>
-            <p className="text-sm text-gray-400 mt-2">Les alertes sont créés automatiquement lors de la détection d'anomalies</p>
+            <p className="text-sm text-gray-400 mt-2">Les alertes sont créés automatiquement lors de la détection d&apos;anomalies</p>
           </CardContent>
         </Card>
       )}
