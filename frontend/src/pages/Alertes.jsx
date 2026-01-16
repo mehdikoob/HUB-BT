@@ -66,20 +66,13 @@ const Alertes = () => {
       return;
     }
     
-    setSavingMarge(true);
     try {
-      await axios.put(`${API}/settings`, 
-        { marge_alerte_remise: newMarge },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
-      );
-      setMargeAlerte(newMarge);
+      await updateSettingsMutation.mutateAsync({ marge_alerte_remise: newMarge });
       setSettingsOpen(false);
       toast.success('Marge d\'erreur mise à jour avec succès');
     } catch (error) {
       console.error('Erreur:', error);
       toast.error(error.response?.data?.detail || 'Erreur lors de la sauvegarde');
-    } finally {
-      setSavingMarge(false);
     }
   };
 
