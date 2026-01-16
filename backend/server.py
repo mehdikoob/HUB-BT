@@ -15,7 +15,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
-from typing import List, Optional
+from typing import List, Optional, Generic, TypeVar
 import uuid
 from datetime import datetime, timezone, time
 from enum import Enum
@@ -43,6 +43,10 @@ import base64
 import gridfs
 from bson import ObjectId
 from PyPDF2 import PdfReader, PdfWriter
+import math
+
+# Generic type for pagination
+T = TypeVar('T')
 
 ROOT_DIR = Path(__file__).parent
 UPLOAD_DIR = ROOT_DIR / "uploads"
