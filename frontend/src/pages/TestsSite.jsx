@@ -61,6 +61,12 @@ const TestsSite = () => {
   const [selectedTests, setSelectedTests] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  
   // Initialiser avec le mois en cours
   const currentMonthYear = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
   const [filters, setFilters] = useState({
