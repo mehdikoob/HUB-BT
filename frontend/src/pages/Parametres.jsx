@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '../components/ui/dialog';
 import { Badge } from '../components/ui/badge';
 import { useToast } from '../hooks/use-toast';
-import { Users, UserPlus, Edit, Trash2, Shield, UserCog, Eye, EyeOff, Settings, AlertTriangle } from 'lucide-react';
+import { Users, UserPlus, Edit, Trash2, Shield, UserCog, Eye, EyeOff } from 'lucide-react';
 
 const Parametres = () => {
   const [users, setUsers] = useState([]);
@@ -21,7 +21,7 @@ const Parametres = () => {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);  // Pour le formulaire d'édition/création
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -36,12 +36,8 @@ const Parametres = () => {
     is_active: true,
     programme_id: '',
     partenaire_id: '',
-    programme_ids: []  // Pour les chefs de projet
+    programme_ids: []
   });
-  
-  // Settings globaux
-  const [settings, setSettings] = useState({ marge_alerte_remise: 0 });
-  const [savingSettings, setSavingSettings] = useState(false);
 
   const { getAuthHeader, user: currentUser, fetchCurrentUser } = useAuth();
   const { toast } = useToast();
@@ -51,33 +47,7 @@ const Parametres = () => {
     fetchUsers();
     fetchProgrammes();
     fetchPartenaires();
-    fetchSettings();
   }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/settings`, {
-        headers: getAuthHeader()
-      });
-      setSettings(response.data);
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-    }
-  };
-
-  const handleSaveSettings = async () => {
-    try {
-      setSavingSettings(true);
-      await axios.put(`${API_URL}/api/settings`, settings, {
-        headers: getAuthHeader()
-      });
-      toast({ title: "Paramètres sauvegardés", description: "La marge d'alerte a été mise à jour" });
-    } catch (error) {
-      toast({ title: "Erreur", description: "Impossible de sauvegarder les paramètres", variant: "destructive" });
-    } finally {
-      setSavingSettings(false);
-    }
-  };
 
   const fetchUsers = async () => {
     try {
