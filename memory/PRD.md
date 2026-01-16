@@ -7,9 +7,10 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
 - **Gestion des Partenaires** : CRUD complet avec programmes associés
 - **Tests Site** : Tests de réservation en ligne avec vérification des remises
 - **Tests Ligne** : Tests téléphoniques avec évaluation de l'accueil
-- **Alertes** : Système d'alertes groupées avec points d'attention
+- **Alertes** : Système d'alertes groupées avec points d'attention + Configuration marge d'erreur
 - **Exports** : PDF (rapports d'incidents), Excel (bilans), PowerPoint (présentations)
 - **Dashboard IA** : Insights générés par Gemini 2.5 Flash
+- **Identifiants Mystère** : Gestion des profils de "mystery shoppers"
 
 ## Technology Stack
 - **Backend**: FastAPI + Motor (async MongoDB) + Python
@@ -22,30 +23,34 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
 
 ## What's Been Implemented
 
+### Session 16/01/2026
+
+#### Features Completed ✅
+1. **Configuration Marge d'Erreur sur page Alertes (P0)**
+   - UI avec bouton "Configuration" et popover sur la page Alertes
+   - Champ pour modifier la marge de tolérance (0-100%)
+   - Explication contextuelle intégrée
+   - API `/api/settings` GET/PUT fonctionnelle
+
+2. **Backend API Pagination** (P1 - Backend Complete)
+   - Endpoints `/partenaires`, `/tests-site`, `/tests-ligne`, `/alertes` supportent pagination
+   - Paramètres: `?paginate=true&page={page}&limit={limit}`
+   - Compatible avec les appels existants (backward compatible)
+
+#### Previously Completed ✅
+- Rôle Super Admin et permissions corrigés
+- Dashboard agent amélioré (progression mensuelle + messages motivants)
+- Fonctionnalité "Identifiants Mystère" complète
+- Validation stricte des doublons de tests (erreur 409)
+- Champ "Remarques importantes" dans les tests et exports
+- Indicateur de remise attendue dans les formulaires
+
 ### Session 31/12/2025
 
 #### Bug Fixes Completed ✅
-1. **PPTX Bilan Partenaire Multi-Programmes** (P0 - CRITICAL)
-   - **Problème**: Le rapport PPTX ne générait que les slides du premier programme pour les partenaires avec plusieurs programmes
-   - **Cause**: Erreur d'indentation dans `server.py` (lignes 4011-4136) - les blocs de création des slides 2 et 3 étaient incorrectement imbriqués
-   - **Solution**: Correction de l'indentation pour que toutes les slides soient créées dans la boucle `for programme in programmes:`
-   - **Validation**: Test avec Azureva (7 programmes) → 21 slides générées correctement
-
-2. **PDF Text Overflow - Rapports d'Incidents** (P0)
-   - **Problème**: Le texte long dans les points d'attention débordait des cellules du tableau PDF
-   - **Solution**: Ajout d'un `cell_style` avec `wordWrap='CJK'` pour le retour à la ligne automatique
-   - **Fichier**: `backend/server.py` lignes 1741-1751
-   - **Validation**: PDF avec texte long s'affiche correctement sur 2 pages
-
-#### Previously Completed Features ✅
-- Alertes groupées (plusieurs points d'attention par alerte)
-- Avertissement temps réel pour tests en double
-- Export par Programme (en plus de Partenaire)
-- Colonnes "Objet" et "% remise" dans l'export Excel
-- Login insensible à la casse
-- Migration CSV → Excel formaté (.xlsx)
-- UI responsive pour InsightsIA
-- Tables compactes pour TestsSite/TestsLigne
+1. **PPTX Bilan Partenaire Multi-Programmes**
+2. **PDF Text Overflow - Rapports d'Incidents**
+3. **Export Excel formaté (.xlsx)**
 
 ---
 
@@ -54,12 +59,15 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
 ### P0 (Critical) - Completed ✅
 - [x] Fix PPTX multi-programmes
 - [x] Fix PDF text overflow
+- [x] Configuration marge d'erreur sur page Alertes
 
-### P1 (High Priority) - À faire
-- [ ] **Validation stricte des doublons**: Ajouter blocage côté serveur sur `POST /tests-site` et `POST /tests-ligne` (retourner 409 si doublon)
+### P1 (High Priority) - En cours
+- [x] Validation stricte des doublons (côté serveur)
+- [x] Backend API pagination
+- [ ] **Frontend Pagination**: Implémenter sur `TestsSite.jsx`, `TestsLigne.jsx`, `Alertes.jsx`, `Partenaires.jsx`
 
 ### P2 (Medium Priority)
-- [ ] **Pagination API**: Implémenter sur `/tests-site`, `/tests-ligne`, `/alertes`
+- [ ] **Cache côté client**: React Query ou Context pour données peu changeantes
 
 ### P3 (Low Priority)
 - [ ] **Messagerie**: Envoi d'emails aux partenaires externes
@@ -68,12 +76,16 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
 ---
 
 ## Key API Endpoints
-- `GET /api/export/bilan-partenaire-ppt` - Export PPTX (fixé)
-- `GET /api/export-alerte-report/{test_id}` - Export PDF (fixé)
-- `GET /api/check-duplicate-test` - Vérification doublons (réel-temps)
-- `POST /api/tests-site`, `POST /api/tests-ligne` - Création de tests
+- `GET, PUT /api/settings` - Configuration globale (marge alerte remise)
+- `GET, POST, PUT, DELETE /api/identifiants` - Profils mystery shoppers
+- `GET /api/partenaires?paginate=true&page=1&limit=20` - Pagination partenaires
+- `GET /api/tests-site?paginate=true&page=1&limit=20` - Pagination tests site
+- `GET /api/tests-ligne?paginate=true&page=1&limit=20` - Pagination tests ligne
+- `GET /api/alertes?paginate=true&page=1&limit=20` - Pagination alertes
+- `POST /api/tests-site`, `POST /api/tests-ligne` - Création avec validation doublons (409)
 
 ## Test Credentials
+- **Super Admin**: mkoob@qwertys.fr / admin123
 - **Admin**: admin@hubblindtests.com / admin123
 - **Agent**: test.agent@example.com / agent123
 
