@@ -365,7 +365,7 @@ const Alertes = () => {
               className="flex items-center gap-1 text-xs"
             >
               Date
-              <SortIcon columnKey="created_at" />
+              <SortIcon sortConfig={sortConfig} columnKey="created_at" />
             </Button>
           </div>
         </div>
