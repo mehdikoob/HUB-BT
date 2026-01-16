@@ -980,74 +980,81 @@ const TestsLigne = () => {
                   </div>
                 )}
                 
-                <div>
-                  <Label htmlFor="date_test">Date du test *</Label>
-                  <Input
-                    id="date_test"
-                    type="datetime-local"
-                    data-testid="test-ligne-date-input"
-                    value={formData.date_test}
-                    onChange={(e) => setFormData({ ...formData, date_test: e.target.value })}
-                    required
-                  />
+                {/* Date et Numéro de téléphone sur la même ligne */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="date_test">Date du test *</Label>
+                    <Input
+                      id="date_test"
+                      type="datetime-local"
+                      data-testid="test-ligne-date-input"
+                      value={formData.date_test}
+                      onChange={(e) => setFormData({ ...formData, date_test: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="numero_telephone">
+                      Numéro de téléphone {!formData.test_non_realisable && '*'}
+                    </Label>
+                    <Input
+                      id="numero_telephone"
+                      data-testid="test-ligne-telephone-input"
+                      value={formData.numero_telephone}
+                      onChange={(e) => setFormData({ ...formData, numero_telephone: e.target.value })}
+                      placeholder="+33 X XX XX XX XX"
+                      required={!formData.test_non_realisable}
+                      disabled={formData.test_non_realisable}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="numero_telephone">
-                    Numéro de téléphone {!formData.test_non_realisable && '*'}
-                  </Label>
-                  <Input
-                    id="numero_telephone"
-                    data-testid="test-ligne-telephone-input"
-                    value={formData.numero_telephone}
-                    onChange={(e) => setFormData({ ...formData, numero_telephone: e.target.value })}
-                    placeholder="+33 X XX XX XX XX"
-                    required={!formData.test_non_realisable}
-                    disabled={formData.test_non_realisable}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="delai_attente">
-                    Délai d'attente (mm:ss) {!formData.test_non_realisable && '*'}
-                  </Label>
-                  <Input
-                    id="delai_attente"
-                    data-testid="test-ligne-delai-input"
-                    value={formData.delai_attente}
-                    onChange={(e) => setFormData({ ...formData, delai_attente: e.target.value })}
-                    placeholder="02:30"
-                    required={!formData.test_non_realisable}
-                    disabled={formData.test_non_realisable}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="nom_conseiller">Nom du conseiller</Label>
-                  <Input
-                    id="nom_conseiller"
-                    data-testid="test-ligne-conseiller-input"
-                    value={formData.nom_conseiller}
-                    onChange={(e) => setFormData({ ...formData, nom_conseiller: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="evaluation_accueil">
-                    Évaluation de l'accueil {!formData.test_non_realisable && '*'}
-                  </Label>
-                  <Select
-                    value={formData.evaluation_accueil}
-                    onValueChange={(value) => setFormData({ ...formData, evaluation_accueil: value })}
-                    required={!formData.test_non_realisable}
-                    disabled={formData.test_non_realisable}
-                  >
-                    <SelectTrigger data-testid="test-ligne-evaluation-select">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Excellent">Excellent</SelectItem>
-                      <SelectItem value="Bien">Bien</SelectItem>
-                      <SelectItem value="Moyen">Moyen</SelectItem>
-                      <SelectItem value="Médiocre">Médiocre</SelectItem>
-                    </SelectContent>
-                  </Select>
+                
+                {/* Délai, Nom conseiller et Évaluation sur la même ligne */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <Label htmlFor="delai_attente">
+                      Délai d&apos;attente {!formData.test_non_realisable && '*'}
+                    </Label>
+                    <Input
+                      id="delai_attente"
+                      data-testid="test-ligne-delai-input"
+                      value={formData.delai_attente}
+                      onChange={(e) => setFormData({ ...formData, delai_attente: e.target.value })}
+                      placeholder="mm:ss"
+                      required={!formData.test_non_realisable}
+                      disabled={formData.test_non_realisable}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="nom_conseiller">Nom conseiller</Label>
+                    <Input
+                      id="nom_conseiller"
+                      data-testid="test-ligne-conseiller-input"
+                      value={formData.nom_conseiller}
+                      onChange={(e) => setFormData({ ...formData, nom_conseiller: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="evaluation_accueil">
+                      Évaluation {!formData.test_non_realisable && '*'}
+                    </Label>
+                    <Select
+                      value={formData.evaluation_accueil}
+                      onValueChange={(value) => setFormData({ ...formData, evaluation_accueil: value })}
+                      required={!formData.test_non_realisable}
+                      disabled={formData.test_non_realisable}
+                    >
+                      <SelectTrigger data-testid="test-ligne-evaluation-select">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Excellent">Excellent</SelectItem>
+                        <SelectItem value="Bien">Bien</SelectItem>
+                        <SelectItem value="Moyen">Moyen</SelectItem>
+                        <SelectItem value="Médiocre">Médiocre</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
