@@ -64,9 +64,10 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
 ### P1 (High Priority) - En cours
 - [x] Validation stricte des doublons (côté serveur)
 - [x] Backend API pagination
-- [ ] **Frontend Pagination**: Implémenter sur `TestsSite.jsx`, `TestsLigne.jsx`, `Alertes.jsx`, `Partenaires.jsx`
+- [x] **Frontend Pagination TestsSite et TestsLigne** - Implémenté avec composant TablePagination réutilisable
 
 ### P2 (Medium Priority)
+- [ ] **Frontend Pagination Alertes et Partenaires** - À implémenter
 - [ ] **Cache côté client**: React Query ou Context pour données peu changeantes
 
 ### P3 (Low Priority)
