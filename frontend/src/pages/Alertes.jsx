@@ -12,6 +12,16 @@ import { format } from 'date-fns';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+// Composant SortIcon défini en dehors de Alertes
+const SortIcon = ({ sortConfig, columnKey }) => {
+  if (sortConfig.key !== columnKey) {
+    return <ArrowUpDown size={14} className="ml-1 text-gray-400" />;
+  }
+  return sortConfig.direction === 'asc' ? 
+    <ArrowUp size={14} className="ml-1 text-blue-600" /> : 
+    <ArrowDown size={14} className="ml-1 text-blue-600" />;
+};
+
 const Alertes = () => {
   const [alertes, setAlertes] = useState([]);
   const [loading, setLoading] = useState(true);
