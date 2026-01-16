@@ -594,18 +594,23 @@ const TestsSite = () => {
   const getTestAlerts = (test) => {
     const alerts = [];
     
+    // Test non réalisable
+    if (test.test_non_realisable) {
+      alerts.push('Test non réalisable');
+    }
+    
     // Remise non appliquée
-    if (!test.application_remise) {
+    if (!test.test_non_realisable && !test.application_remise) {
       alerts.push('Remise non appliquée');
     }
     
     // Prix remisé supérieur au prix public
-    if (test.prix_remise > test.prix_public) {
+    if (!test.test_non_realisable && test.prix_remise > test.prix_public) {
       alerts.push('Prix remisé supérieur au prix public');
     }
     
     // Pourcentage de remise négatif ou trop élevé
-    if (test.pct_remise_calcule < 0) {
+    if (!test.test_non_realisable && test.pct_remise_calcule < 0) {
       alerts.push('Remise négative détectée');
     }
     
