@@ -369,7 +369,7 @@ const Alertes = () => {
             <span className="text-sm text-gray-600 font-medium">Filtres :</span>
           </div>
 
-          <Select value={filter || undefined} onValueChange={(value) => setFilter(value === 'all' ? '' : value)}>
+          <Select value={filter || undefined} onValueChange={(value) => updateFilter(value === 'all' ? '' : value)}>
             <SelectTrigger data-testid="filter-statut-select" className="w-40">
               <SelectValue placeholder="Statut" />
             </SelectTrigger>
@@ -380,7 +380,7 @@ const Alertes = () => {
             </SelectContent>
           </Select>
 
-          <Select value={programmeFilter || undefined} onValueChange={(value) => setProgrammeFilter(value === 'all' ? '' : value)}>
+          <Select value={programmeFilter || undefined} onValueChange={(value) => updateProgrammeFilter(value === 'all' ? '' : value)}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Programme" />
             </SelectTrigger>
@@ -394,7 +394,7 @@ const Alertes = () => {
             </SelectContent>
           </Select>
 
-          <Select value={partenaireFilter || undefined} onValueChange={(value) => setPartenaireFilter(value === 'all' ? '' : value)}>
+          <Select value={partenaireFilter || undefined} onValueChange={(value) => updatePartenaireFilter(value === 'all' ? '' : value)}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Partenaire" />
             </SelectTrigger>
