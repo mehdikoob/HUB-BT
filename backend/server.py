@@ -1516,13 +1516,16 @@ async def create_test_ligne(input: TestLigneCreate, current_user: User = Depends
     
     return test
 
-@api_router.get("/tests-ligne", response_model=List[TestLigne])
+@api_router.get("/tests-ligne")
 async def get_tests_ligne(
     programme_id: Optional[str] = Query(None),
     partenaire_id: Optional[str] = Query(None),
     date_debut: Optional[str] = Query(None),
     date_fin: Optional[str] = Query(None),
-    annee: Optional[int] = Query(None),  # Nouveau filtre année
+    annee: Optional[int] = Query(None),
+    page: int = Query(1, ge=1, description="Numéro de page"),
+    limit: int = Query(50, ge=1, le=200, description="Nombre d'éléments par page"),
+    paginate: bool = Query(False, description="Activer la pagination"),
     current_user: User = Depends(get_current_active_user)
 ):
     query = {}
@@ -1564,8 +1567,16 @@ async def get_tests_ligne(
             '$lte': datetime(current_year, 12, 31, 23, 59, 59).isoformat()
         }
     
-    # Augmenter limite à 5000 pour supporter une année complète
-    tests = await db.tests_ligne.find(query, {"_id": 0}).to_list(5000)
+    # Compter le total pour pagination
+    total = await db.tests_ligne.count_documents(query)
+    
+    # Pagination ou récupération complète
+    if paginate:
+        skip = (page - 1) * limit
+        tests = await db.tests_ligne.find(query, {"_id": 0}).sort("date_test", -1).skip(skip).limit(limit).to_list(limit)
+    else:
+        # Sans pagination: limite à 5000 pour compatibilité
+        tests = await db.tests_ligne.find(query, {"_id": 0}).sort("date_test", -1).to_list(5000)
     
     # Optimisation: Récupérer tous les users en une seule requête (évite N+1)
     user_ids = list(set([t['user_id'] for t in tests if t.get('user_id')]))
@@ -1603,6 +1614,16 @@ async def get_tests_ligne(
                 "email": user.get('email'),
                 "role": user.get('role')
             }
+    
+    # Retourner format paginé ou liste simple
+    if paginate:
+        return {
+            "items": tests,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "pages": math.ceil(total / limit) if total > 0 else 1
+        }
     
     return tests
 
