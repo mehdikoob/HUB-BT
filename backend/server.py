@@ -1786,13 +1786,31 @@ async def get_incidents(
     return alertes
 
 @api_router.get("/alertes/enriched")
-async def get_incidents_enriched(statut: Optional[StatutAlerte] = Query(None)):
+async def get_incidents_enriched(
+    statut: Optional[StatutAlerte] = Query(None),
+    programme_id: Optional[str] = Query(None),
+    partenaire_id: Optional[str] = Query(None),
+    paginate: bool = Query(False, description="Activer la pagination"),
+    page: int = Query(1, ge=1, description="Numéro de page"),
+    limit: int = Query(20, ge=1, le=100, description="Nombre d'éléments par page")
+):
     """Get alertes with programme and partenaire details"""
     query = {}
     if statut:
         query['statut'] = statut
+    if programme_id:
+        query['programme_id'] = programme_id
+    if partenaire_id:
+        query['partenaire_id'] = partenaire_id
     
-    alertes = await db.alertes.find(query, {"_id": 0}).to_list(1000)
+    # Count total for pagination
+    total = await db.alertes.count_documents(query)
+    
+    if paginate:
+        skip = (page - 1) * limit
+        alertes = await db.alertes.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    else:
+        alertes = await db.alertes.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     
     # Enrich with programme and partenaire data
     for alerte in alertes:
@@ -1812,6 +1830,15 @@ async def get_incidents_enriched(statut: Optional[StatutAlerte] = Query(None)):
             if partenaire:
                 alerte['partenaire_nom'] = partenaire['nom']
                 alerte['partenaire_contact_email'] = partenaire.get('contact_email')
+    
+    if paginate:
+        return {
+            "items": alertes,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "pages": (total + limit - 1) // limit
+        }
     
     return alertes
 
