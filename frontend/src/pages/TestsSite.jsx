@@ -340,6 +340,12 @@ const TestsSite = () => {
     setSelectAll(false);
   };
 
+  // Fonction pour mettre à jour les filtres et réinitialiser la page
+  const updateFilters = (newFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
