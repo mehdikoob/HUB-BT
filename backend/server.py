@@ -475,6 +475,24 @@ class PaginatedResponse(BaseModel):
     limit: int
     pages: int
 
+# Modèle Settings pour les paramètres globaux
+class Settings(BaseModel):
+    id: str = "global_settings"
+    marge_alerte_remise: float = 0.0  # Marge d'erreur en % pour les alertes de remise (ex: 2.0 = tolérance de 2%)
+    
+class SettingsUpdate(BaseModel):
+    marge_alerte_remise: Optional[float] = None
+
+# Helper function pour récupérer les settings
+async def get_settings():
+    settings = await db.settings.find_one({"id": "global_settings"}, {"_id": 0})
+    if not settings:
+        # Créer les settings par défaut
+        default_settings = Settings().model_dump()
+        await db.settings.insert_one(default_settings)
+        return default_settings
+    return settings
+
 # Helper functions
 def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float:
     if prix_public <= 0:
