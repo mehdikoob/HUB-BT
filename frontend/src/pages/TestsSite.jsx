@@ -84,6 +84,7 @@ const TestsSite = () => {
     naming_constate: '',
     cumul_codes: false,
     commentaire: '',
+    remarques_importantes: '',  // Remarques importantes (optionnel)
     screenshots: [],
     is_anonymous: false,  // Test anonyme (super_admin uniquement)
   });
@@ -92,6 +93,7 @@ const TestsSite = () => {
   const [partenaireCodePromo, setPartenaireCodePromo] = useState('');
   const [programmeInfo, setProgrammeInfo] = useState(null);
   const [programmeInfoExpanded, setProgrammeInfoExpanded] = useState(false);
+  const [remarquesExpanded, setRemarquesExpanded] = useState(false);  // Pour la section dépliable
   const [filteredPartenaires, setFilteredPartenaires] = useState([]);
   const [filteredProgrammes, setFilteredProgrammes] = useState([]);
   const [duplicateWarning, setDuplicateWarning] = useState(null);
