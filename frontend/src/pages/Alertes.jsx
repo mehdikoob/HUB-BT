@@ -377,7 +377,7 @@ const Alertes = () => {
             <SelectContent>
               <SelectItem value="all">Tous les programmes</SelectItem>
               {programmes.map((prog) => (
-                <SelectItem key={prog.id} value={prog.nom}>
+                <SelectItem key={prog.id} value={prog.id}>
                   {prog.nom}
                 </SelectItem>
               ))}
@@ -391,7 +391,7 @@ const Alertes = () => {
             <SelectContent>
               <SelectItem value="all">Tous les partenaires</SelectItem>
               {partenaires.map((part) => (
-                <SelectItem key={part.id} value={part.nom}>
+                <SelectItem key={part.id} value={part.id}>
                   {part.nom}
                 </SelectItem>
               ))}
