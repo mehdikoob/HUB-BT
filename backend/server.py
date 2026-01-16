@@ -1136,10 +1136,17 @@ async def verify_remise(partenaire_id: str, remise_calculee: float):
     if remise_minimum is None:
         return {"conforme": True, "message": "Aucune remise minimum définie"}
     
-    if remise_calculee < remise_minimum:
+    # Récupérer la marge d'erreur configurée
+    settings = await get_settings()
+    marge = settings.get('marge_alerte_remise', 0.0)
+    
+    # Appliquer la tolérance : remise conforme si >= (minimum - marge)
+    seuil_alerte = remise_minimum - marge
+    
+    if remise_calculee < seuil_alerte:
         return {
             "conforme": False,
-            "message": f"Remise insuffisante: {remise_calculee}% < {remise_minimum}% attendu",
+            "message": f"Remise insuffisante: {remise_calculee}% < {remise_minimum}% attendu (marge: {marge}%)",
             "ecart": remise_minimum - remise_calculee
         }
     
