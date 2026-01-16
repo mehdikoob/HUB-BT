@@ -575,18 +575,23 @@ const TestsLigne = () => {
   const getTestAlerts = (test) => {
     const alerts = [];
     
+    // Test non réalisable
+    if (test.test_non_realisable) {
+      alerts.push('Test non réalisable');
+    }
+    
     // Offre non appliquée
-    if (!test.application_offre) {
+    if (!test.test_non_realisable && !test.application_offre) {
       alerts.push('Offre non appliquée');
     }
     
     // Évaluation médiocre ou moyenne
-    if (test.evaluation_accueil === 'Médiocre' || test.evaluation_accueil === 'Moyen') {
+    if (!test.test_non_realisable && (test.evaluation_accueil === 'Médiocre' || test.evaluation_accueil === 'Moyen')) {
       alerts.push(`Accueil ${test.evaluation_accueil.toLowerCase()}`);
     }
     
     // Délai d'attente trop long (> 3 minutes)
-    if (test.delai_attente) {
+    if (!test.test_non_realisable && test.delai_attente) {
       const parts = test.delai_attente.split(':');
       if (parts.length === 2) {
         const minutes = parseInt(parts[0], 10);
