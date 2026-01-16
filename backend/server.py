@@ -1675,9 +1675,12 @@ async def delete_test_ligne(test_id: str):
     return {"message": "Test supprimé"}
 
 # Routes - Incidents
-@api_router.get("/alertes", response_model=List[Alerte])
+@api_router.get("/alertes")
 async def get_incidents(
     statut: Optional[StatutAlerte] = Query(None),
+    page: int = Query(1, ge=1, description="Numéro de page"),
+    limit: int = Query(50, ge=1, le=200, description="Nombre d'éléments par page"),
+    paginate: bool = Query(False, description="Activer la pagination"),
     current_user: User = Depends(get_current_active_user)
 ):
     query = {}
@@ -1695,12 +1698,32 @@ async def get_incidents(
     if statut:
         query['statut'] = statut
     
-    alertes = await db.alertes.find(query, {"_id": 0}).to_list(1000)
+    # Compter le total pour pagination
+    total = await db.alertes.count_documents(query)
+    
+    # Pagination ou récupération complète
+    if paginate:
+        skip = (page - 1) * limit
+        alertes = await db.alertes.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    else:
+        alertes = await db.alertes.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
     for i in alertes:
         if isinstance(i.get('created_at'), str):
             i['created_at'] = datetime.fromisoformat(i['created_at'])
         if i.get('resolved_at') and isinstance(i['resolved_at'], str):
             i['resolved_at'] = datetime.fromisoformat(i['resolved_at'])
+    
+    # Retourner format paginé ou liste simple
+    if paginate:
+        return {
+            "items": alertes,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "pages": math.ceil(total / limit) if total > 0 else 1
+        }
+    
     return alertes
 
 @api_router.get("/alertes/enriched")
