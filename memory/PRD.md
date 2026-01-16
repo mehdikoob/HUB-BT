@@ -67,8 +67,8 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
 - [x] **Frontend Pagination TestsSite et TestsLigne** - Implémenté avec composant TablePagination réutilisable
 - [x] **Frontend Pagination Alertes et Partenaires** - Implémenté avec filtres côté serveur
 
-### P2 (Medium Priority)
-- [ ] **Cache côté client**: React Query ou Context pour données peu changeantes
+### P2 (Medium Priority) - Terminé ✅
+- [x] **Cache côté client avec React Query** - Implémenté pour programmes, partenaires, settings
 
 ### P3 (Low Priority)
 - [ ] **Messagerie**: Envoi d'emails aux partenaires externes
