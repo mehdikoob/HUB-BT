@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
+import TablePagination from '../components/TablePagination';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -16,6 +17,13 @@ const Partenaires = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPartenaire, setEditingPartenaire] = useState(null);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  
   const [formData, setFormData] = useState({
     nom: '',
     programmes_ids: [],
@@ -25,23 +33,58 @@ const Partenaires = () => {
   });
 
   useEffect(() => {
-    fetchData();
+    fetchProgrammes();
   }, []);
 
-  const fetchData = async () => {
+  useEffect(() => {
+    fetchPartenaires();
+  }, [currentPage, itemsPerPage]);
+
+  const fetchProgrammes = async () => {
     try {
-      const [partResponse, progResponse] = await Promise.all([
-        axios.get(`${API}/partenaires`),
-        axios.get(`${API}/programmes`),
-      ]);
-      setPartenaires(partResponse.data);
-      setProgrammes(progResponse.data);
+      const response = await axios.get(`${API}/programmes`);
+      setProgrammes(response.data);
+    } catch (error) {
+      console.error('Erreur:', error);
+    }
+  };
+
+  const fetchPartenaires = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/partenaires`, {
+        params: {
+          paginate: true,
+          page: currentPage,
+          limit: itemsPerPage
+        }
+      });
+      
+      if (response.data.items) {
+        setPartenaires(response.data.items);
+        setTotalItems(response.data.total);
+        setTotalPages(response.data.pages);
+      } else {
+        setPartenaires(response.data);
+        setTotalItems(response.data.length);
+        setTotalPages(1);
+      }
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors du chargement');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handlers pagination
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newLimit) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1);
   };
 
   const handleSubmit = async (e) => {

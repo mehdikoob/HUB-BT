@@ -9,6 +9,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import TablePagination from '../components/TablePagination';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -32,6 +33,12 @@ const Alertes = () => {
   const [programmes, setProgrammes] = useState([]);
   const [partenaires, setPartenaires] = useState([]);
   
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  
   // État pour la configuration de la marge d'erreur
   const [margeAlerte, setMargeAlerte] = useState(0);
   const [margeInput, setMargeInput] = useState('0');
@@ -39,11 +46,14 @@ const Alertes = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
-    fetchAlertes();
     fetchProgrammes();
     fetchPartenaires();
     fetchSettings();
-  }, [filter]);
+  }, []);
+
+  useEffect(() => {
+    fetchAlertes();
+  }, [filter, programmeFilter, partenaireFilter, currentPage, itemsPerPage]);
 
   const fetchSettings = async () => {
     try {
