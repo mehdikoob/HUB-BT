@@ -210,15 +210,6 @@ const Alertes = () => {
     return filtered;
   };
 
-  const SortIcon = ({ columnKey }) => {
-    if (sortConfig.key !== columnKey) {
-      return <ArrowUpDown size={14} className="ml-1 text-gray-400" />;
-    }
-    return sortConfig.direction === 'asc' ? 
-      <ArrowUp size={14} className="ml-1 text-blue-600" /> : 
-      <ArrowDown size={14} className="ml-1 text-blue-600" />;
-  };
-
   if (loading) {
     return <div className="text-center py-8">Chargement...</div>;
   }
