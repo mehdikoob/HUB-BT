@@ -95,6 +95,7 @@ const TestsLigne = () => {
     evaluation_accueil: 'Bien',
     application_offre: true,
     commentaire: '',
+    remarques_importantes: '',  // Remarques importantes (optionnel)
     screenshots: [],
     is_anonymous: false,  // Test anonyme (super_admin uniquement)
   });
@@ -105,6 +106,7 @@ const TestsLigne = () => {
   const [filteredProgrammes, setFilteredProgrammes] = useState([]);
   const [duplicateWarning, setDuplicateWarning] = useState(null);
   const [checkingDuplicate, setCheckingDuplicate] = useState(false);
+  const [remarquesExpanded, setRemarquesExpanded] = useState(false);  // Pour la section dépliable
 
   // Initialize date with current datetime when dialog opens
   useEffect(() => {
