@@ -325,7 +325,18 @@ const Partenaires = () => {
         ))}
       </div>
 
-      {partenaires.length === 0 && (
+      {/* Pagination */}
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+        loading={loading}
+      />
+
+      {partenaires.length === 0 && !loading && (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">Aucun partenaire pour le moment</p>
           <Button onClick={resetForm} className="bg-red-600 hover:bg-red-700">
