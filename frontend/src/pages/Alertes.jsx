@@ -237,17 +237,7 @@ const Alertes = () => {
   const getFilteredAndSortedAlertes = () => {
     let filtered = [...alertes];
 
-    // Apply programme filter
-    if (programmeFilter) {
-      filtered = filtered.filter(a => a.programme_nom === programmeFilter);
-    }
-
-    // Apply partenaire filter
-    if (partenaireFilter) {
-      filtered = filtered.filter(a => a.partenaire_nom === partenaireFilter);
-    }
-
-    // Apply sorting (only by date)
+    // Apply sorting (only by date) - filtrage fait côté serveur
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         const aVal = new Date(a[sortConfig.key]);
