@@ -1233,6 +1233,41 @@ const TestsSite = () => {
                   />
                 </div>
                 
+                {/* Section dépliable - Remarques importantes */}
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setRemarquesExpanded(!remarquesExpanded)}
+                    className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <span>📝</span>
+                      Ajouter des remarques importantes
+                      <span className="text-xs text-gray-400 font-normal">(optionnel)</span>
+                    </span>
+                    <ChevronDown 
+                      size={18} 
+                      className={`text-gray-400 transition-transform duration-200 ${remarquesExpanded ? 'rotate-180' : ''}`} 
+                    />
+                  </button>
+                  {remarquesExpanded && (
+                    <div className="p-3 bg-white border-t border-gray-200">
+                      <Textarea
+                        id="remarques_importantes"
+                        data-testid="test-site-remarques-input"
+                        value={formData.remarques_importantes}
+                        onChange={(e) => setFormData({ ...formData, remarques_importantes: e.target.value })}
+                        rows={3}
+                        placeholder="Remarques à inclure dans les exports (ex: point d'attention, contexte particulier...)"
+                        className="text-sm"
+                      />
+                      <p className="text-xs text-gray-500 mt-1.5">
+                        Ces remarques seront incluses dans les exports Excel et PDF.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                
                 {/* Screenshot Uploader - CTRL+V */}
                 <ScreenshotUploader
                   screenshots={formData.screenshots}
