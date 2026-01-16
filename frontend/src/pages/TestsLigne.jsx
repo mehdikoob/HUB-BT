@@ -258,7 +258,12 @@ const TestsLigne = () => {
 
   const fetchTests = async () => {
     try {
-      const params = {};
+      setLoading(true);
+      const params = {
+        paginate: true,
+        page: currentPage,
+        limit: itemsPerPage
+      };
       if (filters.programme_id) params.programme_id = filters.programme_id;
       if (filters.partenaire_id) params.partenaire_id = filters.partenaire_id;
       
@@ -276,11 +281,44 @@ const TestsLigne = () => {
         params,
         headers: getAuthHeader()
       });
-      setTests(response.data);
+      
+      // Gérer la réponse paginée
+      if (response.data.items) {
+        setTests(response.data.items);
+        setTotalItems(response.data.total);
+        setTotalPages(response.data.pages);
+      } else {
+        // Fallback si pas paginé
+        setTests(response.data);
+        setTotalItems(response.data.length);
+        setTotalPages(1);
+      }
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors du chargement des tests');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Handlers pagination
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    setSelectedTests([]);
+    setSelectAll(false);
+  };
+
+  const handleItemsPerPageChange = (newLimit) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1);
+    setSelectedTests([]);
+    setSelectAll(false);
+  };
+
+  // Fonction pour mettre à jour les filtres et réinitialiser la page
+  const updateFilters = (newFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
   };
 
   const handleSubmit = async (e) => {
