@@ -91,6 +91,7 @@ const TestsSite = () => {
   const [partenaireUrl, setPartenaireUrl] = useState('');
   const [partenaireReferer, setPartenaireReferer] = useState('');
   const [partenaireCodePromo, setPartenaireCodePromo] = useState('');
+  const [remiseAttendue, setRemiseAttendue] = useState(null);  // Remise minimum attendue
   const [programmeInfo, setProgrammeInfo] = useState(null);
   const [programmeInfoExpanded, setProgrammeInfoExpanded] = useState(false);
   const [remarquesExpanded, setRemarquesExpanded] = useState(false);  // Pour la section dépliable
