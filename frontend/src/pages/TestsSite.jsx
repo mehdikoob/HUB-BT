@@ -1399,7 +1399,7 @@ const TestsSite = () => {
             <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
               <Select
                 value={filters.programme_id || undefined}
-                onValueChange={(value) => setFilters({ ...filters, programme_id: value === 'all' ? '' : value })}
+                onValueChange={(value) => updateFilters({ ...filters, programme_id: value === 'all' ? '' : value })}
               >
                 <SelectTrigger data-testid="filter-programme-select">
                   <SelectValue placeholder="Filtrer par programme" />
@@ -1415,7 +1415,7 @@ const TestsSite = () => {
               </Select>
               <Select
                 value={filters.partenaire_id || undefined}
-                onValueChange={(value) => setFilters({ ...filters, partenaire_id: value === 'all' ? '' : value })}
+                onValueChange={(value) => updateFilters({ ...filters, partenaire_id: value === 'all' ? '' : value })}
               >
                 <SelectTrigger data-testid="filter-partenaire-select">
                   <SelectValue placeholder="Filtrer par partenaire" />
@@ -1441,7 +1441,7 @@ const TestsSite = () => {
                 </Label>
                 <Select
                   value={filters.date_debut}
-                  onValueChange={(value) => setFilters({ ...filters, date_debut: value })}
+                  onValueChange={(value) => updateFilters({ ...filters, date_debut: value })}
                 >
                   <SelectTrigger id="filter-date-debut" data-testid="filter-date-debut">
                     <SelectValue placeholder="Sélectionner un mois" />
@@ -1461,7 +1461,7 @@ const TestsSite = () => {
                 </Label>
                 <Select
                   value={filters.date_fin}
-                  onValueChange={(value) => setFilters({ ...filters, date_fin: value })}
+                  onValueChange={(value) => updateFilters({ ...filters, date_fin: value })}
                 >
                   <SelectTrigger id="filter-date-fin" data-testid="filter-date-fin">
                     <SelectValue placeholder="Sélectionner un mois" />
@@ -1481,7 +1481,7 @@ const TestsSite = () => {
               size="sm"
               onClick={() => {
                 const current = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-                setFilters({ ...filters, date_debut: current, date_fin: current });
+                updateFilters({ ...filters, date_debut: current, date_fin: current });
               }}
               className="text-red-600 hover:text-red-700 hover:bg-red-50"
             >
