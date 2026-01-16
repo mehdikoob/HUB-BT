@@ -287,7 +287,7 @@ const Alertes = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setMargeInput(margeAlerte.toString());
+                      setMargeInput((settings?.marge_alerte_remise || 0).toString());
                       setSettingsOpen(false);
                     }}
                   >
@@ -296,18 +296,18 @@ const Alertes = () => {
                   <Button
                     size="sm"
                     onClick={handleSaveMarge}
-                    disabled={savingMarge}
+                    disabled={updateSettingsMutation.isPending}
                     data-testid="save-marge-btn"
                     className="bg-blue-600 hover:bg-blue-700"
                   >
-                    {savingMarge ? 'Enregistrement...' : 'Enregistrer'}
+                    {updateSettingsMutation.isPending ? 'Enregistrement...' : 'Enregistrer'}
                   </Button>
                 </div>
                 
-                {margeAlerte > 0 && (
+                {settings?.marge_alerte_remise > 0 && (
                   <div className="pt-2 border-t">
                     <p className="text-xs text-gray-500">
-                      Marge actuelle : <span className="font-medium text-gray-700">{margeAlerte}%</span>
+                      Marge actuelle : <span className="font-medium text-gray-700">{settings.marge_alerte_remise}%</span>
                     </p>
                   </div>
                 )}
