@@ -2757,7 +2757,7 @@ async def export_bilan_site_excel(
             ws = wb.create_sheet(title=sheet_name)
             
             # Titre principal (ligne 1 fusionnée)
-            ws.merge_cells('A1:H1')
+            ws.merge_cells('A1:I1')
             title_cell = ws['A1']
             title_cell.value = title_text
             title_cell.font = title_font
@@ -2767,7 +2767,7 @@ async def export_bilan_site_excel(
             # En-têtes (ligne 2)
             headers = ['MOIS', 'DATE EXACTE', 'OBJET', 'APPLICATION DE LA REMISE', 
                        'Application claire (Prix GP vs Prix remisé)', '% REMISE', 'Naming de la remise', 
-                       'Cumul des codes promos']
+                       'Cumul des codes promos', 'Remarques importantes']
             
             for col_num, header in enumerate(headers, 1):
                 cell = ws.cell(row=2, column=col_num)
@@ -2808,6 +2808,7 @@ async def export_bilan_site_excel(
                     f"{test.get('pct_remise_calcule', 0)}%",  # % REMISE
                     test.get('naming_constate', ''),  # Naming de la remise
                     'Oui' if test.get('cumul_codes') else 'Non',  # Cumul des codes promos
+                    test.get('remarques_importantes', ''),  # Remarques importantes
                 ]
                 
                 for col_num, value in enumerate(row_data, 1):
@@ -2825,7 +2826,8 @@ async def export_bilan_site_excel(
                 'E': 30,  # Application claire
                 'F': 12,  # % REMISE
                 'G': 30,  # Naming
-                'H': 25   # Cumul codes
+                'H': 25,  # Cumul codes
+                'I': 40   # Remarques importantes
             }
             
             for col_letter, width in column_widths.items():
