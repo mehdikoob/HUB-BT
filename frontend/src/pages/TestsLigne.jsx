@@ -452,9 +452,11 @@ const TestsLigne = () => {
       evaluation_accueil: 'Bien',
       application_offre: true,
       commentaire: '',
+      remarques_importantes: '',
       screenshots: [],
     });
     setEditingTest(null);
+    setRemarquesExpanded(false);
   };
 
   const handleEdit = (test) => {
@@ -472,8 +474,11 @@ const TestsLigne = () => {
       evaluation_accueil: test.evaluation_accueil || 'Bien',
       application_offre: test.application_offre !== undefined ? test.application_offre : true,
       commentaire: test.commentaire || '',
+      remarques_importantes: test.remarques_importantes || '',
       screenshots: test.screenshots || [],
     });
+    // Ouvrir la section remarques si elle contient du texte
+    setRemarquesExpanded(!!test.remarques_importantes);
     setDialogOpen(true);
   };
 
