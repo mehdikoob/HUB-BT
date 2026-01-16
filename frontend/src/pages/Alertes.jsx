@@ -10,6 +10,7 @@ import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import TablePagination from '../components/TablePagination';
+import { useProgrammes, usePartenairesAll, useSettings, useUpdateSettings } from '../hooks/useData';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
