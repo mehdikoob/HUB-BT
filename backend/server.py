@@ -1017,12 +1017,41 @@ async def create_partenaire(input: PartenaireCreate):
     await db.partenaires.insert_one(doc)
     return partenaire
 
-@api_router.get("/partenaires", response_model=List[Partenaire])
-async def get_partenaires():
-    partenaires = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/partenaires")
+async def get_partenaires(
+    page: int = Query(1, ge=1, description="Numéro de page"),
+    limit: int = Query(100, ge=1, le=500, description="Nombre d'éléments par page"),
+    paginate: bool = Query(False, description="Activer la pagination"),
+    search: Optional[str] = Query(None, description="Recherche par nom")
+):
+    query = {}
+    if search:
+        query['nom'] = {'$regex': search, '$options': 'i'}
+    
+    # Compter le total pour pagination
+    total = await db.partenaires.count_documents(query)
+    
+    # Pagination ou récupération complète
+    if paginate:
+        skip = (page - 1) * limit
+        partenaires = await db.partenaires.find(query, {"_id": 0}).sort("nom", 1).skip(skip).limit(limit).to_list(limit)
+    else:
+        partenaires = await db.partenaires.find(query, {"_id": 0}).sort("nom", 1).to_list(1000)
+    
     for p in partenaires:
         if isinstance(p.get('created_at'), str):
             p['created_at'] = datetime.fromisoformat(p['created_at'])
+    
+    # Retourner format paginé ou liste simple
+    if paginate:
+        return {
+            "items": partenaires,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "pages": math.ceil(total / limit) if total > 0 else 1
+        }
+    
     return partenaires
 
 @api_router.get("/contacts/all")
