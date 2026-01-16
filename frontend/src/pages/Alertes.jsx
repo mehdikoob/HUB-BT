@@ -133,24 +133,6 @@ const Alertes = () => {
     setCurrentPage(1);
   };
 
-  const fetchProgrammes = async () => {
-    try {
-      const response = await axios.get(`${API}/programmes`);
-      setProgrammes(response.data);
-    } catch (error) {
-      console.error('Erreur:', error);
-    }
-  };
-
-  const fetchPartenaires = async () => {
-    try {
-      const response = await axios.get(`${API}/partenaires`);
-      setPartenaires(response.data);
-    } catch (error) {
-      console.error('Erreur:', error);
-    }
-  };
-
   const handleResolve = async (id) => {
     if (!window.confirm('Marquer cet alerte comme résolu ?')) return;
     try {
