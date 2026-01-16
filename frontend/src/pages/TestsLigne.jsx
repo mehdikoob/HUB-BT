@@ -864,7 +864,7 @@ const TestsLigne = () => {
                   Nouveau test
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-lg">{editingTest ? 'Modifier le test ligne' : 'Nouveau test ligne'}</DialogTitle>
               </DialogHeader>
@@ -1114,9 +1114,6 @@ const TestsLigne = () => {
                       <Label htmlFor="test_non_realisable" className="text-xs font-medium text-orange-900 cursor-pointer">
                         Test non réalisable
                       </Label>
-                      <p className="text-xs text-orange-700 mt-0">
-                        Cocher uniquement si le test n&apos;a pas pu être effectué
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -1136,9 +1133,6 @@ const TestsLigne = () => {
                         <Label htmlFor="is_anonymous" className="text-xs font-medium text-purple-900 cursor-pointer">
                           🔒 Test anonyme
                         </Label>
-                        <p className="text-xs text-purple-700 mt-0">
-                          Votre identité ne sera pas visible pour les autres utilisateurs
-                        </p>
                       </div>
                     </div>
                   </div>
