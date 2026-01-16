@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import ScreenshotUploader from '../components/ScreenshotUploader';
+import TablePagination from '../components/TablePagination';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
