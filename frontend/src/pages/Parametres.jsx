@@ -556,6 +556,60 @@ const Parametres = () => {
         </Dialog>
       </div>
 
+      {/* Paramètres des Alertes */}
+      <Card className="border-orange-200">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <AlertTriangle className="h-5 w-5 mr-2 text-orange-500" />
+            Configuration des Alertes
+          </CardTitle>
+          <CardDescription>
+            Paramétrez les seuils de tolérance pour la génération des alertes
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="p-4 border rounded-lg bg-orange-50/50">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 mr-4">
+                  <Label htmlFor="marge_alerte" className="text-base font-medium">
+                    Marge de tolérance sur les remises
+                  </Label>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Écart en % accepté avant de créer une alerte. Ex: si la remise attendue est 20% et la marge est 2%, une remise de 18% ou plus ne déclenchera pas d'alerte.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="marge_alerte"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="100"
+                    value={settings.marge_alerte_remise}
+                    onChange={(e) => setSettings({ ...settings, marge_alerte_remise: parseFloat(e.target.value) || 0 })}
+                    className="w-20 text-center"
+                  />
+                  <span className="text-gray-600 font-medium">%</span>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <Button 
+                  onClick={handleSaveSettings}
+                  disabled={savingSettings}
+                  className="bg-orange-600 hover:bg-orange-700"
+                >
+                  {savingSettings ? 'Sauvegarde...' : 'Sauvegarder'}
+                </Button>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 italic">
+              💡 Une marge de 0% signifie qu'aucune tolérance n'est appliquée : toute remise inférieure à l'attendu générera une alerte.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Mon Compte - Changement de mot de passe */}
       <Card>
         <CardHeader>
