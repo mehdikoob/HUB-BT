@@ -61,13 +61,13 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
 - [x] Fix PDF text overflow
 - [x] Configuration marge d'erreur sur page Alertes
 
-### P1 (High Priority) - En cours
+### P1 (High Priority) - Terminé ✅
 - [x] Validation stricte des doublons (côté serveur)
 - [x] Backend API pagination
 - [x] **Frontend Pagination TestsSite et TestsLigne** - Implémenté avec composant TablePagination réutilisable
+- [x] **Frontend Pagination Alertes et Partenaires** - Implémenté avec filtres côté serveur
 
 ### P2 (Medium Priority)
-- [ ] **Frontend Pagination Alertes et Partenaires** - À implémenter
 - [ ] **Cache côté client**: React Query ou Context pour données peu changeantes
 
 ### P3 (Low Priority)
