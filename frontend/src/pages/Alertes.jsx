@@ -31,8 +31,6 @@ const Alertes = () => {
   const [programmeFilter, setProgrammeFilter] = useState('');
   const [partenaireFilter, setPartenaireFilter] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
-  const [programmes, setProgrammes] = useState([]);
-  const [partenaires, setPartenaires] = useState([]);
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,33 +39,25 @@ const Alertes = () => {
   const [totalPages, setTotalPages] = useState(1);
   
   // État pour la configuration de la marge d'erreur
-  const [margeAlerte, setMargeAlerte] = useState(0);
   const [margeInput, setMargeInput] = useState('0');
-  const [savingMarge, setSavingMarge] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
+  // Hooks React Query avec cache
+  const { data: programmes = [] } = useProgrammes();
+  const { data: partenaires = [] } = usePartenairesAll();
+  const { data: settings } = useSettings();
+  const updateSettingsMutation = useUpdateSettings();
+  
+  // Synchroniser margeInput avec settings
   useEffect(() => {
-    fetchProgrammes();
-    fetchPartenaires();
-    fetchSettings();
-  }, []);
+    if (settings?.marge_alerte_remise !== undefined) {
+      setMargeInput(settings.marge_alerte_remise.toString());
+    }
+  }, [settings]);
 
   useEffect(() => {
     fetchAlertes();
   }, [filter, programmeFilter, partenaireFilter, currentPage, itemsPerPage]);
-
-  const fetchSettings = async () => {
-    try {
-      const response = await axios.get(`${API}/settings`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      const marge = response.data.marge_alerte_remise || 0;
-      setMargeAlerte(marge);
-      setMargeInput(marge.toString());
-    } catch (error) {
-      console.error('Erreur lors du chargement des paramètres:', error);
-    }
-  };
 
   const handleSaveMarge = async () => {
     const newMarge = parseFloat(margeInput);
