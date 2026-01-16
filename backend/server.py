@@ -2972,7 +2972,7 @@ async def export_bilan_ligne_excel(
             ws = wb.create_sheet(title=sheet_name)
         
             # Titre principal (ligne 1 fusionnée)
-            ws.merge_cells('A1:I1')
+            ws.merge_cells('A1:J1')
             title_cell = ws['A1']
             title_cell.value = title_text
             title_cell.font = title_font
@@ -2982,7 +2982,7 @@ async def export_bilan_ligne_excel(
             # En-têtes (ligne 2) - NOUVELLES COLONNES
             headers = ['MOIS', 'DATE EXACTE', 'Numéro de téléphone', 'Messagerie Vocale dédiée', 
                        'Délai d\'attente', 'Nom du conseiller', 'Décroche dédiée', 
-                       'Évaluation de l\'accueil', 'Application de l\'offre']
+                       'Évaluation de l\'accueil', 'Application de l\'offre', 'Remarques importantes']
         
             for col_num, header in enumerate(headers, 1):
                 cell = ws.cell(row=2, column=col_num)
@@ -3019,6 +3019,7 @@ async def export_bilan_ligne_excel(
                     'Oui' if test.get('decroche_dedie') else 'Non',  # Décroche dédiée
                     test.get('evaluation_accueil', ''),  # Évaluation de l'accueil
                     'Oui' if test.get('application_offre') else 'Non',  # Application de l'offre
+                    test.get('remarques_importantes', ''),  # Remarques importantes
                 ]
             
                 for col_num, value in enumerate(row_data, 1):
@@ -3037,7 +3038,8 @@ async def export_bilan_ligne_excel(
                 'F': 25,  # Nom du conseiller
                 'G': 18,  # Décroche dédiée
                 'H': 25,  # Évaluation de l'accueil
-                'I': 25   # Application de l'offre
+                'I': 25,  # Application de l'offre
+                'J': 40   # Remarques importantes
             }
     
             for col_letter, width in column_widths.items():
