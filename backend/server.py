@@ -1275,11 +1275,16 @@ async def create_test_site(input: TestSiteCreate, current_user: User = Depends(g
         if not input.application_remise:
             anomalies.append("Remise non appliquée")
         
-        # Vérifier la remise minimum si définie
+        # Vérifier la remise minimum si définie (avec marge d'erreur configurable)
         if partenaire and partenaire.get('remise_minimum'):
             remise_minimum = partenaire['remise_minimum']
-            if pct_remise < remise_minimum:
-                anomalies.append(f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {remise_minimum - pct_remise}%)")
+            # Récupérer la marge d'erreur configurée
+            settings = await get_settings()
+            marge = settings.get('marge_alerte_remise', 0.0)
+            seuil_alerte = remise_minimum - marge
+            
+            if pct_remise < seuil_alerte:
+                anomalies.append(f"Remise insuffisante: {pct_remise}% appliquée, {remise_minimum}% attendue (écart: {round(remise_minimum - pct_remise, 1)}%)")
         
         # Créer UNE SEULE alerte si des anomalies existent
         if anomalies:
