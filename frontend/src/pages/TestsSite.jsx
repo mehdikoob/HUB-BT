@@ -1197,16 +1197,6 @@ const TestsSite = () => {
                     )}
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="naming_constate">Naming constaté</Label>
-                  <Input
-                    id="naming_constate"
-                    data-testid="test-site-naming-input"
-                    value={formData.naming_constate}
-                    onChange={(e) => setFormData({ ...formData, naming_constate: e.target.value })}
-                    placeholder="Code promo - [Nom du programme]"
-                  />
-                </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <input
