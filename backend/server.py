@@ -467,6 +467,14 @@ class IdentifiantMystere(IdentifiantMystereBase):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: Optional[str] = None  # ID de l'utilisateur qui a créé le profil
 
+# Modèle de réponse paginée
+class PaginatedResponse(BaseModel):
+    items: List
+    total: int
+    page: int
+    limit: int
+    pages: int
+
 # Helper functions
 def calculate_remise_percentage(prix_public: float, prix_remise: float) -> float:
     if prix_public <= 0:
