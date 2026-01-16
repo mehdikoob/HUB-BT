@@ -94,17 +94,59 @@ const Alertes = () => {
 
   const fetchAlertes = async () => {
     try {
-      const params = {};
+      setLoading(true);
+      const params = {
+        paginate: true,
+        page: currentPage,
+        limit: itemsPerPage
+      };
       if (filter) params.statut = filter;
+      if (programmeFilter) params.programme_id = programmeFilter;
+      if (partenaireFilter) params.partenaire_id = partenaireFilter;
       
       const response = await axios.get(`${API}/alertes/enriched`, { params });
-      setAlertes(response.data);
+      
+      if (response.data.items) {
+        setAlertes(response.data.items);
+        setTotalItems(response.data.total);
+        setTotalPages(response.data.pages);
+      } else {
+        setAlertes(response.data);
+        setTotalItems(response.data.length);
+        setTotalPages(1);
+      }
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors du chargement des alertes');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handlers pagination
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newLimit) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1);
+  };
+
+  // Fonction pour mettre à jour les filtres et réinitialiser la page
+  const updateFilter = (newFilter) => {
+    setFilter(newFilter);
+    setCurrentPage(1);
+  };
+
+  const updateProgrammeFilter = (newFilter) => {
+    setProgrammeFilter(newFilter);
+    setCurrentPage(1);
+  };
+
+  const updatePartenaireFilter = (newFilter) => {
+    setPartenaireFilter(newFilter);
+    setCurrentPage(1);
   };
 
   const fetchProgrammes = async () => {
