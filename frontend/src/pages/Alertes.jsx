@@ -248,7 +248,7 @@ const Alertes = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="marge-alerte" className="text-sm font-medium">
-                    Marge d'erreur (%)
+                    Marge d&apos;erreur (%)
                   </Label>
                   <div className="flex items-center gap-2">
                     <Input
@@ -268,7 +268,7 @@ const Alertes = () => {
                   <div className="flex items-start gap-2 p-2 bg-blue-50 rounded-md">
                     <Info size={14} className="text-blue-600 mt-0.5 flex-shrink-0" />
                     <p className="text-xs text-blue-700">
-                      Une alerte ne sera pas générée si l'écart entre la remise attendue et la remise appliquée est inférieur ou égal à cette marge.
+                      Une alerte ne sera pas générée si l&apos;écart entre la remise attendue et la remise appliquée est inférieur ou égal à cette marge.
                     </p>
                   </div>
                 </div>
