@@ -1692,8 +1692,10 @@ const TestsSite = () => {
             </tbody>
           </table>
         </div>
-        
-        {/* Pagination */}
+      </Card>
+      
+      {/* Pagination */}
+      {totalItems > 0 && (
         <TablePagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -1703,7 +1705,7 @@ const TestsSite = () => {
           onItemsPerPageChange={handleItemsPerPageChange}
           loading={loading}
         />
-      </Card>
+      )}
 
       {tests.length === 0 && !loading && (
         <div className="text-center py-12">
