@@ -41,13 +41,14 @@ const TablePagination = ({
     return pages;
   };
 
+  // Ne pas afficher si pas de données
   if (totalItems === 0) return null;
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-2">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-4 border-t bg-gray-50">
       {/* Info et sélecteur d'éléments par page */}
       <div className="flex items-center gap-4 text-sm text-gray-600">
-        <span>
+        <span className="font-medium">
           {startItem}-{endItem} sur {totalItems}
         </span>
         <div className="flex items-center gap-2">
