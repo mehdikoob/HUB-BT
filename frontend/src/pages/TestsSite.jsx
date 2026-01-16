@@ -1686,9 +1686,20 @@ const TestsSite = () => {
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination */}
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          loading={loading}
+        />
       </Card>
 
-      {tests.length === 0 && (
+      {tests.length === 0 && !loading && (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">Aucun test pour le moment</p>
           <Button onClick={resetForm} className="bg-red-600 hover:bg-red-700">
