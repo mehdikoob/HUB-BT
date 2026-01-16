@@ -566,7 +566,18 @@ const Alertes = () => {
         </Card>
       )}
 
-      {alertes.length === 0 && (
+      {/* Pagination */}
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+        loading={loading}
+      />
+
+      {alertes.length === 0 && !loading && (
         <Card className="border-0 shadow-sm">
           <CardContent className="py-12 text-center">
             <CheckCircle className="mx-auto mb-4 text-green-600" size={48} />
