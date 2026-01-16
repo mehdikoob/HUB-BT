@@ -467,9 +467,11 @@ const TestsSite = () => {
       naming_constate: '',
       cumul_codes: false,
       commentaire: '',
+      remarques_importantes: '',
       screenshots: [],
     });
     setEditingTest(null);
+    setRemarquesExpanded(false);
   };
 
   const handleEdit = (test) => {
@@ -485,8 +487,11 @@ const TestsSite = () => {
       naming_constate: test.naming_constate || '',
       cumul_codes: test.cumul_codes !== undefined ? test.cumul_codes : false,
       commentaire: test.commentaire || '',
+      remarques_importantes: test.remarques_importantes || '',
       screenshots: test.screenshots || [],
     });
+    // Ouvrir la section remarques si elle contient du texte
+    setRemarquesExpanded(!!test.remarques_importantes);
     setDialogOpen(true);
   };
 
