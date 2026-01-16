@@ -216,10 +216,96 @@ const Alertes = () => {
   return (
     <div data-testid="alertes-page">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
-          Alertes
-        </h1>
-        <p className="text-gray-600">Suivi et résolution des alertes détectés</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
+              Alertes
+            </h1>
+            <p className="text-gray-600">Suivi et résolution des alertes détectés</p>
+          </div>
+          
+          {/* Configuration de la marge d'erreur */}
+          <Popover open={settingsOpen} onOpenChange={setSettingsOpen}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm"
+                data-testid="alertes-settings-btn"
+                className="flex items-center gap-2 border-gray-300 hover:bg-gray-50"
+              >
+                <Settings size={16} />
+                <span className="hidden sm:inline">Configuration</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Configuration des alertes</h4>
+                  <p className="text-xs text-gray-500">
+                    Définissez la marge de tolérance pour les alertes de remise.
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="marge-alerte" className="text-sm font-medium">
+                    Marge d'erreur (%)
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="marge-alerte"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={margeInput}
+                      onChange={(e) => setMargeInput(e.target.value)}
+                      data-testid="marge-alerte-input"
+                      className="flex-1"
+                      placeholder="Ex: 5"
+                    />
+                    <span className="text-sm text-gray-500">%</span>
+                  </div>
+                  <div className="flex items-start gap-2 p-2 bg-blue-50 rounded-md">
+                    <Info size={14} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-blue-700">
+                      Une alerte ne sera pas générée si l'écart entre la remise attendue et la remise appliquée est inférieur ou égal à cette marge.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setMargeInput(margeAlerte.toString());
+                      setSettingsOpen(false);
+                    }}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleSaveMarge}
+                    disabled={savingMarge}
+                    data-testid="save-marge-btn"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {savingMarge ? 'Enregistrement...' : 'Enregistrer'}
+                  </Button>
+                </div>
+                
+                {margeAlerte > 0 && (
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-gray-500">
+                      Marge actuelle : <span className="font-medium text-gray-700">{margeAlerte}%</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       {/* Filters & Sort */}
