@@ -2583,7 +2583,7 @@ async def export_bilan_partenaire(
     output.write("=== TESTS SITE ===\n")
     if tests_site:
         fieldnames_site = ['Date', 'Programme', 'Application remise', 'Prix public', 'Prix remisé', 
-                          '% Remise', 'Naming', 'Cumul codes', 'Commentaire']
+                          '% Remise', 'Naming', 'Cumul codes', 'Commentaire', 'Remarques importantes']
         writer = csv.DictWriter(output, fieldnames=fieldnames_site)
         writer.writeheader()
         
@@ -2600,7 +2600,8 @@ async def export_bilan_partenaire(
                 '% Remise': f"{test['pct_remise_calcule']}%",
                 'Naming': test.get('naming_constate', ''),
                 'Cumul codes': 'OUI' if test['cumul_codes'] else 'NON',
-                'Commentaire': test.get('commentaire', '')
+                'Commentaire': test.get('commentaire', ''),
+                'Remarques importantes': test.get('remarques_importantes', '')
             })
     else:
         output.write("Aucun test site sur cette période\n")
@@ -2611,7 +2612,7 @@ async def export_bilan_partenaire(
     output.write("=== TESTS LIGNE ===\n")
     if tests_ligne:
         fieldnames_ligne = ['Date', 'Programme', 'Téléphone', 'Messagerie dédiée', 'Décroche dédié',
-                           'Délai attente', 'Conseiller', 'Évaluation', 'Offre appliquée', 'Commentaire']
+                           'Délai attente', 'Conseiller', 'Évaluation', 'Offre appliquée', 'Commentaire', 'Remarques importantes']
         writer = csv.DictWriter(output, fieldnames=fieldnames_ligne)
         writer.writeheader()
         
@@ -2629,7 +2630,8 @@ async def export_bilan_partenaire(
                 'Conseiller': test.get('nom_conseiller', 'NC'),
                 'Évaluation': test['evaluation_accueil'],
                 'Offre appliquée': 'OUI' if test['application_offre'] else 'NON',
-                'Commentaire': test.get('commentaire', '')
+                'Commentaire': test.get('commentaire', ''),
+                'Remarques importantes': test.get('remarques_importantes', '')
             })
     else:
         output.write("Aucun test ligne sur cette période\n")
