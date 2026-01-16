@@ -2933,10 +2933,14 @@ async def export_bilan_ligne_excel(
         partenaires_dict = {p['id']: p['nom'] for p in partenaires_all}
         
         # Query pour tous les tests ligne du partenaire/programme dans la période
+        # Ajouter l'heure de fin de journée pour inclure toute la journée
+        date_fin_full = date_fin + "T23:59:59" if "T" not in date_fin else date_fin
+        date_debut_full = date_debut + "T00:00:00" if "T" not in date_debut else date_debut
+        
         query = {
             'date_test': {
-                '$gte': date_debut,
-                '$lte': date_fin
+                '$gte': date_debut_full,
+                '$lte': date_fin_full
             }
         }
         
