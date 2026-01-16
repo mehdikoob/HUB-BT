@@ -139,7 +139,7 @@ const Partenaires = () => {
     try {
       await axios.delete(`${API}/partenaires/${id}`);
       toast.success('Partenaire supprimé');
-      fetchData();
+      fetchPartenaires();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors de la suppression');
