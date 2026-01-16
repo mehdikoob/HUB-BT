@@ -21,6 +21,12 @@ const Alertes = () => {
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
   const [programmes, setProgrammes] = useState([]);
   const [partenaires, setPartenaires] = useState([]);
+  
+  // État pour la configuration de la marge d'erreur
+  const [margeAlerte, setMargeAlerte] = useState(0);
+  const [margeInput, setMargeInput] = useState('0');
+  const [savingMarge, setSavingMarge] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     fetchAlertes();
