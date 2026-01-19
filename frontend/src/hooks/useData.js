@@ -3,6 +3,10 @@ import axios from 'axios';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+// Helper pour obtenir le token
+const getToken = () => localStorage.getItem('token');
+const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
+
 // ==================== PROGRAMMES ====================
 export const useProgrammes = () => {
   return useQuery({
