@@ -1,35 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle, BarChart3, CheckCircle2, ListTodo, ChevronDown, ChevronRight, Building2, Phone, Globe } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import InsightsIA from '../components/InsightsIA';
 import LoadingSpinner from '../components/LoadingSpinner';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { useDashboardStats } from '../hooks/useData';
 
 const Dashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
   const { getAuthHeader } = useAuth();
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const response = await axios.get(`${API}/stats/dashboard`, {
-        headers: getAuthHeader()
-      });
-      setStats(response.data);
-    } catch (error) {
-      console.error('Erreur lors du chargement des statistiques:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  
+  // React Query hook pour les stats du dashboard
+  const { data: stats, isLoading: loading } = useDashboardStats();
 
   if (loading) {
     return <LoadingSpinner text="Chargement du tableau de bord..." />;
