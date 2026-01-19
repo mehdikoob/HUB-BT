@@ -59,6 +59,7 @@ function AppRoutes() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="programmes" element={<Programmes />} />
         <Route path="partenaires" element={<PartenairesNew />} />
         <Route path="identifiants" element={<Identifiants />} />
