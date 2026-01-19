@@ -253,51 +253,6 @@ const TestsLigne = () => {
     checkDuplicate();
   }, [formData.partenaire_id, formData.programme_id, editingTest, getAuthHeader]);
 
-  const fetchTests = async () => {
-    try {
-      setLoading(true);
-      const params = {
-        paginate: true,
-        page: currentPage,
-        limit: itemsPerPage
-      };
-      if (filters.programme_id) params.programme_id = filters.programme_id;
-      if (filters.partenaire_id) params.partenaire_id = filters.partenaire_id;
-      
-      // Convertir les mois/années en dates complètes
-      if (filters.date_debut) {
-        const range = monthYearToDateRange(filters.date_debut);
-        params.date_debut = range.start;
-      }
-      if (filters.date_fin) {
-        const range = monthYearToDateRange(filters.date_fin);
-        params.date_fin = range.end;
-      }
-      
-      const response = await axios.get(`${API}/tests-ligne`, { 
-        params,
-        headers: getAuthHeader()
-      });
-      
-      // Gérer la réponse paginée
-      if (response.data.items) {
-        setTests(response.data.items);
-        setTotalItems(response.data.total);
-        setTotalPages(response.data.pages);
-      } else {
-        // Fallback si pas paginé
-        setTests(response.data);
-        setTotalItems(response.data.length);
-        setTotalPages(1);
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast.error('Erreur lors du chargement des tests');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Handlers pagination
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -347,12 +302,10 @@ const TestsLigne = () => {
           nom_conseiller: 'N/A',
         };
         
-        const testResponse = await axios.post(`${API}/tests-ligne`, testData, {
-          headers: getAuthHeader()
-        });
+        const testResponse = await createTestMutation.mutateAsync(testData);
         
         // Puis créer l'alerte associée au test
-        await axios.post(`${API}/alertes`, {
+        await createAlerteMutation.mutateAsync({
           programme_id: formData.programme_id,
           partenaire_id: formData.partenaire_id,
           type_test: 'TL',
