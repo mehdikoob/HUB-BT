@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { Plus, Pencil, Trash2, ExternalLink, Phone, Globe, FileText, ChevronDown, ChevronUp, Link } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -7,13 +7,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
+import { useProgrammes, usePartenairesAll, useInvalidatePartenaires } from '../hooks/useData';
+import { useQueryClient } from '@tanstack/react-query';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const PartenairesNew = () => {
-  const [partenaires, setPartenaires] = useState([]);
-  const [programmes, setProgrammes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  
+  // React Query hooks
+  const { data: partenaires = [], isLoading: partenairesLoading } = usePartenairesAll();
+  const { data: programmes = [], isLoading: programmesLoading } = useProgrammes();
+  const invalidatePartenaires = useInvalidatePartenaires();
+  
+  const loading = partenairesLoading || programmesLoading;
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPartenaire, setEditingPartenaire] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
@@ -29,26 +37,6 @@ const PartenairesNew = () => {
     logo_url: '',
     contact_email: '',
   });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const [partResponse, progResponse] = await Promise.all([
-        axios.get(`${API}/partenaires`),
-        axios.get(`${API}/programmes`),
-      ]);
-      setPartenaires(partResponse.data);
-      setProgrammes(progResponse.data);
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast.error('Erreur lors du chargement');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,7 +56,8 @@ const PartenairesNew = () => {
       }
       setDialogOpen(false);
       resetForm();
-      fetchData();
+      // Invalider le cache pour rafraîchir les données
+      invalidatePartenaires();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors de l\'enregistrement');
