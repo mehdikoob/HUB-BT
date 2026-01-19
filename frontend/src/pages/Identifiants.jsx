@@ -44,7 +44,10 @@ const Identifiants = () => {
       const headers = { Authorization: `Bearer ${token}` };
       
       const [identifiantsRes, programmesRes] = await Promise.all([
-        axios.get(`${API_URL}/api/identifiants-mystere`, { headers }),
+        axios.get(`${API_URL}/api/identifiants-mystere`, { 
+          headers,
+          params: { include_inactive: showInactive }
+        }),
         axios.get(`${API_URL}/api/programmes`, { headers })
       ]);
       
@@ -63,6 +66,31 @@ const Identifiants = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Toggle actif status
+  const toggleActif = async (identifiant) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `${API_URL}/api/identifiants-mystere/${identifiant.id}`,
+        { actif: !identifiant.actif },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      toast({
+        title: identifiant.actif ? "Désactivé" : "Activé",
+        description: `${identifiant.prenom} ${identifiant.nom} a été ${identifiant.actif ? 'désactivé' : 'activé'}`,
+      });
+      
+      fetchData();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier le statut",
+        variant: "destructive"
+      });
     }
   };
 
