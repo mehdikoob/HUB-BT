@@ -411,7 +411,6 @@ const TestsLigne = () => {
       // Supprimer chaque test sélectionné avec la mutation
       const deletePromises = selectedTests.map(testId =>
         deleteTestMutation.mutateAsync(testId)
-        })
       );
       
       await Promise.all(deletePromises);
@@ -419,7 +418,6 @@ const TestsLigne = () => {
       toast.success(`${selectedTests.length} test(s) supprimé(s) avec succès`);
       setSelectedTests([]);
       setSelectAll(false);
-      fetchTests();
     } catch (error) {
       console.error('Erreur suppression multiple:', error);
       toast.error('Erreur lors de la suppression');
