@@ -348,59 +348,195 @@ const Dashboard = () => {
 
       {/* Tests manquants (hors J-5) */}
       {!stats?.is_j5_alert && stats?.tests_manquants_count > 0 && (
-        <Card className="mb-6 border-0 bg-orange-50 border-l-4 border-l-orange-600">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <Clock className="text-orange-600 mt-1" size={24} />
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-orange-900 mb-2">
-                  Tests mensuels à réaliser
-                </h3>
-                <p className="text-orange-800 mb-3">
-                  {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''} n'ont pas encore été testé{stats.partenaires_manquants > 1 ? 's' : ''} ce mois-ci sur tous les programmes.
-                </p>
-                
-                {/* Grouped by programme */}
-                <div className="space-y-3">
-                  {groupTestsByProgramme(stats.tests_manquants)?.slice(0, 5).map((programme, idx) => (
-                    <div key={idx} className="bg-white rounded-lg p-3 border border-orange-200">
-                      <h4 className="text-sm font-semibold text-orange-800 mb-2 flex items-center">
-                        <span className="bg-orange-100 px-2 py-0.5 rounded text-xs mr-2">Programme</span>
-                        {programme.programme_nom}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-3">
-                        {programme.partenaires.slice(0, 6).map((partenaire, pIdx) => (
-                          <div key={pIdx} className="flex items-center justify-between bg-gray-50 rounded px-2 py-1.5 text-xs">
-                            <span className="font-medium text-gray-900">{partenaire.partenaire_nom}</span>
-                            <div className="flex gap-1">
-                              {partenaire.types_manquants.map((type, tIdx) => (
-                                <span key={tIdx} className="px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-medium">
-                                  {type}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {programme.partenaires.length > 6 && (
-                        <p className="text-xs text-orange-600 mt-2 pl-3">
-                          ... et {programme.partenaires.length - 6} autre{programme.partenaires.length - 6 > 1 ? 's' : ''} partenaire{programme.partenaires.length - 6 > 1 ? 's' : ''}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {groupTestsByProgramme(stats.tests_manquants)?.length > 5 && (
-                  <p className="text-sm text-orange-700 mt-3">
-                    ... et {groupTestsByProgramme(stats.tests_manquants).length - 5} autre{groupTestsByProgramme(stats.tests_manquants).length - 5 > 1 ? 's' : ''} programme{groupTestsByProgramme(stats.tests_manquants).length - 5 > 1 ? 's' : ''}
-                  </p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <TestsManquantsSection stats={stats} groupTestsByProgramme={groupTestsByProgramme} />
       )}
     </div>
+  );
+};
+
+// Composant pour afficher les tests manquants avec vue expandable
+const TestsManquantsSection = ({ stats, groupTestsByProgramme }) => {
+  const [expandedProgrammes, setExpandedProgrammes] = useState({});
+  const [showAll, setShowAll] = useState(false);
+  
+  const groupedTests = groupTestsByProgramme(stats.tests_manquants) || [];
+  const displayedProgrammes = showAll ? groupedTests : groupedTests.slice(0, 3);
+  
+  // Calculer les totaux
+  const totalSite = stats.tests_manquants?.filter(t => t.types_manquants?.includes('Site')).length || 0;
+  const totalLigne = stats.tests_manquants?.filter(t => t.types_manquants?.includes('Ligne')).length || 0;
+  
+  const toggleProgramme = (progId) => {
+    setExpandedProgrammes(prev => ({
+      ...prev,
+      [progId]: !prev[progId]
+    }));
+  };
+  
+  const expandAll = () => {
+    const allExpanded = {};
+    groupedTests.forEach(prog => { allExpanded[prog.programme_id] = true; });
+    setExpandedProgrammes(allExpanded);
+    setShowAll(true);
+  };
+  
+  const collapseAll = () => {
+    setExpandedProgrammes({});
+    setShowAll(false);
+  };
+
+  return (
+    <Card className="mb-6 border-0 shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-t-lg pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Clock size={28} />
+            <div>
+              <CardTitle className="text-xl">Tests mensuels à réaliser</CardTitle>
+              <p className="text-orange-100 text-sm mt-1">
+                {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''} à tester sur {groupedTests.length} programme{groupedTests.length > 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={expandAll}
+              className="bg-white/20 hover:bg-white/30 text-white border-0"
+            >
+              Tout voir
+            </Button>
+            {showAll && (
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={collapseAll}
+                className="bg-white/20 hover:bg-white/30 text-white border-0"
+              >
+                Réduire
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        {/* Résumé global */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+          <div className="bg-white/20 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold">{stats.tests_manquants_count}</p>
+            <p className="text-xs text-orange-100">Tests totaux</p>
+          </div>
+          <div className="bg-white/20 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold flex items-center justify-center gap-1">
+              <Globe size={18} /> {totalSite}
+            </p>
+            <p className="text-xs text-orange-100">Tests Site</p>
+          </div>
+          <div className="bg-white/20 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold flex items-center justify-center gap-1">
+              <Phone size={18} /> {totalLigne}
+            </p>
+            <p className="text-xs text-orange-100">Tests Ligne</p>
+          </div>
+          <div className="bg-white/20 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold">{groupedTests.length}</p>
+            <p className="text-xs text-orange-100">Programmes</p>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="p-4 max-h-[600px] overflow-y-auto">
+        <div className="space-y-2">
+          {displayedProgrammes.map((programme) => {
+            const isExpanded = expandedProgrammes[programme.programme_id];
+            const partenairesToShow = isExpanded ? programme.partenaires : programme.partenaires.slice(0, 3);
+            const hasMore = programme.partenaires.length > 3;
+            
+            return (
+              <div 
+                key={programme.programme_id} 
+                className="border border-gray-200 rounded-lg overflow-hidden"
+              >
+                {/* Header du programme */}
+                <button
+                  onClick={() => toggleProgramme(programme.programme_id)}
+                  className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                    <Building2 size={18} className="text-orange-600" />
+                    <span className="font-semibold text-gray-900">{programme.programme_nom}</span>
+                    <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                      {programme.partenaires.length} partenaire{programme.partenaires.length > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    {programme.partenaires.some(p => p.types_manquants?.includes('Site')) && (
+                      <span className="flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                        <Globe size={12} /> Site
+                      </span>
+                    )}
+                    {programme.partenaires.some(p => p.types_manquants?.includes('Ligne')) && (
+                      <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                        <Phone size={12} /> Ligne
+                      </span>
+                    )}
+                  </div>
+                </button>
+                
+                {/* Liste des partenaires */}
+                <div className={`bg-white transition-all ${isExpanded || !hasMore ? '' : ''}`}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-3">
+                    {partenairesToShow.map((partenaire, pIdx) => (
+                      <div 
+                        key={pIdx} 
+                        className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg px-3 py-2 border border-gray-100"
+                      >
+                        <span className="font-medium text-gray-800 text-sm truncate mr-2">
+                          {partenaire.partenaire_nom}
+                        </span>
+                        <div className="flex gap-1 flex-shrink-0">
+                          {partenaire.types_manquants?.map((type, tIdx) => (
+                            <span 
+                              key={tIdx} 
+                              className={`px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1
+                                ${type === 'Site' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}
+                            >
+                              {type === 'Site' ? <Globe size={10} /> : <Phone size={10} />}
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Bouton "Voir plus" si non expanded */}
+                  {hasMore && !isExpanded && (
+                    <button
+                      onClick={() => toggleProgramme(programme.programme_id)}
+                      className="w-full py-2 text-sm text-orange-600 hover:text-orange-700 hover:bg-orange-50 transition-colors border-t border-gray-100"
+                    >
+                      + {programme.partenaires.length - 3} autre{programme.partenaires.length - 3 > 1 ? 's' : ''} partenaire{programme.partenaires.length - 3 > 1 ? 's' : ''}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Bouton voir plus de programmes */}
+        {!showAll && groupedTests.length > 3 && (
+          <button
+            onClick={() => setShowAll(true)}
+            className="w-full mt-4 py-3 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+          >
+            Afficher les {groupedTests.length - 3} autre{groupedTests.length - 3 > 1 ? 's' : ''} programme{groupedTests.length - 3 > 1 ? 's' : ''}
+          </button>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
