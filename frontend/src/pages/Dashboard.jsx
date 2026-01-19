@@ -386,61 +386,35 @@ const TestsManquantsSection = ({ stats, groupTestsByProgramme }) => {
   };
 
   return (
-    <Card className="mb-6 border-0 shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-t-lg pb-4">
+    <Card className="mb-6 border-0 shadow-sm">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Clock size={28} />
-            <div>
-              <CardTitle className="text-xl">Tests mensuels à réaliser</CardTitle>
-              <p className="text-orange-100 text-sm mt-1">
-                {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''} à tester sur {groupedTests.length} programme{groupedTests.length > 1 ? 's' : ''}
-              </p>
-            </div>
-          </div>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Clock className="text-orange-600" size={18} />
+            Tests mensuels à réaliser
+            <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-medium ml-2">
+              {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''}
+            </span>
+          </CardTitle>
           <div className="flex gap-2">
             <Button 
-              variant="secondary" 
+              variant="outline" 
               size="sm" 
               onClick={expandAll}
-              className="bg-white/20 hover:bg-white/30 text-white border-0"
+              className="text-xs"
             >
               Tout voir
             </Button>
             {showAll && (
               <Button 
-                variant="secondary" 
+                variant="outline" 
                 size="sm" 
                 onClick={collapseAll}
-                className="bg-white/20 hover:bg-white/30 text-white border-0"
+                className="text-xs"
               >
                 Réduire
               </Button>
             )}
-          </div>
-        </div>
-        
-        {/* Résumé global */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-          <div className="bg-white/20 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold">{stats.tests_manquants_count}</p>
-            <p className="text-xs text-orange-100">Tests totaux</p>
-          </div>
-          <div className="bg-white/20 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold flex items-center justify-center gap-1">
-              <Globe size={18} /> {totalSite}
-            </p>
-            <p className="text-xs text-orange-100">Tests Site</p>
-          </div>
-          <div className="bg-white/20 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold flex items-center justify-center gap-1">
-              <Phone size={18} /> {totalLigne}
-            </p>
-            <p className="text-xs text-orange-100">Tests Ligne</p>
-          </div>
-          <div className="bg-white/20 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold">{groupedTests.length}</p>
-            <p className="text-xs text-orange-100">Programmes</p>
           </div>
         </div>
       </CardHeader>
