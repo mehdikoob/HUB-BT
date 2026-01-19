@@ -362,10 +362,6 @@ const TestsManquantsSection = ({ stats, groupTestsByProgramme }) => {
   const groupedTests = groupTestsByProgramme(stats.tests_manquants) || [];
   const displayedProgrammes = showAll ? groupedTests : groupedTests.slice(0, 3);
   
-  // Calculer les totaux
-  const totalSite = stats.tests_manquants?.filter(t => t.types_manquants?.includes('Site')).length || 0;
-  const totalLigne = stats.tests_manquants?.filter(t => t.types_manquants?.includes('Ligne')).length || 0;
-  
   const toggleProgramme = (progId) => {
     setExpandedProgrammes(prev => ({
       ...prev,
