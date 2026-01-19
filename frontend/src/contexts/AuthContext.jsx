@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -9,6 +9,32 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+  // Logout function (déclaré avant useEffect pour éviter les problèmes de dépendance)
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  }, []);
+
+  // Intercepteur axios pour gérer les erreurs 401 globalement
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401 && error.response?.data?.detail === 'Could not validate credentials') {
+          console.warn('Token invalide détecté, déconnexion...');
+          logout();
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [logout]);
 
   // Initialize auth state on mount
   useEffect(() => {
@@ -22,6 +48,11 @@ export const AuthProvider = ({ children }) => {
   // Fetch current user profile
   const fetchCurrentUser = async () => {
     try {
+      const currentToken = localStorage.getItem('token');
+      if (!currentToken) {
+        setLoading(false);
+        return;
+      }
       const response = await axios.get(`${API_URL}/api/users/me`, {
         headers: {
           Authorization: `Bearer ${token}`
