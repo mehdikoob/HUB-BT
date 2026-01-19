@@ -98,13 +98,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-  };
-
   // Check if user is admin, chef de projet or super_admin (all have admin rights)
   const isAdmin = () => {
     return user?.role === 'admin' || user?.role === 'chef_projet' || user?.role === 'super_admin';
