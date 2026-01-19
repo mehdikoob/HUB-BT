@@ -52,10 +52,12 @@ const monthYearToDateRange = (monthYear) => {
 
 const TestsSite = () => {
   const { getAuthHeader, user } = useAuth();
-  const [tests, setTests] = useState([]);
-  const [programmes, setProgrammes] = useState([]);
-  const [partenaires, setPartenaires] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  
+  // React Query hooks
+  const { data: programmes = [], isLoading: programmesLoading } = useProgrammes();
+  const { data: partenaires = [], isLoading: partenairesLoading } = usePartenairesAll();
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTest, setEditingTest] = useState(null);
   const [bilanDialogOpen, setBilanDialogOpen] = useState(false);
