@@ -84,9 +84,10 @@ export const AuthProvider = ({ children }) => {
     return !!token && !!user;
   };
 
-  // Get authorization header
+  // Get authorization header - toujours lire depuis localStorage pour avoir le token le plus récent
   const getAuthHeader = () => {
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    const currentToken = localStorage.getItem('token');
+    return currentToken ? { Authorization: `Bearer ${currentToken}` } : {};
   };
 
   const value = {
