@@ -799,8 +799,8 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     return current_user
 
 def is_admin_or_chef_projet(user: User) -> bool:
-    """Vérifier si l'utilisateur a des droits d'admin (admin ou chef de projet)"""
-    return user.role in [UserRole.admin, UserRole.chef_projet]
+    """Vérifier si l'utilisateur a des droits d'admin (admin, super_admin ou chef de projet)"""
+    return user.role in [UserRole.admin, UserRole.super_admin, UserRole.chef_projet]
 
 # Configuration Gemini AI
 gemini_api_key = os.getenv('GEMINI_API_KEY')
