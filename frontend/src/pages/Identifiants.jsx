@@ -198,7 +198,8 @@ const Identifiants = () => {
       nom: '',
       prenom: '',
       numero_adherent: '',
-      date_naissance: ''
+      date_naissance: '',
+      actif: true
     });
     setEditingIdentifiant(null);
   };
