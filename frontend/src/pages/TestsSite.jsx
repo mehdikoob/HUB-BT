@@ -325,29 +325,22 @@ const TestsSite = () => {
           cumul_codes: false,
         };
         
-        const testResponse = await axios.post(`${API}/tests-site`, testData, {
-          headers: getAuthHeader()
-        });
+        const testResponse = await createTestMutation.mutateAsync(testData);
         
         // Puis créer l'alerte associée au test
-        await axios.post(`${API}/alertes`, {
+        await createAlerteMutation.mutateAsync({
           programme_id: formData.programme_id,
           partenaire_id: formData.partenaire_id,
           type_test: 'TS',
           description: `Test site non réalisable - ${formData.commentaire}`,
           statut: 'ouvert',
           screenshots: formData.screenshots,
-          test_id: testResponse.data.id,
-        }, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+          test_id: testResponse.id,
         });
         
         toast.success('Test non réalisable enregistré avec alerte créée');
         resetForm();
         setDialogOpen(false);
-        fetchTests();
       } catch (error) {
         console.error('Erreur création test non réalisable:', error);
         toast.error(error.response?.data?.detail || 'Erreur lors de la création');
@@ -397,17 +390,16 @@ const TestsSite = () => {
       };
       
       if (editingTest) {
-        await axios.put(`${API}/tests-site/${editingTest.id}`, submitData, { headers: getAuthHeader() });
+        await updateTestMutation.mutateAsync({ id: editingTest.id, data: submitData });
         toast.success('Test site modifié avec succès');
       } else {
-        await axios.post(`${API}/tests-site`, submitData, { headers: getAuthHeader() });
+        await createTestMutation.mutateAsync(submitData);
         toast.success('Test site enregistré avec succès');
       }
       
       setDialogOpen(false);
       resetForm();
       setEditingTest(null);
-      fetchTests();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error(error.response?.data?.detail || 'Erreur lors de l\'enregistrement');
