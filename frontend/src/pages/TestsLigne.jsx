@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { Plus, FileBarChart, Trash2, Filter, Pencil, Phone, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, FileDown, Globe, Tag, ChevronDown } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -13,6 +13,8 @@ import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import ScreenshotUploader from '../components/ScreenshotUploader';
 import TablePagination from '../components/TablePagination';
+import { useProgrammes, usePartenairesAll, useTestsLigne, useCreateTestLigne, useUpdateTestLigne, useDeleteTestLigne, useCreateAlerte } from '../hooks/useData';
+import { useQueryClient } from '@tanstack/react-query';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
