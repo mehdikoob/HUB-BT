@@ -271,7 +271,7 @@ const Identifiants = () => {
       {/* Filters */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <Input
@@ -296,6 +296,17 @@ const Identifiants = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+              <EyeOff size={16} className="text-gray-500" />
+              <Label htmlFor="show-inactive" className="text-sm text-gray-600 cursor-pointer whitespace-nowrap">
+                Afficher inactifs
+              </Label>
+              <Switch
+                id="show-inactive"
+                checked={showInactive}
+                onCheckedChange={setShowInactive}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -305,9 +316,30 @@ const Identifiants = () => {
         <Card className="border-0 shadow-sm bg-indigo-50">
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-indigo-600">{identifiants.length}</p>
-            <p className="text-sm text-indigo-800">Identifiants</p>
+            <p className="text-sm text-indigo-800">Total</p>
           </CardContent>
         </Card>
+        <Card className="border-0 shadow-sm bg-green-50">
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-green-600">{activeCount}</p>
+            <p className="text-sm text-green-800">Actifs</p>
+          </CardContent>
+        </Card>
+        {showInactive && inactiveCount > 0 && (
+          <Card className="border-0 shadow-sm bg-gray-100">
+            <CardContent className="p-4 text-center">
+              <p className="text-2xl font-bold text-gray-500">{inactiveCount}</p>
+              <p className="text-sm text-gray-600">Inactifs</p>
+            </CardContent>
+          </Card>
+        )}
+        <Card className="border-0 shadow-sm bg-purple-50">
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-purple-600">{programmes.length}</p>
+            <p className="text-sm text-purple-800">Programmes</p>
+          </CardContent>
+        </Card>
+      </div>
         <Card className="border-0 shadow-sm bg-purple-50">
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-purple-600">
