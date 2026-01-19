@@ -109,3 +109,201 @@ export const useIdentifiants = (programmeId = null) => {
     staleTime: 5 * 60 * 1000,
   });
 };
+
+// ==================== TESTS SITE ====================
+// Helper pour convertir mois/année en dates
+const monthYearToDateRange = (monthYear) => {
+  if (!monthYear) return { start: '', end: '' };
+  const [year, month] = monthYear.split('-').map(Number);
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0, 23, 59, 59);
+  return {
+    start: firstDay.toISOString(),
+    end: lastDay.toISOString()
+  };
+};
+
+export const useTestsSite = (filters, page = 1, limit = 20) => {
+  return useQuery({
+    queryKey: ['tests-site', filters, page, limit],
+    queryFn: async () => {
+      const params = { paginate: true, page, limit };
+      if (filters.programme_id) params.programme_id = filters.programme_id;
+      if (filters.partenaire_id) params.partenaire_id = filters.partenaire_id;
+      if (filters.date_debut) {
+        const range = monthYearToDateRange(filters.date_debut);
+        params.date_debut = range.start;
+      }
+      if (filters.date_fin) {
+        const range = monthYearToDateRange(filters.date_fin);
+        params.date_fin = range.end;
+      }
+      
+      const response = await axios.get(`${API}/tests-site`, { 
+        params,
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    staleTime: 1 * 60 * 1000, // 1 minute - les tests changent plus souvent
+    keepPreviousData: true, // Garde les anciennes données pendant le chargement de nouvelles
+  });
+};
+
+export const useCreateTestSite = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (testData) => {
+      const response = await axios.post(`${API}/tests-site`, testData, {
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tests-site'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+};
+
+export const useUpdateTestSite = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }) => {
+      const response = await axios.put(`${API}/tests-site/${id}`, data, {
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tests-site'] });
+    },
+  });
+};
+
+export const useDeleteTestSite = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id) => {
+      await axios.delete(`${API}/tests-site/${id}`, {
+        headers: authHeader()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tests-site'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+};
+
+// ==================== TESTS LIGNE ====================
+export const useTestsLigne = (filters, page = 1, limit = 20) => {
+  return useQuery({
+    queryKey: ['tests-ligne', filters, page, limit],
+    queryFn: async () => {
+      const params = { paginate: true, page, limit };
+      if (filters.programme_id) params.programme_id = filters.programme_id;
+      if (filters.partenaire_id) params.partenaire_id = filters.partenaire_id;
+      if (filters.date_debut) {
+        const range = monthYearToDateRange(filters.date_debut);
+        params.date_debut = range.start;
+      }
+      if (filters.date_fin) {
+        const range = monthYearToDateRange(filters.date_fin);
+        params.date_fin = range.end;
+      }
+      
+      const response = await axios.get(`${API}/tests-ligne`, { 
+        params,
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    staleTime: 1 * 60 * 1000,
+    keepPreviousData: true,
+  });
+};
+
+export const useCreateTestLigne = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (testData) => {
+      const response = await axios.post(`${API}/tests-ligne`, testData, {
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tests-ligne'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+};
+
+export const useUpdateTestLigne = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }) => {
+      const response = await axios.put(`${API}/tests-ligne/${id}`, data, {
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tests-ligne'] });
+    },
+  });
+};
+
+export const useDeleteTestLigne = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id) => {
+      await axios.delete(`${API}/tests-ligne/${id}`, {
+        headers: authHeader()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tests-ligne'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+};
+
+// ==================== DASHBOARD ====================
+export const useDashboardStats = () => {
+  return useQuery({
+    queryKey: ['dashboard'],
+    queryFn: async () => {
+      const response = await axios.get(`${API}/stats/dashboard`, {
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+// ==================== ALERTES ====================
+export const useCreateAlerte = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (alerteData) => {
+      const response = await axios.post(`${API}/alertes`, alerteData, {
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['alertes'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+};
