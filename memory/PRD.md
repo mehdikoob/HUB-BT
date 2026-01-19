@@ -31,6 +31,18 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
    - Conservation de la fonction dépliante (accordéon) pour voir tous les partenaires
    - Design cohérent avec le reste du dashboard
 
+#### P2 - Cache côté client avec React Query ✅
+- **Migration complète vers React Query** pour les pages :
+  - `TestsSite.jsx` - Hooks: `useTestsSite`, `useCreateTestSite`, `useUpdateTestSite`, `useDeleteTestSite`
+  - `TestsLigne.jsx` - Hooks: `useTestsLigne`, `useCreateTestLigne`, `useUpdateTestLigne`, `useDeleteTestLigne`
+  - `PartenairesNew.jsx` - Hooks: `usePartenairesAll`, `useProgrammes`, `useInvalidatePartenaires`
+  - `Dashboard.jsx` - Hook: `useDashboardStats`
+- **Bénéfices obtenus** :
+  - Navigation instantanée entre les pages (données mises en cache)
+  - Moins de requêtes serveur (staleTime configuré)
+  - Invalidation automatique du cache après création/modification/suppression
+  - Code simplifié avec hooks réutilisables dans `/app/frontend/src/hooks/useData.js`
+
 ### Session 16/01/2026
 
 #### Features Completed ✅
