@@ -471,9 +471,8 @@ const TestsLigne = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce test ?')) return;
     try {
-      await axios.delete(`${API}/tests-ligne/${id}`, { headers: getAuthHeader() });
+      await deleteTestMutation.mutateAsync(id);
       toast.success('Test supprimé');
-      fetchTests();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error('Erreur lors de la suppression');
