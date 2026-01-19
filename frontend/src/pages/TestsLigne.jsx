@@ -312,17 +312,12 @@ const TestsLigne = () => {
           description: `Test ligne non réalisable - ${formData.commentaire}`,
           statut: 'ouvert',
           screenshots: formData.screenshots,
-          test_id: testResponse.data.id,
-        }, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+          test_id: testResponse.id,
         });
         
         toast.success('Test non réalisable enregistré avec alerte créée');
         resetForm();
         setDialogOpen(false);
-        fetchTests();
       } catch (error) {
         console.error('Erreur création test non réalisable:', error);
         toast.error(error.response?.data?.detail || 'Erreur lors de la création');
@@ -373,17 +368,16 @@ const TestsLigne = () => {
       };
       
       if (editingTest) {
-        await axios.put(`${API}/tests-ligne/${editingTest.id}`, submitData, { headers: getAuthHeader() });
+        await updateTestMutation.mutateAsync({ id: editingTest.id, data: submitData });
         toast.success('Test ligne modifié avec succès');
       } else {
-        await axios.post(`${API}/tests-ligne`, submitData, { headers: getAuthHeader() });
+        await createTestMutation.mutateAsync(submitData);
         toast.success('Test ligne enregistré avec succès');
       }
       
       setDialogOpen(false);
       resetForm();
       setEditingTest(null);
-      fetchTests();
     } catch (error) {
       console.error('Erreur:', error);
       toast.error(error.response?.data?.detail?.[0]?.msg || error.response?.data?.detail || 'Erreur lors de l\'enregistrement');
@@ -414,10 +408,9 @@ const TestsLigne = () => {
     if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${selectedTests.length} test(s) ?`)) return;
     
     try {
-      // Supprimer chaque test sélectionné
+      // Supprimer chaque test sélectionné avec la mutation
       const deletePromises = selectedTests.map(testId =>
-        axios.delete(`${API}/tests-ligne/${testId}`, {
-          headers: getAuthHeader()
+        deleteTestMutation.mutateAsync(testId)
         })
       );
       
