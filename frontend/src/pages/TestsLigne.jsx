@@ -61,10 +61,12 @@ const formatPhoneNumber = (phone) => {
 
 const TestsLigne = () => {
   const { getAuthHeader, user } = useAuth();
-  const [tests, setTests] = useState([]);
-  const [programmes, setProgrammes] = useState([]);
-  const [partenaires, setPartenaires] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  
+  // React Query hooks
+  const { data: programmes = [], isLoading: programmesLoading } = useProgrammes();
+  const { data: partenaires = [], isLoading: partenairesLoading } = usePartenairesAll();
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTest, setEditingTest] = useState(null);
   const [bilanDialogOpen, setBilanDialogOpen] = useState(false);
@@ -75,8 +77,6 @@ const TestsLigne = () => {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
   
   // Initialiser avec le mois en cours
   const currentMonthYear = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
@@ -86,6 +86,28 @@ const TestsLigne = () => {
     date_debut: currentMonthYear,
     date_fin: currentMonthYear,
   });
+  
+  // Hook React Query pour les tests avec filtres et pagination
+  const { 
+    data: testsData, 
+    isLoading: testsLoading,
+    isFetching: testsFetching 
+  } = useTestsLigne(filters, currentPage, itemsPerPage);
+  
+  // Extraire les données du résultat paginé
+  const tests = testsData?.items || testsData || [];
+  const totalItems = testsData?.total || tests.length;
+  const totalPages = testsData?.pages || 1;
+  
+  // Mutations
+  const createTestMutation = useCreateTestLigne();
+  const updateTestMutation = useUpdateTestLigne();
+  const deleteTestMutation = useDeleteTestLigne();
+  const createAlerteMutation = useCreateAlerte();
+  
+  // Loading combiné
+  const loading = programmesLoading || partenairesLoading || testsLoading;
+  
   const [bilanData, setBilanData] = useState({
     partenaire_id: '',
     date_debut: '',
