@@ -24,7 +24,7 @@ export const usePartenairesAll = () => {
   return useQuery({
     queryKey: ['partenaires', 'all'],
     queryFn: async () => {
-      const response = await axios.get(`${API}/partenaires`);
+      const response = await axios.get(`${API}/partenaires`, { headers: authHeader() });
       // Trier par ordre alphabétique
       return response.data.sort((a, b) => 
         a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' })
