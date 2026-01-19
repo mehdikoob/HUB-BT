@@ -782,7 +782,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
     
-    user = await db.users.find_one({"email": token_data.email})
+    # Recherche insensible à la casse (cohérent avec le login)
+    user = await db.users.find_one({"email": {"$regex": f"^{token_data.email}$", "$options": "i"}})
     if user is None:
         raise credentials_exception
     return User(**user)
