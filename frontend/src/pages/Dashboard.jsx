@@ -125,7 +125,7 @@ const Dashboard = () => {
         <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Work Sans' }}>
           Tableau de bord
         </h1>
-        <p className="text-gray-600">Vue d'ensemble des blind tests QWERTYS</p>
+        <p className="text-gray-600">Vue d&apos;ensemble des blind tests QWERTYS</p>
       </div>
 
       {/* AI Insights - Visible pour Admin, Super Admin et Chef de projet uniquement */}
