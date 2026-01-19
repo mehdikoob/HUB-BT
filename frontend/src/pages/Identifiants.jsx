@@ -418,17 +418,22 @@ const Identifiants = () => {
                       {group.identifiants.map(identifiant => (
                         <div 
                           key={identifiant.id}
-                          className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                          className={`flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${identifiant.actif === false ? 'opacity-50 bg-gray-50' : ''}`}
                           data-testid={`identifiant-row-${identifiant.id}`}
                         >
                           <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm ${identifiant.actif === false ? 'bg-gray-400' : 'bg-gradient-to-br from-indigo-400 to-purple-500'}`}>
                               {identifiant.prenom.charAt(0)}{identifiant.nom.charAt(0)}
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">
-                                {identifiant.prenom} {identifiant.nom}
-                              </p>
+                              <div className="flex items-center gap-2">
+                                <p className={`font-medium ${identifiant.actif === false ? 'text-gray-500' : 'text-gray-900'}`}>
+                                  {identifiant.prenom} {identifiant.nom}
+                                </p>
+                                {identifiant.actif === false && (
+                                  <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-600 rounded-full">Inactif</span>
+                                )}
+                              </div>
                               <div className="flex items-center gap-4 text-sm text-gray-500">
                                 {identifiant.numero_adherent && (
                                   <span className="flex items-center gap-1">
@@ -446,6 +451,15 @@ const Identifiants = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleActif(identifiant)}
+                              className={identifiant.actif === false ? 'text-gray-400 hover:text-green-600' : 'text-green-600 hover:text-gray-400'}
+                              title={identifiant.actif === false ? 'Activer' : 'Désactiver'}
+                            >
+                              {identifiant.actif === false ? <ToggleLeft size={20} /> : <ToggleRight size={20} />}
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"
