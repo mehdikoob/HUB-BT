@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle, BarChart3, CheckCircle2, ListTodo } from 'lucide-react';
+import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle, BarChart3, CheckCircle2, ListTodo, ChevronDown, ChevronRight, Building2, Phone, Globe } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import InsightsIA from '../components/InsightsIA';
 import LoadingSpinner from '../components/LoadingSpinner';
