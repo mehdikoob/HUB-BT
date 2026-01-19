@@ -312,7 +312,7 @@ const Dashboard = () => {
                 </h3>
                 <p className="text-red-800 mb-3">
                   Il reste {stats.days_until_end} jour{stats.days_until_end > 1 ? 's' : ''} avant la fin du mois. 
-                  <span className="font-semibold"> {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''} n'ont pas encore été testé{stats.partenaires_manquants > 1 ? 's' : ''}</span> ce mois-ci.
+                  <span className="font-semibold"> {stats.partenaires_manquants} partenaire{stats.partenaires_manquants > 1 ? 's' : ''} n&apos;ont pas encore été testé{stats.partenaires_manquants > 1 ? 's' : ''}</span> ce mois-ci.
                 </p>
                 
                 {/* Grouped by programme */}
