@@ -3688,7 +3688,8 @@ async def init_admin():
 @api_router.get("/identifiants-mystere", response_model=List[IdentifiantMystere])
 async def get_identifiants_mystere(
     current_user: User = Depends(get_current_active_user),
-    programme_id: Optional[str] = Query(None, description="Filtrer par programme")
+    programme_id: Optional[str] = Query(None, description="Filtrer par programme"),
+    include_inactive: bool = Query(False, description="Inclure les identifiants inactifs (admin seulement)")
 ):
     """Get all mystery shopper profiles (not visible to partenaire/programme roles)"""
     if current_user.role in [UserRole.partenaire, UserRole.programme]:
@@ -3698,8 +3699,12 @@ async def get_identifiants_mystere(
     if programme_id:
         query["programme_id"] = programme_id
     
+    # Par défaut, ne montrer que les identifiants actifs (sauf pour les admins qui demandent tous)
+    if not include_inactive or current_user.role not in [UserRole.admin, UserRole.super_admin]:
+        query["actif"] = {"$ne": False}  # Inclut les docs sans le champ actif (legacy) et ceux avec actif=True
+    
     identifiants = await db.identifiants_mystere.find(query, {"_id": 0}).to_list(1000)
-    return [IdentifiantMystere(**i) for i in identifiants]
+    return [IdentifiantMystere(**{**i, "actif": i.get("actif", True)}) for i in identifiants]
 
 @api_router.get("/identifiants-mystere/{identifiant_id}", response_model=IdentifiantMystere)
 async def get_identifiant_mystere(
