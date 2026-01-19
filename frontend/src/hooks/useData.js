@@ -12,7 +12,7 @@ export const useProgrammes = () => {
   return useQuery({
     queryKey: ['programmes'],
     queryFn: async () => {
-      const response = await axios.get(`${API}/programmes`);
+      const response = await axios.get(`${API}/programmes`, { headers: authHeader() });
       return response.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes - les programmes changent rarement
