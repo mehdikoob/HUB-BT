@@ -23,6 +23,14 @@ Application de gestion des "Tests Site" et "Tests Ligne" pour le suivi des parte
 
 ## What's Been Implemented
 
+### Session 20/01/2026
+
+#### UI/UX Improvements ✅
+1. **Dashboard "Tests mensuels à réaliser" simplifié**
+   - Suppression de l'en-tête orange redondant (statistiques déjà présentes via barres de progression)
+   - Conservation de la fonction dépliante (accordéon) pour voir tous les partenaires
+   - Design cohérent avec le reste du dashboard
+
 ### Session 16/01/2026
 
 #### Features Completed ✅
