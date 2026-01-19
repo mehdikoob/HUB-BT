@@ -212,7 +212,8 @@ const Identifiants = () => {
       nom: identifiant.nom,
       prenom: identifiant.prenom,
       numero_adherent: identifiant.numero_adherent || '',
-      date_naissance: identifiant.date_naissance || ''
+      date_naissance: identifiant.date_naissance || '',
+      actif: identifiant.actif !== false
     });
     setIsModalOpen(true);
   };
@@ -231,6 +232,10 @@ const Identifiants = () => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('fr-FR');
   };
+
+  // Count active and inactive
+  const activeCount = identifiants.filter(i => i.actif !== false).length;
+  const inactiveCount = identifiants.filter(i => i.actif === false).length;
 
   if (loading) {
     return (
