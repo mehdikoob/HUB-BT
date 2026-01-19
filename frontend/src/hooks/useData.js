@@ -40,7 +40,8 @@ export const usePartenairesPaginated = (page = 1, limit = 20) => {
     queryKey: ['partenaires', 'paginated', page, limit],
     queryFn: async () => {
       const response = await axios.get(`${API}/partenaires`, {
-        params: { paginate: true, page, limit }
+        params: { paginate: true, page, limit },
+        headers: authHeader()
       });
       return response.data;
     },
