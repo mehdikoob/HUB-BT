@@ -430,11 +430,9 @@ const TestsSite = () => {
     if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${selectedTests.length} test(s) ?`)) return;
     
     try {
-      // Supprimer chaque test sélectionné
+      // Supprimer chaque test sélectionné avec la mutation
       const deletePromises = selectedTests.map(testId =>
-        axios.delete(`${API}/tests-site/${testId}`, {
-          headers: getAuthHeader()
-        })
+        deleteTestMutation.mutateAsync(testId)
       );
       
       await Promise.all(deletePromises);
@@ -442,7 +440,6 @@ const TestsSite = () => {
       toast.success(`${selectedTests.length} test(s) supprimé(s) avec succès`);
       setSelectedTests([]);
       setSelectAll(false);
-      fetchTests();
     } catch (error) {
       console.error('Erreur suppression multiple:', error);
       toast.error('Erreur lors de la suppression');
