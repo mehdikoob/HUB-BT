@@ -340,31 +340,6 @@ const Identifiants = () => {
           </CardContent>
         </Card>
       </div>
-        <Card className="border-0 shadow-sm bg-purple-50">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-purple-600">
-              {new Set(identifiants.map(i => i.programme_id)).size}
-            </p>
-            <p className="text-sm text-purple-800">Programmes</p>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-sm bg-green-50">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">
-              {identifiants.filter(i => i.numero_adherent).length}
-            </p>
-            <p className="text-sm text-green-800">Avec n° adhérent</p>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-sm bg-orange-50">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-orange-600">
-              {identifiants.filter(i => i.date_naissance).length}
-            </p>
-            <p className="text-sm text-orange-800">Avec date naissance</p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Grouped list */}
       <div className="space-y-4">
