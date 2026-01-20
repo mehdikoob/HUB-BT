@@ -497,6 +497,60 @@ const TestsSite = () => {
     setDialogOpen(true);
   };
 
+  // Fonctions pour l'édition des informations de connexion du programme
+  const startEditProgrammeInfo = () => {
+    if (programmeInfo) {
+      setProgrammeEditData({
+        url_plateforme: programmeInfo.url_plateforme || '',
+        identifiant: programmeInfo.identifiant || '',
+        mot_de_passe: programmeInfo.mot_de_passe || ''
+      });
+      setProgrammeEditMode(true);
+    }
+  };
+
+  const cancelEditProgrammeInfo = () => {
+    setProgrammeEditMode(false);
+    setProgrammeEditData({
+      url_plateforme: '',
+      identifiant: '',
+      mot_de_passe: ''
+    });
+  };
+
+  const saveProgrammeInfo = async () => {
+    if (!programmeInfo?.id) return;
+    
+    setSavingProgramme(true);
+    try {
+      await axios.put(`${API}/programmes/${programmeInfo.id}`, {
+        ...programmeInfo,
+        url_plateforme: programmeEditData.url_plateforme,
+        identifiant: programmeEditData.identifiant,
+        mot_de_passe: programmeEditData.mot_de_passe
+      }, { headers: getAuthHeader() });
+      
+      // Mettre à jour programmeInfo localement
+      setProgrammeInfo(prev => ({
+        ...prev,
+        url_plateforme: programmeEditData.url_plateforme,
+        identifiant: programmeEditData.identifiant,
+        mot_de_passe: programmeEditData.mot_de_passe
+      }));
+      
+      // Invalider le cache des programmes
+      queryClient.invalidateQueries({ queryKey: ['programmes'] });
+      
+      toast.success('Informations de connexion mises à jour');
+      setProgrammeEditMode(false);
+    } catch (error) {
+      console.error('Erreur mise à jour programme:', error);
+      toast.error('Erreur lors de la mise à jour');
+    } finally {
+      setSavingProgramme(false);
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce test ?')) return;
     try {
