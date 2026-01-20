@@ -125,6 +125,13 @@ const TestsSite = () => {
   const [remiseAttendue, setRemiseAttendue] = useState(null);  // Remise minimum attendue
   const [programmeInfo, setProgrammeInfo] = useState(null);
   const [programmeInfoExpanded, setProgrammeInfoExpanded] = useState(false);
+  const [programmeEditMode, setProgrammeEditMode] = useState(false);  // Mode édition des infos de connexion
+  const [programmeEditData, setProgrammeEditData] = useState({
+    url_plateforme: '',
+    identifiant: '',
+    mot_de_passe: ''
+  });
+  const [savingProgramme, setSavingProgramme] = useState(false);
   const [remarquesExpanded, setRemarquesExpanded] = useState(false);  // Pour la section dépliable
   const [filteredPartenaires, setFilteredPartenaires] = useState([]);
   const [filteredProgrammes, setFilteredProgrammes] = useState([]);
