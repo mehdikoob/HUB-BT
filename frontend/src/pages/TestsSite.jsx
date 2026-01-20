@@ -1007,99 +1007,206 @@ const TestsSite = () => {
                 {/* Display Programme Info if available - Accordéon replié par défaut */}
                 {programmeInfo && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-2">
-                    <button
-                      type="button"
-                      onClick={() => setProgrammeInfoExpanded(!programmeInfoExpanded)}
-                      className="w-full flex items-center justify-between text-left hover:bg-green-100 rounded p-1.5 transition-colors"
-                    >
-                      <Label className="text-xs text-green-800 font-semibold flex items-center gap-1.5 cursor-pointer mb-0">
-                        <Globe size={14} />
-                        Informations de connexion - {programmeInfo.nom}
-                      </Label>
-                      {programmeInfoExpanded ? <ChevronUp size={16} className="text-green-700" /> : <ChevronDown size={16} className="text-green-700" />}
-                    </button>
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => setProgrammeInfoExpanded(!programmeInfoExpanded)}
+                        className="flex-1 flex items-center justify-between text-left hover:bg-green-100 rounded p-1.5 transition-colors"
+                      >
+                        <Label className="text-xs text-green-800 font-semibold flex items-center gap-1.5 cursor-pointer mb-0">
+                          <Globe size={14} />
+                          Informations de connexion - {programmeInfo.nom}
+                        </Label>
+                        {programmeInfoExpanded ? <ChevronUp size={16} className="text-green-700" /> : <ChevronDown size={16} className="text-green-700" />}
+                      </button>
+                      {/* Bouton modifier - visible seulement pour admin/super_admin */}
+                      {programmeInfoExpanded && (user?.role === 'admin' || user?.role === 'super_admin') && !programmeEditMode && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditProgrammeInfo();
+                          }}
+                          className="h-7 px-2 text-green-700 hover:text-green-900 hover:bg-green-100"
+                          title="Modifier les informations de connexion"
+                        >
+                          <Pencil size={14} />
+                        </Button>
+                      )}
+                    </div>
                     
                     {programmeInfoExpanded && (
                       <div className="space-y-2 mt-2 pt-2 border-t border-green-300">
-                      {programmeInfo.url_plateforme && (
-                        <div>
-                          <p className="text-xs text-green-700 font-medium mb-1">URL de la plateforme :</p>
-                          <div className="flex items-center gap-2">
-                            <a 
-                              href={programmeInfo.url_plateforme} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-green-600 hover:text-green-800 underline font-medium text-sm break-all flex-1"
-                            >
-                              {programmeInfo.url_plateforme}
-                            </a>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                navigator.clipboard.writeText(programmeInfo.url_plateforme);
-                                toast.success('URL copiée !');
-                              }}
-                              className="h-8 px-2"
-                            >
-                              <Copy size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {programmeInfo.identifiant && (
-                        <div>
-                          <p className="text-xs text-green-700 font-medium mb-1 flex items-center gap-1">
-                            <User size={12} />
-                            Identifiant :
-                          </p>
-                          <div className="flex items-center gap-2 bg-white rounded px-3 py-2 border border-green-300">
-                            <code className="text-green-900 font-mono text-sm flex-1 break-all">
-                              {programmeInfo.identifiant}
-                            </code>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                navigator.clipboard.writeText(programmeInfo.identifiant);
-                                toast.success('Identifiant copié !');
-                              }}
-                              className="h-8 px-2"
-                            >
-                              <Copy size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {programmeInfo.mot_de_passe && (
-                        <div>
-                          <p className="text-xs text-green-700 font-medium mb-1 flex items-center gap-1">
-                            <Lock size={12} />
-                            Mot de passe :
-                          </p>
-                          <div className="flex items-center gap-2 bg-white rounded px-3 py-2 border border-green-300">
-                            <code className="text-green-900 font-mono text-sm flex-1 break-all">
-                              {programmeInfo.mot_de_passe}
-                            </code>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                navigator.clipboard.writeText(programmeInfo.mot_de_passe);
-                                toast.success('Mot de passe copié !');
-                              }}
-                              className="h-8 px-2"
-                            >
-                              <Copy size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
+                        {/* MODE ÉDITION */}
+                        {programmeEditMode ? (
+                          <>
+                            <div>
+                              <Label className="text-xs text-green-700 font-medium mb-1">URL de la plateforme :</Label>
+                              <Input
+                                type="url"
+                                value={programmeEditData.url_plateforme}
+                                onChange={(e) => setProgrammeEditData(prev => ({ ...prev, url_plateforme: e.target.value }))}
+                                placeholder="https://..."
+                                className="h-9 text-sm"
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label className="text-xs text-green-700 font-medium mb-1 flex items-center gap-1">
+                                <User size={12} />
+                                Identifiant :
+                              </Label>
+                              <Input
+                                type="text"
+                                value={programmeEditData.identifiant}
+                                onChange={(e) => setProgrammeEditData(prev => ({ ...prev, identifiant: e.target.value }))}
+                                placeholder="Identifiant de connexion"
+                                className="h-9 text-sm font-mono"
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label className="text-xs text-green-700 font-medium mb-1 flex items-center gap-1">
+                                <Lock size={12} />
+                                Mot de passe :
+                              </Label>
+                              <Input
+                                type="text"
+                                value={programmeEditData.mot_de_passe}
+                                onChange={(e) => setProgrammeEditData(prev => ({ ...prev, mot_de_passe: e.target.value }))}
+                                placeholder="Mot de passe"
+                                className="h-9 text-sm font-mono"
+                              />
+                            </div>
+                            
+                            {/* Boutons Annuler / Enregistrer */}
+                            <div className="flex justify-end gap-2 pt-2 border-t border-green-200">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={cancelEditProgrammeInfo}
+                                disabled={savingProgramme}
+                                className="h-8 text-xs"
+                              >
+                                <X size={14} className="mr-1" />
+                                Annuler
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={saveProgrammeInfo}
+                                disabled={savingProgramme}
+                                className="h-8 text-xs bg-green-600 hover:bg-green-700"
+                              >
+                                {savingProgramme ? (
+                                  <Loader2 size={14} className="mr-1 animate-spin" />
+                                ) : (
+                                  <Save size={14} className="mr-1" />
+                                )}
+                                Enregistrer
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          /* MODE LECTURE */
+                          <>
+                            {programmeInfo.url_plateforme ? (
+                              <div>
+                                <p className="text-xs text-green-700 font-medium mb-1">URL de la plateforme :</p>
+                                <div className="flex items-center gap-2">
+                                  <a 
+                                    href={programmeInfo.url_plateforme} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-green-600 hover:text-green-800 underline font-medium text-sm break-all flex-1"
+                                  >
+                                    {programmeInfo.url_plateforme}
+                                  </a>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(programmeInfo.url_plateforme);
+                                      toast.success('URL copiée !');
+                                    }}
+                                    className="h-8 px-2"
+                                  >
+                                    <Copy size={14} />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (user?.role === 'admin' || user?.role === 'super_admin') && (
+                              <p className="text-xs text-green-600 italic">Aucune URL définie - cliquez sur ✏️ pour ajouter</p>
+                            )}
+                            
+                            {programmeInfo.identifiant ? (
+                              <div>
+                                <p className="text-xs text-green-700 font-medium mb-1 flex items-center gap-1">
+                                  <User size={12} />
+                                  Identifiant :
+                                </p>
+                                <div className="flex items-center gap-2 bg-white rounded px-3 py-2 border border-green-300">
+                                  <code className="text-green-900 font-mono text-sm flex-1 break-all">
+                                    {programmeInfo.identifiant}
+                                  </code>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(programmeInfo.identifiant);
+                                      toast.success('Identifiant copié !');
+                                    }}
+                                    className="h-8 px-2"
+                                  >
+                                    <Copy size={14} />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (user?.role === 'admin' || user?.role === 'super_admin') && !programmeInfo.url_plateforme && (
+                              <p className="text-xs text-green-600 italic">Aucun identifiant défini</p>
+                            )}
+                            
+                            {programmeInfo.mot_de_passe ? (
+                              <div>
+                                <p className="text-xs text-green-700 font-medium mb-1 flex items-center gap-1">
+                                  <Lock size={12} />
+                                  Mot de passe :
+                                </p>
+                                <div className="flex items-center gap-2 bg-white rounded px-3 py-2 border border-green-300">
+                                  <code className="text-green-900 font-mono text-sm flex-1 break-all">
+                                    {programmeInfo.mot_de_passe}
+                                  </code>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(programmeInfo.mot_de_passe);
+                                      toast.success('Mot de passe copié !');
+                                    }}
+                                    className="h-8 px-2"
+                                  >
+                                    <Copy size={14} />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (user?.role === 'admin' || user?.role === 'super_admin') && !programmeInfo.url_plateforme && !programmeInfo.identifiant && (
+                              <p className="text-xs text-green-600 italic">Aucun mot de passe défini</p>
+                            )}
+                            
+                            {/* Message si aucune info et admin */}
+                            {!programmeInfo.url_plateforme && !programmeInfo.identifiant && !programmeInfo.mot_de_passe && (user?.role === 'admin' || user?.role === 'super_admin') && (
+                              <p className="text-xs text-green-600 italic text-center py-2">
+                                Aucune information de connexion définie. Cliquez sur ✏️ pour en ajouter.
+                              </p>
+                            )}
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
