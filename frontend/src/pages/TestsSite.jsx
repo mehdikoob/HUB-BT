@@ -189,7 +189,8 @@ const TestsSite = () => {
   useEffect(() => {
     if (formData.programme_id) {
       const programme = programmes.find(p => p.id === formData.programme_id);
-      if (programme && (programme.url_plateforme || programme.identifiant || programme.mot_de_passe)) {
+      if (programme) {
+        // Toujours afficher la section pour permettre l'ajout/modification des infos
         setProgrammeInfo(programme);
       } else {
         setProgrammeInfo(null);
