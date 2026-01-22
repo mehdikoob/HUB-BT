@@ -990,7 +990,6 @@ const TestsLigne = () => {
                       onChange={(e) => setFormData({ ...formData, numero_telephone: e.target.value })}
                       placeholder="+33 X XX XX XX XX"
                       required={!formData.test_non_realisable}
-                      disabled={formData.test_non_realisable}
                     />
                   </div>
                 </div>
