@@ -284,7 +284,7 @@ const TestsLigne = () => {
       }
       
       try {
-        // Créer d'abord un test minimal
+        // Créer d'abord un test minimal - conserver le numéro de téléphone
         const testData = {
           programme_id: formData.programme_id,
           partenaire_id: formData.partenaire_id,
@@ -292,8 +292,9 @@ const TestsLigne = () => {
           test_non_realisable: true,
           commentaire: formData.commentaire,
           screenshots: formData.screenshots,
+          // Conserver le numéro de téléphone même pour test non réalisable
+          numero_telephone: formData.numero_telephone || partenaireTelephone || '',
           // Champs techniques avec valeurs par défaut pour test non réalisable
-          numero_telephone: '',
           application_offre: false,
           messagerie_vocale_dediee: false,
           decroche_dedie: false,
