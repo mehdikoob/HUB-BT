@@ -54,10 +54,8 @@ const Identifiants = () => {
       setIdentifiants(identifiantsRes.data);
       setProgrammes(programmesRes.data);
       
-      // Expand all programmes by default
-      const expanded = {};
-      programmesRes.data.forEach(p => { expanded[p.id] = true; });
-      setExpandedProgrammes(expanded);
+      // Programmes repliés par défaut pour plus de clarté
+      setExpandedProgrammes({});
     } catch (error) {
       toast({
         title: "Erreur",
