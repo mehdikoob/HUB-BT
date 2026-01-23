@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import ScreenshotUploader from '../components/ScreenshotUploader';
 import TablePagination from '../components/TablePagination';
-import { useProgrammes, usePartenairesAll, useTestsLigne, useCreateTestLigne, useUpdateTestLigne, useDeleteTestLigne, useCreateAlerte } from '../hooks/useData';
+import { useProgrammes, usePartenairesAll, useTestsLigne, useCreateTestLigne, useUpdateTestLigne, useDeleteTestLigne, useCreateAlerte, usePartenairesTestes } from '../hooks/useData';
 import { useQueryClient } from '@tanstack/react-query';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
