@@ -7,6 +7,23 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const getToken = () => localStorage.getItem('token');
 const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
 
+// ==================== PARTENAIRES TESTÉS CE MOIS ====================
+export const usePartenairesTestes = (programmeId, testType = 'site') => {
+  return useQuery({
+    queryKey: ['partenaires-testes', programmeId, testType],
+    queryFn: async () => {
+      if (!programmeId) return [];
+      const response = await axios.get(`${API}/partenaires-testes-mois`, {
+        params: { programme_id: programmeId, test_type: testType },
+        headers: authHeader()
+      });
+      return response.data.partenaires_testes || [];
+    },
+    enabled: !!programmeId, // Ne lance la requête que si programmeId est défini
+    staleTime: 1 * 60 * 1000, // 1 minute - données qui changent souvent
+  });
+};
+
 // ==================== PROGRAMMES ====================
 export const useProgrammes = () => {
   return useQuery({
