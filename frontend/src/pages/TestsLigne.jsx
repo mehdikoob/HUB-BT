@@ -139,6 +139,26 @@ const TestsLigne = () => {
   const [checkingDuplicate, setCheckingDuplicate] = useState(false);
   const [remarquesExpanded, setRemarquesExpanded] = useState(false);  // Pour la section dépliable
 
+  // Calculer les partenaires testés ce mois-ci pour le programme sélectionné
+  const partenairesTestes = useMemo(() => {
+    if (!formData.programme_id || !tests.length) return new Set();
+    
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    const testedIds = tests
+      .filter(t => {
+        const testDate = new Date(t.date_test);
+        return t.programme_id === formData.programme_id &&
+               testDate.getMonth() === currentMonth &&
+               testDate.getFullYear() === currentYear;
+      })
+      .map(t => t.partenaire_id);
+    
+    return new Set(testedIds);
+  }, [formData.programme_id, tests]);
+
   // Initialize date with current datetime when dialog opens
   useEffect(() => {
     if (dialogOpen && !editingTest) {
