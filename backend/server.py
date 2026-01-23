@@ -1467,6 +1467,43 @@ async def delete_test_site(test_id: str):
         raise HTTPException(status_code=404, detail="Test non trouvé")
     return {"message": "Test supprimé"}
 
+@api_router.get("/partenaires-testes-mois")
+async def get_partenaires_testes_mois(
+    programme_id: str = None,
+    test_type: str = "site",  # "site" ou "ligne"
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Retourne la liste des IDs des partenaires qui ont déjà un test ce mois-ci
+    pour un programme donné. Utilisé pour afficher les pastilles vert/rouge.
+    """
+    now = datetime.now(timezone.utc)
+    first_day = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+    
+    # Prochain mois
+    if now.month == 12:
+        next_month = datetime(now.year + 1, 1, 1, tzinfo=timezone.utc)
+    else:
+        next_month = datetime(now.year, now.month + 1, 1, tzinfo=timezone.utc)
+    
+    query = {
+        "date_test": {"$gte": first_day, "$lt": next_month}
+    }
+    
+    if programme_id:
+        query["programme_id"] = programme_id
+    
+    # Sélectionner la collection
+    collection = db.tests_site if test_type == "site" else db.tests_ligne
+    
+    # Récupérer uniquement les partenaire_id distincts
+    tests = await collection.find(query, {"_id": 0, "partenaire_id": 1}).to_list(5000)
+    
+    # Extraire les IDs uniques
+    partenaires_testes = list(set(t["partenaire_id"] for t in tests if t.get("partenaire_id")))
+    
+    return {"partenaires_testes": partenaires_testes}
+
 @api_router.post("/upload-attachment")
 async def upload_attachment(file: UploadFile = File(...)):
     """Upload a file (jpeg, png, pdf) and return the URL"""
