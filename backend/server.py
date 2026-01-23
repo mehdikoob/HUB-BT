@@ -1486,8 +1486,18 @@ async def get_partenaires_testes_mois(
     else:
         next_month = datetime(now.year, now.month + 1, 1, tzinfo=timezone.utc)
     
+    # Format ISO pour les dates stockées en string
+    first_day_iso = first_day.isoformat()
+    next_month_iso = next_month.isoformat()
+    
+    # Query qui gère les dates en datetime ET en string ISO
     query = {
-        "date_test": {"$gte": first_day, "$lt": next_month}
+        "$or": [
+            # Cas datetime
+            {"date_test": {"$gte": first_day, "$lt": next_month, "$type": "date"}},
+            # Cas string ISO
+            {"date_test": {"$gte": first_day_iso, "$lt": next_month_iso, "$type": "string"}}
+        ]
     }
     
     if programme_id:
