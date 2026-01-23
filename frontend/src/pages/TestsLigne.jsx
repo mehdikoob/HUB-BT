@@ -906,11 +906,20 @@ const TestsLigne = () => {
                         <SelectValue placeholder="Sélectionnez un partenaire" />
                       </SelectTrigger>
                       <SelectContent>
-                        {filteredPartenaires.map((part) => (
-                          <SelectItem key={part.id} value={part.id}>
-                            {part.nom}
-                          </SelectItem>
-                        ))}
+                        {filteredPartenaires.map((part) => {
+                          const isTested = partenairesTestes.has(part.id);
+                          return (
+                            <SelectItem key={part.id} value={part.id}>
+                              <div className="flex items-center gap-2">
+                                <span 
+                                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isTested ? 'bg-green-500' : 'bg-red-500'}`}
+                                  title={isTested ? 'Test effectué ce mois' : 'Test non effectué ce mois'}
+                                />
+                                <span>{part.nom}</span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
