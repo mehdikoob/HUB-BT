@@ -494,6 +494,10 @@ const TestsManquantsSection = ({ stats, groupTestsByProgramme }) => {
 
 // Dashboard simplifié pour les agents
 const AgentDashboard = ({ stats }) => {
+  // État pour les programmes dépliés
+  const [expandedProgrammes, setExpandedProgrammes] = useState({});
+  const [showAllProgrammes, setShowAllProgrammes] = useState(false);
+  
   // Grouper les tâches par programme
   const groupTasksByProgramme = (taches) => {
     if (!taches || taches.length === 0) return [];
@@ -522,6 +526,28 @@ const AgentDashboard = ({ stats }) => {
   };
 
   const groupedTasks = groupTasksByProgramme(stats?.taches_tests || []);
+  
+  // Toggle un programme
+  const toggleProgramme = (progId) => {
+    setExpandedProgrammes(prev => ({
+      ...prev,
+      [progId]: !prev[progId]
+    }));
+  };
+  
+  // Tout déplier
+  const expandAll = () => {
+    const expanded = {};
+    groupedTasks.forEach(g => { expanded[g.programme_id] = true; });
+    setExpandedProgrammes(expanded);
+    setShowAllProgrammes(true);
+  };
+  
+  // Tout replier
+  const collapseAll = () => {
+    setExpandedProgrammes({});
+    setShowAllProgrammes(false);
+  };
 
   // Calculs de progression
   const globalProgress = stats?.tests_attendus > 0 
