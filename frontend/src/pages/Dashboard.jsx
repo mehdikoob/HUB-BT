@@ -695,51 +695,113 @@ const AgentDashboard = ({ stats }) => {
       {/* Liste des tâches à effectuer */}
       {stats?.total_taches > 0 && (
         <Card className="mb-6 border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ListTodo className="text-blue-600" size={20} />
-              Tests à réaliser ce mois
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ListTodo className="text-blue-600" size={18} />
+                Tests à réaliser ce mois
+                <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-medium ml-2">
+                  {stats.total_taches} test{stats.total_taches > 1 ? 's' : ''}
+                </span>
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={expandAll}
+                  className="text-xs"
+                >
+                  Tout voir
+                </Button>
+                {showAllProgrammes && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={collapseAll}
+                    className="text-xs"
+                  >
+                    Réduire
+                  </Button>
+                )}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-4">
-              Voici la liste des tests qui doivent encore être effectués pour ce mois.
+              Cliquez sur un programme pour voir les tests à effectuer.
             </p>
             
-            {/* Groupés par programme */}
-            <div className="space-y-4">
-              {groupedTasks.slice(0, 10).map((programme, idx) => (
-                <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <h4 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
-                    <span className="bg-blue-100 px-2 py-1 rounded text-sm mr-2">Programme</span>
-                    {programme.programme_nom}
-                  </h4>
-                  <div className="space-y-2 pl-4">
-                    {programme.tests.slice(0, 8).map((test, tIdx) => (
-                      <div key={tIdx} className="flex items-center justify-between bg-white rounded px-3 py-2 border border-gray-100">
-                        <span className="text-sm font-medium text-gray-900">{test.partenaire_nom}</span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          test.type_test === 'Site' 
-                            ? 'bg-red-100 text-red-700' 
-                            : 'bg-purple-100 text-purple-700'
-                        }`}>
-                          Test {test.type_test}
+            {/* Groupés par programme - Format accordéon */}
+            <div className="space-y-2">
+              {(showAllProgrammes ? groupedTasks : groupedTasks.slice(0, 5)).map((programme) => {
+                const isExpanded = expandedProgrammes[programme.programme_id];
+                const testsSite = programme.tests.filter(t => t.type_test === 'Site').length;
+                const testsLigne = programme.tests.filter(t => t.type_test === 'Ligne').length;
+                
+                return (
+                  <div key={programme.programme_id} className="border border-gray-200 rounded-lg overflow-hidden">
+                    {/* En-tête du programme - cliquable */}
+                    <button
+                      onClick={() => toggleProgramme(programme.programme_id)}
+                      className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        {isExpanded ? (
+                          <ChevronDown size={18} className="text-gray-500" />
+                        ) : (
+                          <ChevronRight size={18} className="text-gray-500" />
+                        )}
+                        <span className="font-semibold text-gray-800">{programme.programme_nom}</span>
+                        <span className="text-xs text-gray-500">
+                          ({programme.tests.length} test{programme.tests.length > 1 ? 's' : ''})
                         </span>
                       </div>
-                    ))}
-                    {programme.tests.length > 8 && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        ... et {programme.tests.length - 8} autre{programme.tests.length - 8 > 1 ? 's' : ''} test{programme.tests.length - 8 > 1 ? 's' : ''}
-                      </p>
+                      <div className="flex gap-2">
+                        {testsSite > 0 && (
+                          <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1">
+                            <Globe size={12} /> {testsSite}
+                          </span>
+                        )}
+                        {testsLigne > 0 && (
+                          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1">
+                            <Phone size={12} /> {testsLigne}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                    
+                    {/* Liste des tests - visible si déplié */}
+                    {isExpanded && (
+                      <div className="p-3 bg-white border-t border-gray-200">
+                        <div className="space-y-2">
+                          {programme.tests.map((test, tIdx) => (
+                            <div key={tIdx} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
+                              <span className="text-sm font-medium text-gray-900">{test.partenaire_nom}</span>
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                test.type_test === 'Site' 
+                                  ? 'bg-red-100 text-red-700' 
+                                  : 'bg-purple-100 text-purple-700'
+                              }`}>
+                                Test {test.type_test}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-            {groupedTasks.length > 10 && (
-              <p className="text-sm text-gray-600 mt-4">
-                ... et {groupedTasks.length - 10} autre{groupedTasks.length - 10 > 1 ? 's' : ''} programme{groupedTasks.length - 10 > 1 ? 's' : ''}
-              </p>
+            
+            {/* Message si plus de programmes */}
+            {!showAllProgrammes && groupedTasks.length > 5 && (
+              <button
+                onClick={expandAll}
+                className="w-full mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium py-2"
+              >
+                Voir les {groupedTasks.length - 5} autre{groupedTasks.length - 5 > 1 ? 's' : ''} programme{groupedTasks.length - 5 > 1 ? 's' : ''} →
+              </button>
             )}
           </CardContent>
         </Card>
