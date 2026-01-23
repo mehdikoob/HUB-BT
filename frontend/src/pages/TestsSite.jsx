@@ -976,7 +976,7 @@ const TestsSite = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {filteredPartenaires.map((part) => {
-                          const isTested = partenairesTestes.has(part.id);
+                          const isTested = partenairesTestesSet.has(part.id);
                           return (
                             <SelectItem key={part.id} value={part.id}>
                               <div className="flex items-center gap-2">
