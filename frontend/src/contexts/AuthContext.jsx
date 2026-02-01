@@ -11,11 +11,23 @@ export const AuthProvider = ({ children }) => {
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
   // Logout function (déclaré avant useEffect pour éviter les problèmes de dépendance)
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-  }, []);
+  const logout = useCallback(async () => {
+    try {
+      // Appeler l'API de logout pour enregistrer la fin de session
+      const currentToken = localStorage.getItem('token');
+      if (currentToken) {
+        await axios.post(`${API_URL}/api/logout`, {}, {
+          headers: { Authorization: `Bearer ${currentToken}` }
+        });
+      }
+    } catch (error) {
+      console.log('Erreur lors du logout API:', error);
+    } finally {
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
+    }
+  }, [API_URL]);
 
   // Intercepteur axios pour gérer les erreurs 401 globalement
   useEffect(() => {
