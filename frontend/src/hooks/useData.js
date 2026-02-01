@@ -127,6 +127,20 @@ export const useIdentifiants = (programmeId = null) => {
   });
 };
 
+// ==================== TESTS MANQUANTS ANNÉE ====================
+export const useTestsManquantsAnnee = () => {
+  return useQuery({
+    queryKey: ['tests-manquants-annee'],
+    queryFn: async () => {
+      const response = await axios.get(`${API}/stats/tests-manquants-annee`, {
+        headers: authHeader()
+      });
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes - données qui ne changent pas souvent
+  });
+};
+
 // ==================== TESTS SITE ====================
 // Helper pour convertir mois/année en dates
 const monthYearToDateRange = (monthYear) => {
