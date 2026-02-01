@@ -133,6 +133,7 @@ const ConnectionLogs = () => {
                     <th className="text-left py-3 px-2 font-medium text-gray-600">Date/Heure</th>
                     <th className="text-left py-3 px-2 font-medium text-gray-600">Utilisateur</th>
                     <th className="text-left py-3 px-2 font-medium text-gray-600">Rôle</th>
+                    <th className="text-left py-3 px-2 font-medium text-gray-600">Durée session</th>
                     <th className="text-left py-3 px-2 font-medium text-gray-600">IP</th>
                     <th className="text-left py-3 px-2 font-medium text-gray-600">Navigateur</th>
                   </tr>
@@ -161,6 +162,17 @@ const ConnectionLogs = () => {
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadge(log.user_role)}`}>
                           {log.user_role}
                         </span>
+                      </td>
+                      <td className="py-3 px-2">
+                        {log.session_duration ? (
+                          <span className="text-green-600 font-medium text-xs bg-green-50 px-2 py-1 rounded">
+                            {log.session_duration}
+                          </span>
+                        ) : (
+                          <span className="text-blue-600 text-xs bg-blue-50 px-2 py-1 rounded">
+                            En cours...
+                          </span>
+                        )}
                       </td>
                       <td className="py-3 px-2 text-gray-600 font-mono text-xs">
                         {log.ip_address || 'N/A'}
