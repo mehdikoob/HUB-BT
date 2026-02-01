@@ -251,11 +251,6 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* Carte des tests manquants depuis janvier */}
-      <div className="mb-6 animate-slide-up animation-delay-500">
-        <TestsManquantsAnneeCard />
-      </div>
-
       {/* Indicateur de tests mensuels */}
       {stats?.tests_attendus > 0 && (
         <Card className="mb-4 border-0 shadow-sm hover-lift animate-fade-in animation-delay-300">
