@@ -708,6 +708,11 @@ const Parametres = () => {
                           📋 {user.programme_ids.length} programme(s) affilié(s)
                         </p>
                       )}
+                      {user.can_view_logs && user.role !== 'super_admin' && (
+                        <p className="text-xs text-green-600 mt-1">
+                          🔍 Accès aux logs de connexion
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
