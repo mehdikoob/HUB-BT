@@ -36,7 +36,8 @@ const Parametres = () => {
     is_active: true,
     programme_id: '',
     partenaire_id: '',
-    programme_ids: []
+    programme_ids: [],
+    can_view_logs: false
   });
 
   const { getAuthHeader, user: currentUser, fetchCurrentUser } = useAuth();
