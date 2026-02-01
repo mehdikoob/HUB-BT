@@ -1,11 +1,101 @@
 import React, { useState } from 'react';
-import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle, BarChart3, CheckCircle2, ListTodo, ChevronDown, ChevronRight, Building2, Phone, Globe } from 'lucide-react';
+import { FileText, Users, AlertCircle, TrendingUp, Clock, AlertTriangle, BarChart3, CheckCircle2, ListTodo, ChevronDown, ChevronRight, Building2, Phone, Globe, CalendarX } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import InsightsIA from '../components/InsightsIA';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { useDashboardStats } from '../hooks/useData';
+import { useDashboardStats, useTestsManquantsAnnee } from '../hooks/useData';
+
+// Composant pour afficher les tests manquants depuis le début de l'année
+const TestsManquantsAnneeCard = () => {
+  const { data: statsManquants, isLoading } = useTestsManquantsAnnee();
+  const [expanded, setExpanded] = useState(false);
+  
+  // Ne rien afficher si on est en janvier (pas de mois clos)
+  if (isLoading) {
+    return (
+      <Card className="border-0 shadow-sm">
+        <CardContent className="pt-4">
+          <div className="animate-pulse h-20 bg-gray-100 rounded"></div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Si message spécial (janvier), ne pas afficher la carte
+  if (statsManquants?.message) {
+    return null;
+  }
+  
+  const { annee, total_manquants, total_site_manquants, total_ligne_manquants, par_mois } = statsManquants || {};
+  
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center justify-between text-base">
+          <div className="flex items-center gap-2">
+            <CalendarX className="text-orange-600" size={18} />
+            Tests manquants depuis janvier {annee}
+          </div>
+          <span className={`px-2.5 py-1 rounded-full text-sm font-semibold ${
+            total_manquants === 0 
+              ? 'bg-green-100 text-green-700' 
+              : 'bg-orange-100 text-orange-700'
+          }`}>
+            {total_manquants} manquant{total_manquants > 1 ? 's' : ''}
+          </span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* Détail Site / Ligne */}
+        <div className="flex gap-4 mb-3 text-sm">
+          <span className="text-gray-600">
+            <Globe size={14} className="inline mr-1" />
+            Site : <strong className={total_site_manquants > 0 ? 'text-orange-600' : 'text-green-600'}>{total_site_manquants}</strong>
+          </span>
+          <span className="text-gray-600">
+            <Phone size={14} className="inline mr-1" />
+            Ligne : <strong className={total_ligne_manquants > 0 ? 'text-orange-600' : 'text-green-600'}>{total_ligne_manquants}</strong>
+          </span>
+        </div>
+        
+        {/* Bouton pour voir le détail par mois */}
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+        >
+          {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          {expanded ? 'Masquer le détail' : 'Voir le détail par mois'}
+        </button>
+        
+        {/* Détail par mois */}
+        {expanded && par_mois && (
+          <div className="mt-3 space-y-2">
+            {par_mois.map((mois) => (
+              <div 
+                key={mois.mois}
+                className={`flex items-center justify-between p-2 rounded text-sm ${
+                  mois.manquants === 0 ? 'bg-green-50' : 'bg-orange-50'
+                }`}
+              >
+                <span className="font-medium">{mois.nom_mois}</span>
+                <div className="flex items-center gap-3">
+                  <span className={mois.manquants === 0 ? 'text-green-600' : 'text-orange-600'}>
+                    {mois.manquants === 0 ? '✓ Complet' : `${mois.manquants} manquant${mois.manquants > 1 ? 's' : ''}`}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    ({mois.effectues}/{mois.attendus})
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const Dashboard = () => {
   const { getAuthHeader } = useAuth();
