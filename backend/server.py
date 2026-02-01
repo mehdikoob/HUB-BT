@@ -4016,8 +4016,7 @@ async def clear_connection_logs(
 
 @api_router.post("/logout")
 async def logout(
-    current_user: User = Depends(get_current_active_user),
-    request: Request
+    current_user: User = Depends(get_current_active_user)
 ):
     """Enregistrer la déconnexion et calculer la durée de session"""
     try:
