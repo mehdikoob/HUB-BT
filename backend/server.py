@@ -440,6 +440,8 @@ class ConnectionLog(BaseModel):
     user_prenom: str
     user_role: str
     login_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    logout_time: Optional[datetime] = None
+    session_duration: Optional[str] = None  # Format: "2h 15m" ou "45m"
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
 
