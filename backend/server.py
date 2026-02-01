@@ -2552,6 +2552,137 @@ def get_encouragement_message(tests_effectues, tests_attendus, jour_actuel, jour
         return f"📋 Fin de mois — {tests_effectues}/{tests_attendus} tests réalisés"
 
 
+@api_router.get("/stats/tests-manquants-annee")
+async def get_tests_manquants_annee(current_user: User = Depends(get_current_user)):
+    """
+    Calcule les tests manquants par mois depuis le début de l'année.
+    Ne compte que les mois clos (pas le mois en cours).
+    Un test non_realisable compte comme "réalisé" (tentative effectuée).
+    """
+    now = datetime.now(timezone.utc)
+    current_year = now.year
+    current_month = now.month
+    
+    # Si on est en janvier, pas encore de mois clos → retourner vide
+    if current_month == 1:
+        return {
+            "annee": current_year,
+            "total_manquants": 0,
+            "total_site_manquants": 0,
+            "total_ligne_manquants": 0,
+            "par_mois": [],
+            "message": "Les données seront disponibles à partir du 1er février"
+        }
+    
+    # Récupérer tous les partenaires et programmes
+    partenaires = await db.partenaires.find({}, {"_id": 0}).to_list(1000)
+    programmes = await db.programmes.find({}, {"_id": 0}).to_list(1000)
+    programmes_dict = {p['id']: p['nom'] for p in programmes}
+    
+    # Résultats par mois
+    resultats_mois = []
+    total_manquants = 0
+    total_site_manquants = 0
+    total_ligne_manquants = 0
+    
+    # Noms des mois en français
+    noms_mois = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+    
+    # Pour chaque mois clos (janvier → mois précédent)
+    for mois in range(1, current_month):
+        # Dates du mois
+        first_day = datetime(current_year, mois, 1, tzinfo=timezone.utc)
+        if mois == 12:
+            next_month = datetime(current_year + 1, 1, 1, tzinfo=timezone.utc)
+        else:
+            next_month = datetime(current_year, mois + 1, 1, tzinfo=timezone.utc)
+        
+        first_day_iso = first_day.isoformat()
+        next_month_iso = next_month.isoformat()
+        
+        # Compteurs pour ce mois
+        tests_attendus_mois = 0
+        tests_effectues_mois = 0
+        tests_site_attendus_mois = 0
+        tests_site_effectues_mois = 0
+        tests_ligne_attendus_mois = 0
+        tests_ligne_effectues_mois = 0
+        
+        for partenaire in partenaires:
+            part_id = partenaire['id']
+            contacts_programmes = partenaire.get('contacts_programmes', [])
+            
+            for contact in contacts_programmes:
+                prog_id = contact.get('programme_id')
+                test_site_requis = contact.get('test_site_requis', False)
+                test_ligne_requis = contact.get('test_ligne_requis', False)
+                
+                # Tests Site
+                if test_site_requis:
+                    tests_site_attendus_mois += 1
+                    tests_attendus_mois += 1
+                    
+                    # Vérifier si test effectué (y compris non_realisable)
+                    query_site = {
+                        "partenaire_id": part_id,
+                        "programme_id": prog_id,
+                        "$or": [
+                            {"date_test": {"$gte": first_day, "$lt": next_month, "$type": "date"}},
+                            {"date_test": {"$gte": first_day_iso, "$lt": next_month_iso, "$type": "string"}}
+                        ]
+                    }
+                    test_site_count = await db.tests_site.count_documents(query_site)
+                    if test_site_count > 0:
+                        tests_site_effectues_mois += 1
+                        tests_effectues_mois += 1
+                
+                # Tests Ligne
+                if test_ligne_requis:
+                    tests_ligne_attendus_mois += 1
+                    tests_attendus_mois += 1
+                    
+                    query_ligne = {
+                        "partenaire_id": part_id,
+                        "programme_id": prog_id,
+                        "$or": [
+                            {"date_test": {"$gte": first_day, "$lt": next_month, "$type": "date"}},
+                            {"date_test": {"$gte": first_day_iso, "$lt": next_month_iso, "$type": "string"}}
+                        ]
+                    }
+                    test_ligne_count = await db.tests_ligne.count_documents(query_ligne)
+                    if test_ligne_count > 0:
+                        tests_ligne_effectues_mois += 1
+                        tests_effectues_mois += 1
+        
+        # Calculer les manquants pour ce mois
+        manquants_mois = tests_attendus_mois - tests_effectues_mois
+        site_manquants_mois = tests_site_attendus_mois - tests_site_effectues_mois
+        ligne_manquants_mois = tests_ligne_attendus_mois - tests_ligne_effectues_mois
+        
+        resultats_mois.append({
+            "mois": mois,
+            "nom_mois": noms_mois[mois],
+            "manquants": manquants_mois,
+            "site_manquants": site_manquants_mois,
+            "ligne_manquants": ligne_manquants_mois,
+            "attendus": tests_attendus_mois,
+            "effectues": tests_effectues_mois
+        })
+        
+        total_manquants += manquants_mois
+        total_site_manquants += site_manquants_mois
+        total_ligne_manquants += ligne_manquants_mois
+    
+    return {
+        "annee": current_year,
+        "total_manquants": total_manquants,
+        "total_site_manquants": total_site_manquants,
+        "total_ligne_manquants": total_ligne_manquants,
+        "par_mois": resultats_mois
+    }
+
+
 @api_router.get("/stats/dashboard")
 async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     from datetime import datetime, timezone
