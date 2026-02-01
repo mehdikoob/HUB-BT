@@ -422,6 +422,11 @@ const Dashboard = () => {
       {!stats?.is_j5_alert && stats?.tests_manquants_count > 0 && (
         <TestsManquantsSection stats={stats} groupTestsByProgramme={groupTestsByProgramme} />
       )}
+
+      {/* Carte des tests manquants depuis janvier - tout en bas */}
+      <div className="mt-6">
+        <TestsManquantsAnneeCard />
+      </div>
     </div>
   );
 };
