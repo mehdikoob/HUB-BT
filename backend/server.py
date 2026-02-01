@@ -4014,6 +4014,50 @@ async def clear_connection_logs(
     result = await db.connection_logs.delete_many(query)
     return {"message": f"{result.deleted_count} log(s) supprimé(s)"}
 
+@api_router.post("/logout")
+async def logout(
+    current_user: User = Depends(get_current_active_user),
+    request: Request
+):
+    """Enregistrer la déconnexion et calculer la durée de session"""
+    try:
+        # Trouver le dernier log de connexion de cet utilisateur
+        last_log = await db.connection_logs.find_one(
+            {"user_id": current_user.id, "logout_time": None},
+            sort=[("login_time", -1)]
+        )
+        
+        if last_log:
+            now = datetime.now(timezone.utc)
+            login_time = last_log.get('login_time')
+            
+            # Calculer la durée de session
+            if isinstance(login_time, str):
+                login_time = datetime.fromisoformat(login_time.replace('Z', '+00:00'))
+            
+            duration = now - login_time
+            hours, remainder = divmod(int(duration.total_seconds()), 3600)
+            minutes, _ = divmod(remainder, 60)
+            
+            if hours > 0:
+                duration_str = f"{hours}h {minutes}m"
+            else:
+                duration_str = f"{minutes}m"
+            
+            # Mettre à jour le log avec logout_time et session_duration
+            await db.connection_logs.update_one(
+                {"id": last_log['id']},
+                {"$set": {
+                    "logout_time": now.isoformat(),
+                    "session_duration": duration_str
+                }}
+            )
+        
+        return {"message": "Déconnexion enregistrée", "success": True}
+    except Exception as e:
+        print(f"Erreur lors du logout: {e}")
+        return {"message": "Déconnexion", "success": True}
+
 # =====================
 # Screenshot Management Routes
 # =====================
