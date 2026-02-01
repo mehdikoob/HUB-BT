@@ -24,12 +24,16 @@ const Layout = () => {
     { path: '/bilan-partenaire', icon: FileBarChart, label: 'Bilan Partenaire', allowedRoles: ['super_admin', 'admin', 'chef_projet', 'agent'], wip: true },
     { path: '/statistiques', icon: BarChart3, label: 'Statistiques', allowedRoles: ['super_admin', 'admin', 'chef_projet'] },
     { path: '/parametres', icon: Settings, label: 'Paramètres', allowedRoles: ['super_admin', 'admin', 'chef_projet'] },
-    { path: '/connection-logs', icon: Shield, label: 'Logs Connexion', allowedRoles: ['super_admin'], superAdminOnly: true },
+    { path: '/connection-logs', icon: Shield, label: 'Logs Connexion', allowedRoles: ['super_admin'], requiresLogsAccess: true },
   ];
 
-  const visibleMenuItems = menuItems.filter(item => 
-    item.allowedRoles.includes(user?.role)
-  );
+  const visibleMenuItems = menuItems.filter(item => {
+    // Cas spécial pour les logs de connexion
+    if (item.requiresLogsAccess) {
+      return user?.role === 'super_admin' || user?.can_view_logs === true;
+    }
+    return item.allowedRoles.includes(user?.role);
+  });
 
   const isActive = (path) => {
     if (path === '/') {
