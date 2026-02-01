@@ -984,6 +984,11 @@ const AgentDashboard = ({ stats }) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Carte des tests manquants depuis janvier - tout en bas */}
+      <div className="mt-6">
+        <TestsManquantsAnneeCard />
+      </div>
     </div>
   );
 };
