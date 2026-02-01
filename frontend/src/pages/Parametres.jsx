@@ -521,6 +521,27 @@ const Parametres = () => {
                     Compte actif
                   </Label>
                 </div>
+                
+                {/* Option d'accès aux logs - visible uniquement pour super_admin */}
+                {currentUser?.role === 'super_admin' && formData.role !== 'super_admin' && (
+                  <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <input
+                      type="checkbox"
+                      id="can_view_logs"
+                      checked={formData.can_view_logs}
+                      onChange={(e) => setFormData({ ...formData, can_view_logs: e.target.checked })}
+                      className="rounded border-blue-300"
+                    />
+                    <div>
+                      <Label htmlFor="can_view_logs" className="cursor-pointer font-medium text-blue-900">
+                        Accès aux logs de connexion
+                      </Label>
+                      <p className="text-xs text-blue-700 mt-0.5">
+                        Permet à cet utilisateur de consulter l'historique des connexions
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <DialogFooter>
