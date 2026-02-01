@@ -398,6 +398,7 @@ class UserBase(BaseModel):
     programme_id: Optional[str] = None  # Pour les utilisateurs de type "programme"
     partenaire_id: Optional[str] = None  # Pour les utilisateurs de type "partenaire"
     programme_ids: List[str] = []  # Pour les chefs de projet (plusieurs programmes)
+    can_view_logs: bool = False  # Accès aux logs de connexion (contrôlé par super_admin)
 
 class UserCreate(UserBase):
     password: str
@@ -411,6 +412,7 @@ class UserUpdate(BaseModel):
     programme_id: Optional[str] = None
     partenaire_id: Optional[str] = None
     programme_ids: Optional[List[str]] = None  # Pour les chefs de projet
+    can_view_logs: Optional[bool] = None  # Accès aux logs de connexion
 
 class User(UserBase):
     model_config = ConfigDict(extra="ignore")
