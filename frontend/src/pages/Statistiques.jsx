@@ -46,15 +46,33 @@ const Statistiques = () => {
   };
 
   const getRoleBadge = (role) => {
-    return role === 'admin' ? (
-      <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
-        Admin
-      </Badge>
-    ) : (
-      <Badge variant="secondary">
-        Agent
-      </Badge>
-    );
+    switch (role) {
+      case 'super_admin':
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            Super Admin
+          </Badge>
+        );
+      case 'admin':
+        return (
+          <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
+            Admin
+          </Badge>
+        );
+      case 'chef_projet':
+        return (
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+            Chef de projet
+          </Badge>
+        );
+      case 'agent':
+      default:
+        return (
+          <Badge variant="secondary">
+            Agent
+          </Badge>
+        );
+    }
   };
 
   if (loading) {
