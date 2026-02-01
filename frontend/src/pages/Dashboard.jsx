@@ -754,11 +754,6 @@ const AgentDashboard = ({ stats }) => {
         </Card>
       )}
 
-      {/* Carte des tests manquants depuis janvier - Visible pour tous */}
-      <div className="mb-6">
-        <TestsManquantsAnneeCard />
-      </div>
-
       {/* Cartes de résumé */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Tâches à effectuer */}
