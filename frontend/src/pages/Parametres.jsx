@@ -162,10 +162,15 @@ const Parametres = () => {
           nom: formData.nom,
           prenom: formData.prenom,
           role: formData.role,
-          is_active: formData.is_active
+          is_active: formData.is_active,
+          can_view_logs: formData.can_view_logs
         };
         if (formData.password) {
           updateData.password = formData.password;
+        }
+        // Ajouter programme_ids si chef de projet
+        if (formData.role === 'chef_projet') {
+          updateData.programme_ids = formData.programme_ids;
         }
         
         await axios.put(`${API_URL}/api/users/${editingUser.id}`, updateData, {
