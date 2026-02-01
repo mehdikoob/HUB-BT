@@ -3980,9 +3980,13 @@ async def get_connection_logs(
     limit: int = Query(100, ge=1, le=500),
     skip: int = Query(0, ge=0)
 ):
-    """Get connection logs (Super Admin only)"""
-    if current_user.role != UserRole.super_admin:
-        raise HTTPException(status_code=403, detail="Accès réservé au super administrateur")
+    """Get connection logs (Super Admin ou utilisateurs autorisés)"""
+    # Vérifier si l'utilisateur a le droit d'accéder aux logs
+    user_data = await db.users.find_one({"email": current_user.email.lower()}, {"_id": 0})
+    can_view = user_data.get('can_view_logs', False) if user_data else False
+    
+    if current_user.role != UserRole.super_admin and not can_view:
+        raise HTTPException(status_code=403, detail="Accès non autorisé aux logs de connexion")
     
     logs = await db.connection_logs.find({}, {"_id": 0}).sort("login_time", -1).skip(skip).limit(limit).to_list(length=limit)
     total = await db.connection_logs.count_documents({})
