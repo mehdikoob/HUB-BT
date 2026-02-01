@@ -113,7 +113,8 @@ const Parametres = () => {
         is_active: user.is_active,
         programme_id: user.programme_id || '',
         partenaire_id: user.partenaire_id || '',
-        programme_ids: user.programme_ids || []  // Pour les chefs de projet
+        programme_ids: user.programme_ids || [],
+        can_view_logs: user.can_view_logs || false
       });
     } else {
       setEditingUser(null);
@@ -126,7 +127,8 @@ const Parametres = () => {
         is_active: true,
         programme_id: '',
         partenaire_id: '',
-        programme_ids: []  // Pour les chefs de projet
+        programme_ids: [],
+        can_view_logs: false
       });
     }
     setShowPassword(false);  // Réinitialiser la visibilité du mot de passe
