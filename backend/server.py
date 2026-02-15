@@ -1650,6 +1650,7 @@ async def get_tests_ligne(
     date_debut: Optional[str] = Query(None),
     date_fin: Optional[str] = Query(None),
     annee: Optional[int] = Query(None),
+    test_non_realisable: Optional[str] = Query(None, description="Filtrer par test non réalisable (true/false)"),
     page: int = Query(1, ge=1, description="Numéro de page"),
     limit: int = Query(50, ge=1, le=200, description="Nombre d'éléments par page"),
     paginate: bool = Query(False, description="Activer la pagination"),
@@ -1672,6 +1673,12 @@ async def get_tests_ligne(
             query['programme_id'] = programme_id
         if partenaire_id:
             query['partenaire_id'] = partenaire_id
+    
+    # Filtre par test non réalisable
+    if test_non_realisable == 'true':
+        query['test_non_realisable'] = True
+    elif test_non_realisable == 'false':
+        query['test_non_realisable'] = {'$ne': True}
     
     # Gestion des filtres de date
     if date_debut or date_fin:
