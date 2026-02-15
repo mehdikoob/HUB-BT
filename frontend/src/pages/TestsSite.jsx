@@ -76,6 +76,8 @@ const TestsSite = () => {
     partenaire_id: '',
     date_debut: currentMonthYear,
     date_fin: currentMonthYear,
+    test_non_realisable: '',  // '', 'true', 'false'
+    remise_non_appliquee: '', // '', 'true', 'false'
   });
   
   // Hook React Query pour les tests avec filtres et pagination
