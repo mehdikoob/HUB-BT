@@ -249,6 +249,8 @@ export const useTestsLigne = (filters, page = 1, limit = 20) => {
         const range = monthYearToDateRange(filters.date_fin);
         params.date_fin = range.end;
       }
+      // Nouveau filtre
+      if (filters.test_non_realisable) params.test_non_realisable = filters.test_non_realisable;
       
       const response = await axios.get(`${API}/tests-ligne`, { 
         params,
