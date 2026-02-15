@@ -1614,6 +1614,39 @@ const TestsSite = () => {
               Réinitialiser dates
             </Button>
           </div>
+          
+          {/* Filtres supplémentaires : Test non réalisable & Remise non appliquée */}
+          <div className="flex items-center gap-4">
+            <div className="w-5" />
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Select
+                value={filters.test_non_realisable || 'all'}
+                onValueChange={(value) => updateFilters({ ...filters, test_non_realisable: value === 'all' ? '' : value })}
+              >
+                <SelectTrigger data-testid="filter-non-realisable">
+                  <SelectValue placeholder="Tests non réalisables" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les tests</SelectItem>
+                  <SelectItem value="true">Tests non réalisables uniquement</SelectItem>
+                  <SelectItem value="false">Tests réalisés uniquement</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={filters.remise_non_appliquee || 'all'}
+                onValueChange={(value) => updateFilters({ ...filters, remise_non_appliquee: value === 'all' ? '' : value })}
+              >
+                <SelectTrigger data-testid="filter-remise">
+                  <SelectValue placeholder="Remise appliquée" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les remises</SelectItem>
+                  <SelectItem value="true">Remise NON appliquée</SelectItem>
+                  <SelectItem value="false">Remise appliquée</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </Card>
 
