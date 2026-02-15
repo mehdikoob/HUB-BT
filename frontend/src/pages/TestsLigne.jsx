@@ -1315,6 +1315,26 @@ const TestsLigne = () => {
               Réinitialiser dates
             </Button>
           </div>
+          
+          {/* Filtre supplémentaire : Test non réalisable */}
+          <div className="flex items-center gap-4">
+            <div className="w-5" />
+            <div className="flex-1 max-w-xs">
+              <Select
+                value={filters.test_non_realisable || 'all'}
+                onValueChange={(value) => updateFilters({ ...filters, test_non_realisable: value === 'all' ? '' : value })}
+              >
+                <SelectTrigger data-testid="filter-non-realisable">
+                  <SelectValue placeholder="Tests non réalisables" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les tests</SelectItem>
+                  <SelectItem value="true">Tests non réalisables uniquement</SelectItem>
+                  <SelectItem value="false">Tests réalisés uniquement</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </Card>
 
