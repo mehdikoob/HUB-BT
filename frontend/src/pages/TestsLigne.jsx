@@ -85,6 +85,7 @@ const TestsLigne = () => {
     partenaire_id: '',
     date_debut: currentMonthYear,
     date_fin: currentMonthYear,
+    test_non_realisable: '',  // '', 'true', 'false'
   });
   
   // Hook React Query pour les tests avec filtres et pagination
