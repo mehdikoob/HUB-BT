@@ -2384,13 +2384,48 @@ async def export_incident_report(
     doc.build(story)
     buffer.seek(0)
     
-    # Return as downloadable file
-    filename = f"rapport_incident_{test_type}_{test_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    # Construire le nom de fichier avec le format: TestType-Programme-Partenaire-DateHeure
+    test_type_label = "TestSite" if test_type == "site" else "TestLigne"
+    programme_nom = programme.get('nom', 'Programme') if programme else 'Programme'
+    partenaire_nom = partenaire.get('nom', 'Partenaire') if partenaire else 'Partenaire'
+    
+    # Récupérer la date du test et la formater
+    date_test_str = test.get('date_test', '')
+    if date_test_str:
+        try:
+            # Parser la date ISO et formater en YYYYMMDD_HHMM
+            date_test_parsed = datetime.fromisoformat(date_test_str.replace('Z', '+00:00'))
+            date_formatted = date_test_parsed.strftime('%Y%m%d_%H%M')
+        except:
+            date_formatted = datetime.now().strftime('%Y%m%d_%H%M')
+    else:
+        date_formatted = datetime.now().strftime('%Y%m%d_%H%M')
+    
+    # Nettoyer les noms pour le filename (supprimer les caractères spéciaux)
+    import re
+    def clean_filename(name):
+        # Remplacer les accents et caractères spéciaux par des équivalents ASCII
+        name = name.replace('é', 'e').replace('è', 'e').replace('ê', 'e').replace('ë', 'e')
+        name = name.replace('à', 'a').replace('â', 'a').replace('ä', 'a')
+        name = name.replace('ù', 'u').replace('û', 'u').replace('ü', 'u')
+        name = name.replace('ô', 'o').replace('ö', 'o')
+        name = name.replace('î', 'i').replace('ï', 'i')
+        name = name.replace('ç', 'c')
+        # Remplacer espaces par underscore et supprimer caractères non alphanumériques
+        name = re.sub(r'[^a-zA-Z0-9_-]', '_', name)
+        # Supprimer les underscores multiples
+        name = re.sub(r'_+', '_', name)
+        return name.strip('_')
+    
+    filename = f"{test_type_label}-{clean_filename(programme_nom)}-{clean_filename(partenaire_nom)}-{date_formatted}.pdf"
     
     return StreamingResponse(
         buffer,
         media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "X-Filename": filename  # Header supplémentaire pour le frontend
+        }
     )
 
 # Routes - Stats & Dashboard
