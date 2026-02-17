@@ -581,10 +581,25 @@ const TestsSite = () => {
         }
       );
       
+      // Récupérer le nom de fichier depuis les headers
+      let filename = 'rapport_incident.pdf';
+      const contentDisposition = response.headers['content-disposition'];
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+?)(?:;|$)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/"/g, '');
+        }
+      }
+      // Fallback sur le header X-Filename si disponible
+      const xFilename = response.headers['x-filename'];
+      if (xFilename) {
+        filename = xFilename;
+      }
+      
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `rapport_incident_site_${testId}.pdf`);
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
       link.remove();
