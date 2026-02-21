@@ -1818,14 +1818,14 @@ const TestsSite = () => {
                   </td>
                   {/* Colonne "Créé par" - discrète et visible pour tous */}
                   <td className="px-1 py-2 text-xs text-gray-500">
-                    {test.created_by ? (
+                    {test.created_by && test.created_by.nom !== "Anonyme" ? (
                       <div className="max-w-[80px]">
                         <div className="truncate" title={`${test.created_by.prenom} ${test.created_by.nom}`}>
                           {test.created_by.prenom} {test.created_by.nom?.charAt(0)}.
                         </div>
                       </div>
                     ) : (
-                      <span className="text-gray-400 italic">-</span>
+                      <span></span>
                     )}
                   </td>
                   <td className="px-2 py-2 text-xs">
