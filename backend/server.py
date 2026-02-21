@@ -1405,8 +1405,8 @@ async def get_tests_site(
         if isinstance(t.get('created_at'), str):
             t['created_at'] = datetime.fromisoformat(t['created_at'])
         
-        # Si test anonyme et l'utilisateur n'est pas super_admin, masquer le créateur
-        if t.get('is_anonymous') and current_user.role != UserRole.super_admin:
+        # Si test anonyme, masquer le créateur pour TOUS les utilisateurs
+        if t.get('is_anonymous'):
             t['created_by'] = {
                 "id": None,
                 "nom": "Anonyme",
@@ -1729,8 +1729,8 @@ async def get_tests_ligne(
         if isinstance(t.get('created_at'), str):
             t['created_at'] = datetime.fromisoformat(t['created_at'])
         
-        # Si test anonyme et l'utilisateur n'est pas super_admin, masquer le créateur
-        if t.get('is_anonymous') and current_user.role != UserRole.super_admin:
+        # Si test anonyme, masquer le créateur pour TOUS les utilisateurs
+        if t.get('is_anonymous'):
             t['created_by'] = {
                 "id": None,
                 "nom": "Anonyme",
