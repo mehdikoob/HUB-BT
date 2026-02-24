@@ -199,6 +199,7 @@ const Identifiants = () => {
       prenom: '',
       numero_adherent: '',
       date_naissance: '',
+      email: '',
       actif: true
     });
     setEditingIdentifiant(null);
@@ -213,6 +214,7 @@ const Identifiants = () => {
       prenom: identifiant.prenom,
       numero_adherent: identifiant.numero_adherent || '',
       date_naissance: identifiant.date_naissance || '',
+      email: identifiant.email || '',
       actif: identifiant.actif !== false
     });
     setIsModalOpen(true);
