@@ -550,6 +550,20 @@ const Identifiants = () => {
               />
             </div>
             
+            <div className="space-y-2">
+              <Label htmlFor="email">
+                Adresse email <span className="text-gray-400 text-xs">(optionnel)</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                placeholder="exemple@email.com"
+                data-testid="input-email"
+              />
+            </div>
+            
             <DialogFooter className="gap-2 sm:gap-0">
               <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                 Annuler
