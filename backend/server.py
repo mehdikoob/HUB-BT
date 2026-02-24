@@ -89,6 +89,19 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Startup event to verify MongoDB connection
+@app.on_event("startup")
+async def startup_db_client():
+    """Verify MongoDB connection on startup"""
+    try:
+        # Ping the database to verify connection
+        await client.admin.command('ping')
+        logging.info("Successfully connected to MongoDB")
+    except Exception as e:
+        logging.error(f"Failed to connect to MongoDB: {e}")
+        # Don't raise - let the app start and fail on actual requests if needed
+        # This prevents immediate crash on transient network issues
+
 # Enums
 class StatutAlerte(str, Enum):
     ouvert = "ouvert"
