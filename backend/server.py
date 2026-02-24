@@ -63,10 +63,21 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB connection with robust error handling for Atlas SRV URIs
+mongo_url = os.environ.get('MONGO_URL', '')
+if not mongo_url:
+    raise RuntimeError("MONGO_URL environment variable is required")
+
+# Configure MongoDB client with appropriate settings for Atlas
+client = AsyncIOMotorClient(
+    mongo_url,
+    serverSelectionTimeoutMS=30000,  # 30 seconds timeout for server selection
+    connectTimeoutMS=30000,  # 30 seconds connection timeout
+    socketTimeoutMS=30000,  # 30 seconds socket timeout
+    retryWrites=True,
+    retryReads=True,
+)
+db = client[os.environ.get('DB_NAME', 'qwertys_hub')]
 
 # GridFS pour stocker les screenshots (Motor GridFS)
 import motor.motor_asyncio
