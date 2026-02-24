@@ -424,6 +424,12 @@ const Identifiants = () => {
                                     {formatDate(identifiant.date_naissance)}
                                   </span>
                                 )}
+                                {identifiant.email && (
+                                  <span className="flex items-center gap-1">
+                                    <Mail size={14} />
+                                    {identifiant.email}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
