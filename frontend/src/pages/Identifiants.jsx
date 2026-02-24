@@ -30,6 +30,7 @@ const Identifiants = () => {
     prenom: '',
     numero_adherent: '',
     date_naissance: '',
+    email: '',
     actif: true
   });
 
