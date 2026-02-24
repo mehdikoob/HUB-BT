@@ -454,6 +454,7 @@ class IdentifiantMystereBase(BaseModel):
     prenom: str
     numero_adherent: Optional[str] = None  # Optionnel
     date_naissance: Optional[str] = None  # Format: YYYY-MM-DD, Optionnel
+    email: Optional[str] = None  # Optionnel
     actif: bool = True  # Par défaut actif
 
 class IdentifiantMystereCreate(IdentifiantMystereBase):
@@ -465,6 +466,7 @@ class IdentifiantMystereUpdate(BaseModel):
     prenom: Optional[str] = None
     numero_adherent: Optional[str] = None
     date_naissance: Optional[str] = None
+    email: Optional[str] = None
     actif: Optional[bool] = None
 
 class IdentifiantMystere(IdentifiantMystereBase):
