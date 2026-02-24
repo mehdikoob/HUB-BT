@@ -147,7 +147,8 @@ const Identifiants = () => {
       const payload = {
         ...formData,
         numero_adherent: formData.numero_adherent || null,
-        date_naissance: formData.date_naissance || null
+        date_naissance: formData.date_naissance || null,
+        email: formData.email || null
       };
       
       if (editingIdentifiant) {
