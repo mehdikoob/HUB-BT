@@ -121,7 +121,8 @@ const Identifiants = () => {
     identifiants: group.identifiants.filter(id =>
       id.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       id.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (id.numero_adherent && id.numero_adherent.toLowerCase().includes(searchTerm.toLowerCase()))
+      (id.numero_adherent && id.numero_adherent.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (id.email && id.email.toLowerCase().includes(searchTerm.toLowerCase()))
     )
   })).filter(group => 
     filterProgramme === 'all' ? true : group.identifiants.length > 0 || group.programme.id === filterProgramme
