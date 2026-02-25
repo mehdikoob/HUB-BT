@@ -286,7 +286,7 @@ const TestsLigne = () => {
     // Si test non réalisable : créer un test minimal ET une alerte
     if (formData.test_non_realisable) {
       if (!formData.commentaire || !formData.commentaire.trim()) {
-        toast.error('Le commentaire est obligatoire pour un test non réalisable');
+        toast.error("L'objet du test est obligatoire pour un test non réalisable");
         return;
       }
       
