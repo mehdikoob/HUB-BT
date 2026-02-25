@@ -1163,7 +1163,7 @@ const TestsLigne = () => {
                 
                 <div>
                   <Label htmlFor="commentaire" className="text-sm">
-                    Commentaire {formData.test_non_realisable && <span className="text-red-600">*</span>}
+                    Objet du test {formData.test_non_realisable && <span className="text-red-600">*</span>}
                   </Label>
                   <Textarea
                     id="commentaire"
@@ -1172,7 +1172,7 @@ const TestsLigne = () => {
                     onChange={(e) => setFormData({ ...formData, commentaire: e.target.value })}
                     rows={2}
                     required={formData.test_non_realisable}
-                    placeholder={formData.test_non_realisable ? "Décrivez pourquoi le test n'a pas pu être réalisé (obligatoire)" : "Commentaire optionnel"}
+                    placeholder={formData.test_non_realisable ? "Décrivez pourquoi le test n'a pas pu être réalisé (obligatoire)" : "Objet du test (optionnel)"}
                   />
                 </div>
                 
